@@ -34,15 +34,21 @@ Working:
 So there are mainly 2 major components . The GUI (graphical user interface) and the main computaional algorithm.
 The GUI is mainly a medium through which user interaction can happen and the generated output can be shown.
 
+Algorithm:
+    *research required*
+
+Gui:
+    *research required*
  
 
  
 
 ************************************************************************* 
 
-The Important Question-HOW: 
+First Creation(what we dream it look and the functions it will have):
+    *research required*
 
-The construction of this project will be done over the cloud. *Git hub will be used for collaboration and making of the code. The work will be divided between partners for efficiency and speedy construction. Even if the work is done separately, it will be a collective enterprise. 
+    
 
  
 
@@ -61,6 +67,7 @@ The construction of this project will be done over the cloud. *Git hub will be u
  
 
 * =Means that that particular idea is not FINAL. 
+
 
  
 
@@ -106,19 +113,19 @@ This project is being created with a challenging time goal of a basic completion
  
 Important Questions and possible Problems: 
 
-High cost for server maintenance  
+    1.High cost for server maintenance  
 
-       2.Inaccurate detection from scoresheet 
+    2.Inaccurate detection from scoresheet 
 
-       3.Low demand 
+    3.Low demand 
 
-       4.Small target audience 
+    4.Small target audience 
 
-       5.People will not want to switch from their current apps such as chess scanner if they use it 
+    5.People will not want to switch from their current apps such as chess scanner if they use it 
 
-       6.High time investment in design and UI 
+    6.High time investment in design and UI 
 
-       7.GPT model will need to be PRO subscription to handle such high numbers of image requests 
+    7.GPT model will need to be PRO subscription to handle such high numbers of image requests 
 
  
 
@@ -130,23 +137,4 @@ This project will be the outcome of the hard work, dreams and aspirations of bot
  
 
  
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-* =Means that that particular idea is not FINAL. 
-
- 
+* =Means that that particular idea is not FINAL.  
