@@ -58,8 +58,15 @@ The GUI is mainly a medium through which user interaction can happen, and the ge
 
 ### Work Division:
 
+Bachand Python coding, for the prototype - Aarav 
 
- 
+GUI for an Android app, which will take the Python code as an api - Vihaan 
+
+
+
+### Team Rules and pacts for collaboration:  
+
+Any disputes between the producers greatly affect the product; so, for this enterprise not to be jeopardised by any disputes between the creators, certain team rules and pacts must be followed. 
 
 ************************************************************************* 
 
