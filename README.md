@@ -1,24 +1,24 @@
-*Chess Analysis* 
+# Chess Analysis
 
  
 
-Introduction: 
+### Introduction: 
 
-Chess is a very analytical and ever-learning game. Learning from one mistake is essential but regarding our personal ethics but the same value also applies when playing chess. An ambitious chess player always learns from one's mistakes and keeps the cycle of growth going. But like to learn from one's mistake in life one needs to reflect upon them and similarly in chess, one needs to look back. 
-
- 
-
-The Great Spark: 
-
-When playing with my friend in a friendly game, we realized how it sucked to play every move on the screen, and that was when we both worked together. The plight of the guy doing it single handedly must have been out of the dimension. 
-
-And that was that! 
+Chess is a very analytical and ever-learning game. Learning from one's mistakes is essential regarding our personal ethics, and the same values also applies when playing chess. An ambitious chess player always learns from their mistakes and keeps the cycle of growth going. To learn from one's mistakes in life, one needs to reflect upon the  mistakes, and similarly, in chess, one needs to look back. 
 
  
 
-The DREAM: 
+### The Great Spark: 
 
-*We realized we needed to put this way into the bin and come up with a new platform for a next level learning experience and an extremely efficient and user-friendly platform. * 
+When analysing a friendly chess game with my friend, W realised how it sucked to type all the moves on the platform and how irritating and inefficient it was. 
+
+**And that was that**
+
+ 
+
+### The DREAM: 
+
+We realised we needed to put this way into the bin and come up with a new platform for a next-level learning experience and an extremely efficient and user-friendly platform. 
 
  
 
@@ -26,115 +26,97 @@ The DREAM:
 
  
 
-* =Means that that particular idea is not FINAL. 
+#### @ means that it is not yet final. 
+*******************************************************************************************************************************************************************
+### First Creation(what we dream it looks like and the functions it will have):
+*@research required*
+ 
+ #### We will first create a prototype Android app which won't have all the components, but a few basic components, such as :
 
+* A sophisticated image-capturing interface and an interface to get an image by clicking one or uploading one
+
+* Image analysing AI, which will take a PNG image of the score sheet and figure out the notation.
+
+* A Chess engine that will analyse the game and provide outputs
+
+* a GUI to show the output
+ 
+* An Android application for it
+    
+
+### Working(Protoype): 
+@
+So there are mainly 2 major components: the GUI (graphical user interface) and the main computational algorithm.
+The GUI is mainly a medium through which user interaction can happen, and the generated output can be shown.The algorithm is the main code that  performs all the actions
+
+#### Algorithm:
+**@research required**
+
+#### Gui:
+**@research required**
  
 
-Working:
-So there are mainly 2 major components . The GUI (graphical user interface) and the main computaional algorithm.
-The GUI is mainly a medium through which user interaction can happen and the generated output can be shown.
+### Work Division:
 
-Algorithm:
-    *research required*
-
-Gui:
-    *research required*
- 
 
  
 
 ************************************************************************* 
 
-First Creation(what we dream it look and the functions it will have):
-    *research required*
+### Team Rules and pacts for collaboration:  
 
-    
+Any disputes between the producers greatly affect the product; so, for this enterprise not to be jeopardised by any disputes between the creators, certain team rules and pacts must be followed. 
 
- 
+* The project will be a collective enterprise 
 
- 
+* Any decision will be taken collectively 
 
- 
+* Money matters will also be equal or, in certain cases, under the agreement of both 
 
- 
+* Never edit someone else’s code without telling them  
 
- 
+* Pull the latest code before starting work  
 
- 
+* Test before pushing  
 
- 
+* Write clear commit messages (not “fixed stuff”) 
 
- 
+* The work will be divided to prevent chaos. 
 
-* =Means that that particular idea is not FINAL. 
+* All things must be discussed 
+
+* Task must be completed within the time limit 
+
+* To prevent chaos and conflicts, there must be one owner of a project on GitHub; he can only change the main file, others can request or change the file at their end only. But this owner can only exercise his powers upon discussion and agreement. 
+
+* The project must matter rather than one's personal ego; the rules must be followed  
 
 
- 
-
-*Team Rules and pacts for collaboration:  
-Any disputes between the producers greatly affect the product; so, for this enterprise to not be jeopardized by any disputes between the creators, certain team rules and pacts must be followed. 
-
-1.The project will be a collective enterprise 
-
-2.Any decision will be taken collectively 
-
-3.Money matters will also be equal or in certain cases under the agreement of both 
-
-4.Never edit someone else’s code without telling them  
-
-5.Pull latest code before starting work  
-
-6.Test before pushing  
-
-7.Write clear commit messages (not “fixed stuff”) 
-
-8.The work will be divided to prevent chaos. 
-
-9.All things must be discussed 
-
-10.Task must be completed within the time limit 
-
-11.To prevent chaos and conflicts there must be one owner of a project on GitHub, he can only change the main file, others can request or change the file at their end only. But This owner can only exercise his powers upon discussion and agreement. 
-
-12.The project must matter rather than one's personal ego, the rules must be followed  
-
- 
-
- 
-
-* =Means that that particular idea is not FINAL. 
-
- 
-
-THE Great Race against the Great “TIME”:  
+### THE Great Race against the Great “TIME”:  
 
 This project is being created with a challenging time goal of a basic completion of the platform within 2months. Day and night will be sacrificed for the doing of so. 
 
  
-Important Questions and possible Problems: 
+## Important Questions and Possible Problems: 
 
-    1.High cost for server maintenance  
+* High cost for server maintenance  
 
-    2.Inaccurate detection from scoresheet 
+* Inaccurate detection from the scoresheet 
+* costs for creating
 
-    3.Low demand 
+* High time investment in design and UI 
 
-    4.Small target audience 
+* GPT model will need to be PRO subscription to handle such a high number of image requests 
+* requirements of servers 
 
-    5.People will not want to switch from their current apps such as chess scanner if they use it 
-
-    6.High time investment in design and UI 
-
-    7.GPT model will need to be PRO subscription to handle such high numbers of image requests 
-
- 
+* Gemini Model can only analyse images uploaded on the internet.
 
  
 
 Credits:  
 
-This project will be the outcome of the hard work, dreams and aspirations of both its creator – Vihaan Vasudeva, Aarav Bhatt 
+This project will be the outcome of the hard work, dreams and aspirations of both its creators- Vihaan Vasudeva and Aarav Bhatt 
  
 
  
-* =Means that that particular idea is not FINAL.  
+@ means that it is not final  
