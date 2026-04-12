@@ -64,8 +64,9 @@ GUI for an Android app, which will take the Python code as an api - Vihaan
 
 
 
+### Team Rules and pacts for collaboration:  
 
- 
+Any disputes between the producers greatly affect the product; so, for this enterprise not to be jeopardised by any disputes between the creators, certain team rules and pacts must be followed. 
 
 ************************************************************************* 
 
