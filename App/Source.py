@@ -20,8 +20,9 @@ gemini=genai.Client(api_key="AIzaSyA_ENCdLto3XHB3fLHTGKF51DsjpSdBFuw")
 
 model=gemini.models.generate_content(
 
-    model="gemini-2.5-pro",
-    contents='generate me a image of a elephant'
+    model="gemini-2.5-flash",
+    contents='pass'
+    
 )
 print(model.text)
 
@@ -29,15 +30,34 @@ print(model.text)
 #----------------------------------------------------------------------------------------------------------------------------
 #image Capturing/uploading
 # capturing
+import cv2 as cv
+class picture():
+    def click(self):
+        pass
+    def upload(self):
+        pass
 
 
 #-----------------------------------------------------------------------------------------------------------------------------
 # Timer
-import timer as ti
+import time 
 class clock():# to create different clocks
-    def __init__(self,time,increament):
+    def __init__(self,Time=None,increament=None):
+        self.time=Time
+        self.increment=increament
+        clock=time.Clo
+    
+    def tick(self):
         pass
+    def stop(self):
+        pass
+    
 
+def create_timer():
+    Time=input('Time control')
+    Increment=input('Increament')
+    clock1=clock(Time,Increment)
+    clock2=clock(Time,Increment)
 
 
 
