@@ -4,7 +4,8 @@
 # packages and modules
 import google.genai as genai
 import os
-
+from pynput import keyboard
+import sys
 
 
 
@@ -87,6 +88,10 @@ class ChessClock:
         if self.running:
             self._update_time()
             self.running = False
+    def unpause(self):
+        if not self.running:
+            self._update_time
+            self.running=True
 
     def switch(self):
         if not self.running:
@@ -118,7 +123,10 @@ class ChessClock:
         }
 
     def is_flagged(self):
-        return self.time[1] <= 0 or self.time[2] <= 0
+        if self.time[self.current_player]==0:
+            return True
+        else:
+            return False
 
     def get_winner(self):
         if self.time[1] <= 0:
@@ -126,14 +134,53 @@ class ChessClock:
         if self.time[2] <= 0:
             return 1
         return None
+    @staticmethod
+    def shutdown():
+        quit()
+        sys.exit()
+    
 
 timer=ChessClock(150,10)
 timer.start()
 Running=True
-# while Running:
-# while timer.is_flagged
+def on_press(key):
+    global Running
+    try:
+        if key == keyboard.Key.space:
+            timer.switch()
+
+        elif key.char == "p":
+            print('\ntimer paused')
+            timer.pause()
+
+        elif key.char == "r":
+            print('\ntimer resumed')
+            timer.unpause()
+
+    except AttributeError:
+        pass
+
+    if key == keyboard.Key.esc:
+        Running=False
+        return False
+        
+        
+        
 
 
+listener = keyboard.Listener(on_press=on_press)
+listener.start()
+
+
+while Running:
+    times=timer.get_times()
+    print(f"\rplayer1:{times['player1']}| Player2:{times['player2']}",end="")
+    
+    flag = timer.is_flagged()
+    if flag:
+        Running=False
+        print(f"\r player {timer.get_winner()} has lost") 
+    time.sleep(0.1) 
 
 
 
