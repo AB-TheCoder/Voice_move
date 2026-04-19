@@ -1,6 +1,7 @@
 # Timer
 import time 
 from pynput import keyboard
+import sys
 class ChessClock:
     def __init__(self, initial_time=300, increment=0):
         self.time = {
@@ -56,7 +57,7 @@ class ChessClock:
         }
 
     def is_flagged(self):
-        if self.time[self.current_player]==0:
+        if self.time[self.current_player]<0:
             return True
         else:
             return False
@@ -69,48 +70,53 @@ class ChessClock:
         return None
 
     
-
-timer=ChessClock(150,10)
-timer.start()
-Running=True
-def on_press(key):
+def init():
     global Running
-    try:
-        if key == keyboard.Key.space:
-            timer.switch()
+    timer=ChessClock(150,10)
+    timer.start()
+    Running=True
+    def on_press(key):
+        global Running
+        try:
+            if key == keyboard.Key.space:
+                timer.switch()
 
-        elif key.char == "p":
-            print('\ntimer paused')
-            timer.pause()
+            elif key.char == "p":
+                print('\ntimer paused')
+                timer.pause()
 
-        elif key.char == "r":
-            print('\ntimer resumed')
-            timer.unpause()
+            elif key.char == "r":
+                print('\ntimer resumed')
+                timer.unpause()
 
-    except AttributeError:
-        pass
+        except AttributeError:
+            pass
 
-    if key == keyboard.Key.esc:
-        Running=False
-        return False
+        if key == keyboard.Key.esc:
+            Running=False
+            return False
+            
+            
+            
+
+
+    listener = keyboard.Listener(on_press=on_press)
+    listener.start()
+
+
+    while Running:
+        times=timer.get_times()
+        print(f"\rplayer1:{times['player1']}| Player2:{times['player2']}",end="")
         
-        
-        
+        flag = timer.is_flagged()
+        if flag:
+            Running=False
+            print(f"\r player {timer.get_winner()} has lost") 
+        time.sleep(0.1) 
+    else:
+        sys.exit()
+        quit()
 
 
-listener = keyboard.Listener(on_press=on_press)
-listener.start()
-
-
-while Running:
-    times=timer.get_times()
-    print(f"\rplayer1:{times['player1']}| Player2:{times['player2']}",end="")
-    
-    flag = timer.is_flagged()
-    if flag:
-        Running=False
-        print(f"\r player {timer.get_winner()} has lost") 
-    time.sleep(0.1) 
-
-
-
+# if __name__ =="__main__":
+#     print("This is a local module for Chess timer\n still ongoing devolpment")
