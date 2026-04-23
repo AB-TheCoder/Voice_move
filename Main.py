@@ -3,7 +3,7 @@ import google.generativeai as gemini
 import os
 
 # Configure with your API key
-gemini.configure(api_key="AIzaSyA_ENCdLto3XHB3fLHTGKF51DsjpSdBFuw")
+gemini.configure(api_key=)
 
 # Initialize the model
 model = gemini.GenerativeModel('gemini-2.5-flash')
