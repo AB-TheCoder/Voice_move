@@ -3,8 +3,9 @@
 class picture:
     
     def click(self):
-        pass
+        pass 
     def upload(self):
         pass
     def enhance(self):
         pass
+
