@@ -6,25 +6,9 @@ import google.genai as genai
 
 import sys
 import Clock
+import fastapi as api 
 
 
-# gemini (image recognistion)
-
-
-# def analyis_image():
-#     pass
-# # Configure with your API key
-# gemini=genai.Client(api_key=)
-
-# # Initialize the model
-
-# model=gemini.models.generate_content(
-
-#     model="gemini-2.5-flash",
-#     contents='pass'
-    
-# )
-# print(model.text)
 
 
 #----------------------------------------------------------------------------------------------------------------------------
@@ -64,6 +48,7 @@ import Clock
 #         pass
 
 # picture.click()
+import paddleocr as ocr
 #-----------------------------------------------------------------------------------------------------------------------------
 # Timer
 # Timer
@@ -188,11 +173,12 @@ def start_clock(timer,increment):
 
 
 start_clock(120,10)
-  
 
 
 #------------------------------------------------------------------------------------------------------------------------
 # Stock Fish Analyis----
+import stockfish
+ 
 
 
 
