@@ -3,3 +3,7 @@ a continous event loop will be needed to check he promts by the user
 can use open source and locak ai packages such as opencv and teserect .these are free and offer unlimited requests.
 gemini is not really usefull 
 @research needs to be done 
+
+# image enchance
+so i am thinking that the image will be cllicked by the front end and then would be sent to the backend 
+so as a requuirment i would enchance the images before any recognisition.
