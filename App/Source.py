@@ -17,7 +17,7 @@ import chess.pgn as chess_pgn
 
 
 
-
+import sys
 import cv2
 import numpy as np
 
