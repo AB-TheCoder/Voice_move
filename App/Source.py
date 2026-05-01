@@ -73,8 +73,6 @@ class OCR():
         
 
 
-image1= OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg')
-image1.enhance_for_ocr(image1.image_bgr)
 
 #-----------------------------------------------------------------------------------------------------------------------------
 # Timer
@@ -132,10 +130,10 @@ class ChessClock:
     def get_times(self):
         self._update_time()
         return {
-            "player1": max(0, int(self.time[1])),
-            "player2": max(0, int(self.time[2]))
+            "player1": (time.strftime('%H:%M:%S', time.gmtime(int(self.time[1])))),
+            "player2": (time.strftime('%H:%M:%S', time.gmtime(int(self.time[2]))))
         }
-
+ 
     def is_flagged(self):
         if self.time[self.current_player]<0:
             return True
@@ -191,7 +189,7 @@ def start_clock(timer,increment):
         flag = timer.is_flagged()
         if flag:
             Running=False
-            print(f"\r player {timer.get_winner()} has lost") 
+            print(f"\n \r player {timer.get_winner()} has won",end="") 
         time.sleep(0.1) 
     else:
         sys.exit()

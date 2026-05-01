@@ -51,6 +51,12 @@ The GUI is mainly a medium through which user interaction can happen, and the ge
 
 #### Algorithm:
 **@research required**
+clock:
+    a simple timer would be created using time module and basic python syntax.furthur work would be done on frontend
+
+Image_recog:
+    the image will be taken by the user (or uploaded) then to improve the results it will be enhanced through open cv python module.then a OCR ai will be used to recognise the moves .the output will be ran through a chess ai which will verify the accuracy of the interpreted moves and make changes accordingly.then another chess based module will be used to create a pgn for further workings.
+
 
 #### Gui:
 **@research required**
