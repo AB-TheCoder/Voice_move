@@ -11,7 +11,7 @@ import fastapi as api
 
 #----------------------------------------------------------------------------------------------------------------------------
 # image recognition Module 
-import paddleocr as ocr
+import paddleocr as OCR_AI
 import chess
 import chess.pgn as chess_pgn
 
@@ -24,11 +24,31 @@ import numpy as np
 
 
 class OCR():
-    def __init__(self,image_path:str) -> None:
-        self.image_path=image_path
-        self.image_bgr=cv2.imread(self.image_path)
+    def __init__(
+        self,
+        image_path: str,
+        *,
+        lang: str = "en",
+        use_gpu: bool = False,
+        show_log: bool = False,
+    ) -> None:
+        self.image_path = image_path
+        self.image_bgr = cv2.imread(self.image_path)
+        self.OCR_AI =OCR_AI.PaddleOCR(
+            use_angle_cls=True,
+            lang=lang,
+            use_gpu=use_gpu,
+            show_log=show_log,
+        )
+
     
     def enhance_for_ocr(self,image_bgr: np.ndarray) -> np.ndarray:
+        """ enhance the image for ocr .
+        the image will be enhanced through a series of steps to improve the quality of the image.
+        the image will be converted to grayscale, then upscaled, then denoised, then contrast boosted, then sharpened, then adaptive thresholded, then morphology cleaned.
+        the image will be returned as a numpy array.
+        the Better the input the cleaner the output.
+        """
         try:
             # 1) grayscale
             gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
@@ -68,9 +88,19 @@ class OCR():
             cv2.imwrite(r'App\Data\temporary_data.png',self.enhanced_imagebgr)
             return self.enhanced_imagebgr
         except Exception as e:
-            print(e)
+            print(e)# to be changed later to a proper error handling system.
+            
         
-        
+        def Text_Detection(self):
+            """before reading the text the ocr must find it first
+               this function will be used to detect the text in the image.
+               """
+            try:
+
+                return None
+
+            except Exception as e:
+                print(e)# to be changed later to a proper error handling system.
 
 
 
