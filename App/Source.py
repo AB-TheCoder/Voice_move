@@ -11,7 +11,7 @@ import fastapi as api
 
 #----------------------------------------------------------------------------------------------------------------------------
 # image recognition Module 
-import paddleocr as OCR_AI
+import google.genai as genai
 import chess
 import chess.pgn as chess_pgn
 
@@ -20,6 +20,8 @@ import chess.pgn as chess_pgn
 import sys
 import cv2
 import numpy as np
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 
 
@@ -28,18 +30,17 @@ class OCR():
         self,
         image_path: str,
         *,
-        lang: str = "en",
-        use_gpu: bool = False,
-        show_log: bool = False,
+        api:str = None
     ) -> None:
         self.image_path = image_path
         self.image_bgr = cv2.imread(self.image_path)
-        self.OCR_AI =OCR_AI.PaddleOCR(
-            use_angle_cls=True,
-            lang=lang,
-            use_gpu=use_gpu,
-            show_log=show_log,
-        )
+        if self.image_bgr is None:
+            raise ValueError(f"Could not read image at path: {self.image_path}")
+        try:
+            self.ai=genai.Client(api_key=api)
+        except:
+            print(" Valid api key not provided")
+    
 
     
     def enhance_for_ocr(self,image_bgr: np.ndarray) -> np.ndarray:
@@ -85,23 +86,19 @@ class OCR():
             self.enhanced_imagebgr = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel2, iterations=1)
 
             
-            cv2.imwrite(r'App\Data\temporary_data.png',self.enhanced_imagebgr)
+            temp_path = Path(__file__).resolve().parent / "Data" / "temporary_data.png"
+            temp_path.parent.mkdir(parents=True, exist_ok=True)
+            cv2.imwrite(str(temp_path), self.enhanced_imagebgr)
+            self.image_bgr = cv2.imread(str(temp_path))
             return self.enhanced_imagebgr
         except Exception as e:
             print(e)# to be changed later to a proper error handling system.
-            
-        
-        def Text_Detection(self):
-            """before reading the text the ocr must find it first
-               this function will be used to detect the text in the image.
-               """
-            try:
+    def text_dectection(self):
+        """this is not final. i still have confusion regarding which ai ocr to use . """        
+        pass
+ 
 
-                return None
-
-            except Exception as e:
-                print(e)# to be changed later to a proper error handling system.
-
+Running = False
 
 
 #-----------------------------------------------------------------------------------------------------------------------------
@@ -132,8 +129,8 @@ class ChessClock:
             self.running = False
     def unpause(self):
         if not self.running:
-            self._update_time
-            self.running=True
+            self.running = True
+            self.last_time = time.time()
 
     def switch(self):
         if not self.running:
@@ -234,7 +231,7 @@ def start_clock(timer,increment):
 #------------------------------------------------------------------------------------------------------------------------
 # Stock Fish Analyis----
 import stockfish
- 
+
 
 
 
@@ -251,3 +248,8 @@ import stockfish
 
 
 #---------------------------------------------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    # Temporary manual test harness (avoid import-time side effects)
+    model = OCR(r"App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg")
+    model.enhance_for_ocr(model.image_bgr)

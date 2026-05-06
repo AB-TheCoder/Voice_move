@@ -2,8 +2,8 @@
 import cv2
 import numpy as np
 from paddleocr import PaddleOCR
-
-
+from typing import Any, Dict, List, Optional
+from pathlib import Path
 class OCR:
     """PaddleOCR-based text detection and recognition on board / document images."""
 
