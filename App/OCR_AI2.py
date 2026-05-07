@@ -4,15 +4,16 @@ import cv2
 import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import pytesseract as tesai
-tesai.pytesseract.tesseract_cmd = r"C:\Users\Aarav\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
+import google.genai as genai
 
+model=genai.Client(api_key="AIzaSyA_ENCdLto3XHB3fLHTGKF51DsjpSdBFuw")
 
-
+print(model.models.count_tokens(model='gemini-2.5-flash',contents="recognise chess moves from a given file"))
 class OCR():
     def __init__(
         self,
         image_path: str,
+        api_key
         
         
     ) -> None:
@@ -20,6 +21,7 @@ class OCR():
         self.image_bgr = cv2.imread(self.image_path)
         if self.image_bgr is None:
             raise ValueError(f"Could not read image at path: {self.image_path}")
+        self.ai=genai.Client(api_key=api_key)
 
     
     def enhance_for_ocr(self,image_bgr: np.ndarray) -> np.ndarray:
@@ -73,26 +75,18 @@ class OCR():
             return self.enhanced_imagebgr
         except Exception as e:
             print(e)# to be changed later to a proper error handling system.
-    def text_dectection(self):
-        """for personalization of the text which will be recognised i will carry out the detection pattern seperatly.
-        """        
+    def Text_recognition(self,image_path:str = None) -> str:
+        """using gemini ai to recognise the chess moves"""
         try:
-            boxes=tesai.image_to_data(self.enhanced_image_path)
-            self.location_data=boxes
-            return boxes
-        except ValueError as error:
-            print(error)
-    def text_recognition(self):
-        """this is the function for recognising text form images."""
-        try:
-            text=tesai.image_to_string(self.enhanced_image_path)
-            self.recogTEXT=text
-            return text
+
+            response=self.ai.models.generate_content(
+                model='gemini-2.5-flash',
+                contents='recognise the chess moves from the uploaded scoresheet'
+            )
+            print(response)
+            return response
+
         except Exception as e:
             print(e)
-if __name__ == "__main__":
-    model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg')
-    model.enhance_for_ocr(model.image_bgr)
-    # print(model.text_dectection())
-    print(model.text_recognition())
-    
+        
+

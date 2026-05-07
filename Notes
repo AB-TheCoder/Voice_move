@@ -19,3 +19,7 @@ what the hell is breakpoint???
 
 6/5/2026
 paddle ocr wont work up or the current model . i need to think if i want to continou using paddle ocr or change
+7/5/26 
+switching to tesserect ocr for it is quite simpler and more efficent and resource powefull than paddle ocr .
+atleast for the prototype version it would be fine
+q/what is the '*' sign in the ocr init function.
