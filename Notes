@@ -23,3 +23,5 @@ paddle ocr wont work up or the current model . i need to think if i want to cont
 switching to tesserect ocr for it is quite simpler and more efficent and resource powefull than paddle ocr .
 atleast for the prototype version it would be fine
 q/what is the '*' sign in the ocr init function.
+8.5.2026
+i think i will use paddleocr only for which i need to get a older version but it hardly makes any difference. 
