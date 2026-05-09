@@ -4,26 +4,23 @@ import cv2
 import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-import  as OCR_AI
+import paddleocr as OCR_AI
 
 
 class OCR():
     def __init__(
         self,
         image_path: str,
-        
+        lang:str,
+        use_gpu:bool=False,
+        show_log:bool=False 
         
     ) -> None:
         self.image_path = image_path
         self.image_bgr = cv2.imread(self.image_path)
         if self.image_bgr is None:
             raise ValueError(f"Could not read image at path: {self.image_path}")
-        self.OCR_AI =OCR_AI.PaddleOCR(
-            use_angle_cls=True,
-            lang=lang,
-            use_gpu=use_gpu,
-            show_log=show_log,
-        )
+
     
     def enhance_for_ocr(self,image_bgr: np.ndarray) -> np.ndarray:
         """ enhance the image for ocr .
@@ -80,21 +77,17 @@ class OCR():
         """for personalization of the text which will be recognised i will carry out the detection pattern seperatly.
         """        
         try:
-            boxes=tesai.image_to_data(self.enhanced_image_path)
-            self.location_data=boxes
-            return boxes
+            pass
         except ValueError as error:
             print(error)
     def text_recognition(self):
         """this is the function for recognising text form images."""
         try:
-            text=tesai.image_to_string(self.enhanced_image_path)
-            self.recogTEXT=text
-            return text
+            pass
         except Exception as e:
             print(e)
 if __name__ == "__main__":
-    model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg')
+    model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg','en')
     model.enhance_for_ocr(model.image_bgr)
     # print(model.text_dectection())
     print(model.text_recognition())
