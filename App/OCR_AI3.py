@@ -140,7 +140,8 @@ class OCR():
             raise ValueError("Provide only one of `image_bgr` or `image_path`.")
 
         # PaddleOCR accepts either an ndarray (BGR/RGB both typically work) or a filesystem path.
-        result = ocr_engine.ocr(image_bgr if image_bgr is not None else image_path, rec=not detection_only)  # type: ignore[arg-type]
+        result = ocr_engine.predict(image_bgr if image_bgr is not None else image_path)
+          # type: ignore[arg-type]
         return result
 
     # Backwards-compatible alias (keeps your existing call sites working)
@@ -157,5 +158,6 @@ if __name__ == "__main__":
     model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg','en',)
     model.enhance_for_ocr(model.image_bgr)
     # print(model.text_dectection())
-    model.text_dectection()
+    print(model.text_dectection())
+
     
