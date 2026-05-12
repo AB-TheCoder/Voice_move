@@ -155,9 +155,9 @@ class OCR():
         except Exception as e:
             raise RuntimeError(f"Text recognition failed: {e}") from e
 if __name__ == "__main__":
-    model=OCR(r'App\Data\chinesedata.jpg','en',)
+    model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg','en',)
     model.enhance_for_ocr(model.image_bgr)
-    # print(model.text_dectection())
+    
     
 
     
