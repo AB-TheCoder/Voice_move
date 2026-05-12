@@ -31,3 +31,16 @@ what the hell are kwargs and others
 Recommended Stable Versions (May 2026)
 PaddlePaddle: 3.2.0 (or 3.2.1 for the latest stable, supports Python 3.9–3.13)
 PaddleOCR: 3.x (specifically 3.1.x for PP-OCRv5 compatibility)
+matching output:
+the preprocessing is shit. need to improve that 
+['202', 'TATA STEEL', '30 juli', '(371', 'Jawa', 'wedstrijd, gespeeld', '80.1010', 'WIE MENNO VAN DER HAVEN', 'klok', 
+'unn', 'DANNy LiM', 'zwart', '(1363)', 'ronde no.', 'ES', 'wit', '', 'zwart.wit  ', 'zwart', '', 'd5', '1b421', 'a5', 'Lf5', '2', 
+'bxa5r22 Txa5', 'Txa3iala', '55', '3', 'ec6', '931', '5', '23', 'mye3', 'ab', 'Kg2', '24 Ta2', 'Ld3', 'eb', 'T182', '25 TXC2', 'Lx f5',
+ 'exf5', 'i', "hx'c2", '26', '1231', '7 pf6', '030', '27', '2', 'Pxd ', 'd6', '28', 'exid?', '$', 'Dxd6', 'Txd2', '3.', '5', '0-0.01', 'Kf3', 
+ '30', '"dxc4', 'K£4', '0-0', ":v'", '31', 'Pxch', '12 Dd5', 'd5', '32', 'TCL', '13 Tad8', 'f3', '33.', '*', '2i', 'DC2', '"Tfe8', 'e4'
+ , '3fxe4', '"', '-pce5', '15 pe4', 'haxf', '.35', 'Td7', 'D', 'PxC6', '16xC6', 'e5+', '36', 'ke7', 'a', '17Te6', 'DX.C6', 'Kg5', "37Td'8"
+ , 'Dxd5', '18 TXd5', 'kf4.', 'EPL 8E', 'Z', 'Eox1', '61', 'kel', '39 T d8', 'IfCl', 'T65', '20', 'Ta?', 'tpI0']
+
+preprocessing : 
+there are very small dotes and other stuff . i dont think that affects very much but still.
+need to reconfigure for handwritting and for ocr recognition.

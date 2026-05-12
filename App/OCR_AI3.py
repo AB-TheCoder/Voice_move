@@ -52,11 +52,21 @@ class OCR():
             # 1) grayscale
             gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
 
-            # 2) upscale for OCR
+            # 2) upscale for OCR    #NOTE:the dimensions of the image should not be greater than 2000/2000 otherwise the ocr will crash will detecting it. 
             h, w = gray.shape[:2]
             scale = 2
             gray = cv2.resize(gray, (w * scale, h * scale), interpolation=cv2.INTER_CUBIC)
+            h,w = gray.shape[:2]
+                # Maximum allowed size
+            MAX_SIZE = 2000
+            if h >MAX_SIZE or w>MAX_SIZE:
 
+                # Calculate scaling factor
+                scale = min(MAX_SIZE / w, MAX_SIZE / h)
+                new_w = int(w * scale)
+                new_h = int(h * scale)
+                gray = cv2.resize(gray, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
+                # New dimensions
             # 3) denoise (keeps edges)
             gray = cv2.bilateralFilter(gray, 9, 75, 75)
 
@@ -93,67 +103,8 @@ class OCR():
         except Exception as e:
             raise RuntimeError(f"Failed to enhance image for OCR: {e}") from e
 
-    def _get_paddleocr(self) -> Any:
-        if _PADDLEOCR_IMPORT_ERROR is not None or PaddleOCR is None:
-            raise ModuleNotFoundError(
-                "paddleocr is not installed in the current Python environment. "
-                "Install it with: `pip install paddleocr` (and ensure PaddlePaddle is installed)."
-            ) from _PADDLEOCR_IMPORT_ERROR
-        if self._paddleocr is None:
-            try:
-                self._paddleocr = PaddleOCR(use_angle_cls=True, lang=self.lang)
-            except RuntimeError as e:
-                msg = str(e)
-                if "paddlepaddle" in msg.lower() and "not installed" in msg.lower():
-                    raise RuntimeError(
-                        "PaddleOCR is installed, but PaddlePaddle (`paddlepaddle`) is missing. "
-                        "Install a supported PaddlePaddle build, e.g. `pip install paddlepaddle`.\n"
-                        f"Current Python: {sys.version.split()[0]}. If install fails, use Python 3.10/3.11 "
-                        "in a fresh venv, then reinstall `paddleocr`."
-                    ) from e
-                raise
-        return self._paddleocr
+   
 
-    def detect_text_paddleocr(
-        self,
-        image_bgr: Optional[np.ndarray] = None,
-        image_path: Optional[str] = None,
-        *,
-        detection_only: bool = False,
-    ) -> List[Any]:
-        """
-        Detect (and optionally recognize) text using PaddleOCR.
-
-        - If `detection_only=True`, returns detection boxes without recognition.
-        - Provide either `image_bgr` or `image_path`. If neither is provided,
-          it uses the enhanced image (if available) else the original image path.
-        """
-        ocr_engine = self._get_paddleocr()
-
-        if image_bgr is None and image_path is None:
-            if self.enhanced_image_path is not None:
-                image_path = self.enhanced_image_path
-            else:
-                image_path = self.image_path
-
-        if image_bgr is not None and image_path is not None:
-            raise ValueError("Provide only one of `image_bgr` or `image_path`.")
-
-        # PaddleOCR accepts either an ndarray (BGR/RGB both typically work) or a filesystem path.
-        result = ocr_engine.predict(image_bgr if image_bgr is not None else image_path)
-          # type: ignore[arg-type]
-        return result
-
-    # Backwards-compatible alias (keeps your existing call sites working)
-    def text_dectection(self) -> List[Any]:
-        return self.detect_text_paddleocr(detection_only=True)
-    def text_recognition(self):
-        """this is the function for recognising text form images."""
-        try:
-            # Full OCR (detection + recognition)
-            return self.detect_text_paddleocr(detection_only=False)
-        except Exception as e:
-            raise RuntimeError(f"Text recognition failed: {e}") from e
 if __name__ == "__main__":
     model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg','en',)
     model.enhance_for_ocr(model.image_bgr)
