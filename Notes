@@ -44,3 +44,13 @@ the preprocessing is shit. need to improve that
 preprocessing : 
 there are very small dotes and other stuff . i dont think that affects very much but still.
 need to reconfigure for handwritting and for ocr recognition.
+
+
+13.5.2026 
+not all infromation present in the tet is really required for the task.
+to make it efficent and to not waste time only that part should be recognised.
+there are 2 options:
+1. seperate the text position and provide that only to the ocr model 
+2. recognise all the text and then seperate the required text .
+
+q/ what the hell is the optional thing.

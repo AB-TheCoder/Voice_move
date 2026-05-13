@@ -6,7 +6,8 @@ Notes:
 - PaddleOCR expects either an image path or an ndarray (H, W, C) image.
 """
 
-import cv2
+from argparse import ArgumentError
+import cv2# open cv
 import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -26,21 +27,41 @@ class OCR():
         self,
         image_path: str,
         lang: str = "en",
-        
+        use_textline:bool=True
 
-        
     ) -> None:
         self.image_path = image_path
-        self.lang = lang
         self.image_bgr = cv2.imread(self.image_path)
         if self.image_bgr is None:
             raise ValueError(f"Could not read image at path: {self.image_path}")
-
         self.enhanced_image_path: Optional[str] = None
         self.enhanced_imagebgr: Optional[np.ndarray] = None
-        self._paddleocr: Optional[Any] = None
+#image>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        self.only_detection :Optional[bool] = False
+        self.lang:Optional[str] = 'en'
+        self.use_textline = use_textline
         
-    
+        try:
+            self.ocr_model=PaddleOCR(
+                use_textline_orientation=use_textline,
+                lang=lang,
+                
+            )
+        except (ArgumentError , ModuleNotFoundError) as error:
+            print('there is some problem with the Paddleocr Model or the arguement')
+
+    @property
+    def _getOCR(self):
+        try:
+            if self.only_detection==True:pass
+            self.ocr_model=PaddleOCR(
+                use_textline_orientation=self.use_textline,
+                lang=self.lang
+            )
+            return self.ocr_model   
+        except (ArgumentError , ModuleNotFoundError) as error:
+            print('there is some problem with the Paddleocr Model or the arguement')
+
     def enhance_for_ocr(self,image_bgr: np.ndarray) -> np.ndarray:
         """ enhance the image for ocr .
         the image will be enhanced through a series of steps to improve the quality of the image.
@@ -102,13 +123,25 @@ class OCR():
             return self.enhanced_imagebgr
         except Exception as e:
             raise RuntimeError(f"Failed to enhance image for OCR: {e}") from e
+    def Text_detection(self,Image_bgr:np.ndarray=None)->list:
+        """
+        This is the function for detecting the text present in the image
+        prior to the recognition part.
+        Not all text are required hence required customization will be done while detection*NOTFINAL*
+        """
+        try:
+            if (Image_bgr==None):
+                Image_bgr==self.enhanced_imagebgr
+        except ValueError as v:
+            print("The provided data is inappropraite")
+        try:
+            self.only_detection = True
 
-   
+        except:
+            pass
 
 if __name__ == "__main__":
-    model=OCR(r'App\Data\score-sheet-showing-notations-of-a-chess-game-2WREGAE.jpg','en',)
-    model.enhance_for_ocr(model.image_bgr)
-    
+    pass
     
 
     
