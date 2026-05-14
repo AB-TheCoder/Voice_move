@@ -14,7 +14,7 @@ import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import sys
-
+import os
 try:
     from paddleocr import PaddleOCR          # error handling for module presence and proper functioning
 except ModuleNotFoundError as e:  # pragma: no cover
@@ -114,7 +114,7 @@ class OCR():
             self.enhanced_imagebgr = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel2, iterations=1)
 
             
-            temp_path = Path(__file__).resolve().parent / "Data" / "temporary_data.png"
+            temp_path = Path(__file__).resolve().parent / "temp_data" / "temporary_data.png"
             temp_path.parent.mkdir(parents=True, exist_ok=True)
             cv2.imwrite(str(temp_path), self.enhanced_imagebgr)
             self.image_bgr = cv2.imread(str(temp_path))
@@ -182,12 +182,20 @@ class OCR():
         finally:
             self.processed_output = clean
             return clean 
-        
+    
+    def remove_tempDATA(self) -> None:
+        try:
+            if os.path.exists(self.enhanced_image_path):
+                os.remove(self.enhanced_image_path)
+        except Exception as error:
+            raise RuntimeError(f"temperory files could not be removed because: {error}")
 
 if __name__ == "__main__":
-    model = OCR(r'App\Data\temporary_data.png',lang ='en')
+    model = OCR(r'App\Data\ti5.jpeg',lang ='en')
+    model.enhance_for_ocr(model.image_bgr)
     model.text_Recognition(model.image_bgr)
     print(model.extract_reqDATA(model.Ocr_output))
+    # model.remove_tempDATA()
     
     
 
