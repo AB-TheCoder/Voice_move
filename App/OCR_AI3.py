@@ -7,6 +7,8 @@ Notes:
 """
 
 from argparse import ArgumentError
+from csv import Error
+from sqlite3 import DataError
 import cv2# open cv
 import numpy as np
 from pathlib import Path
@@ -14,15 +16,20 @@ from typing import Any, Dict, List, Optional, Tuple
 import sys
 
 try:
-    from paddleocr import PaddleOCR
+    from paddleocr import PaddleOCR          # error handling for module presence and proper functioning
 except ModuleNotFoundError as e:  # pragma: no cover
     PaddleOCR = None  # type: ignore[assignment]
     _PADDLEOCR_IMPORT_ERROR = e
 else:
-    _PADDLEOCR_IMPORT_ERROR = None
+    _PADDLEOCR_IMPORT_ERROR = None    
 
 
 class OCR():
+    '''
+    used to extract text from images and convert into proper clean formats .
+    performs all levels of ocr pipeline.
+    uses paddleocr for image manipulation and chess to maintain chess logic and structure in the output.
+    '''
     def __init__(
         self,
         image_path: str,
@@ -31,34 +38,26 @@ class OCR():
 
     ) -> None:
         self.image_path = image_path
-        self.image_bgr = cv2.imread(self.image_path)
-        if self.image_bgr is None:
+        self.image_bgr = cv2.imread(self.image_path) # the images data in np.ndarray form
+        if self.image_bgr is None:#raised when there is an error when the module reads the image
             raise ValueError(f"Could not read image at path: {self.image_path}")
         self.enhanced_image_path: Optional[str] = None
         self.enhanced_imagebgr: Optional[np.ndarray] = None
 #image>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        self.only_detection :Optional[bool] = False
-        self.lang:Optional[str] = 'en'
+        self.only_detection :Optional[bool] = False    # arguements for paddleocr
+        self.lang:Optional[str] = lang
         self.use_textline = use_textline
         
-        try:
-            self.ocr_model=PaddleOCR(
-                use_textline_orientation=use_textline,
-                lang=lang,
-                
-            )
-        except (ArgumentError , ModuleNotFoundError) as error:
-            print('there is some problem with the Paddleocr Model or the arguement')
 
     @property
-    def _getOCR(self):
+    def ocr_model(self): # to create the ocr model . 
         try:
-            if self.only_detection==True:pass
-            self.ocr_model=PaddleOCR(
+            
+            ocr_model=PaddleOCR(
                 use_textline_orientation=self.use_textline,
                 lang=self.lang
             )
-            return self.ocr_model   
+            return ocr_model   
         except (ArgumentError , ModuleNotFoundError) as error:
             print('there is some problem with the Paddleocr Model or the arguement')
 
@@ -123,25 +122,73 @@ class OCR():
             return self.enhanced_imagebgr
         except Exception as e:
             raise RuntimeError(f"Failed to enhance image for OCR: {e}") from e
-    def Text_detection(self,Image_bgr:np.ndarray=None)->list:
-        """
-        This is the function for detecting the text present in the image
-        prior to the recognition part.
-        Not all text are required hence required customization will be done while detection*NOTFINAL*
-        """
+    
+    def text_Recognition(self, image_bgr: Optional[np.ndarray] = None) -> list:
         try:
-            if (Image_bgr==None):
-                Image_bgr==self.enhanced_imagebgr
-        except ValueError as v:
-            print("The provided data is inappropraite")
-        try:
-            self.only_detection = True
+            if image_bgr is None:
+                image_bgr = self.image_bgr
+            if image_bgr is None or (
+                isinstance(image_bgr, np.ndarray) and image_bgr.size == 0
+            ):
+                raise DataError("the provided data is nul")
+            model = self.ocr_model
+            output = model.predict(input = image_bgr)
+            self.Ocr_output=output
+            return output
+        except Exception as error:
+            raise RuntimeError(f"the ocr could not recognise text because \"{error}\"")
 
-        except:
-            pass
+    
+    def extract_reqDATA(self,predict_result:Optional=None, min_confidence:Optional[float]=0.0):
+        """
+        Works with PaddleOCR 3.4 predict() output:
+        [
+        {
+            ...,
+            "rec_texts": [...],
+            "rec_scores": [...]
+        }
+        ]
+        It returns a clean formated result of the output given by the OCR.
+        """
+        try:
+            clean = []
+
+            if not predict_result:# if the arguements are not appropriate.this conditions scoops it out.
+                raise ArgumentError("the given output is NUL or not appropraite")
+                return clean
+
+            for page in predict_result:# the output is present in standered nested structure.
+                                       # this series of loops scoops out the required data and then
+                                       #presents them in simple and workable data format.
+                if not isinstance(page, dict):
+                    raise DataError("The data is not present in required form,i.e,in list and dictionarys nested structure")
+                    continue
+
+                texts = page.get("rec_texts", [])
+                scores = page.get("rec_scores", [])
+
+                for text, score in zip(texts, scores):
+                    text = str(text).strip()
+                    score = float(score)
+
+                    if text and score >= min_confidence:# to remove any text which the model has confidence <min_confidence
+                        clean.append({
+                            "text": text,
+                            "accuracy": round(score, 4)
+                        })
+        except Exception as error:
+            raise RuntimeError(f"The function could not provide and output because{error}")
+        finally:
+            self.processed_output = clean
+            return clean 
+        
 
 if __name__ == "__main__":
-    pass
+    model = OCR(r'App\Data\temporary_data.png',lang ='en')
+    model.text_Recognition(model.image_bgr)
+    print(model.extract_reqDATA(model.Ocr_output))
+    
     
 
     
