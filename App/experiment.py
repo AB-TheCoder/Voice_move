@@ -5,7 +5,7 @@ import numpy as np
 try:
     from paddleocr import PaddleOCR
     import cv2
-    image_path = r'App\Data\temporary_data2.png'
+    image_path = r'App\Data\ti5.jpeg'
     ocr = PaddleOCR(use_textline_orientation=True,lang=None)
     image=cv2.imread(image_path)
 
@@ -47,7 +47,9 @@ try:
 
         return clean 
 
-    output = ocr.predict(input=image)
+    output = ocr.predict(input=image,return_word_box=False)
+    
+
     only_t_A=extract_text_and_accuracy(output)
     print(only_t_A)
 
