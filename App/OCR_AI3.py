@@ -12,7 +12,7 @@ from sqlite3 import DataError
 import cv2# open cv
 import numpy as np
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Text, Tuple
 import sys
 import os
 try:
@@ -175,49 +175,103 @@ class OCR():
             raise RuntimeError(f"the ocr could not recognise text because \"{error}\"")
 
     
-    def extract_reqDATA(self,predict_result:Optional=None, min_confidence:Optional[float]=0.0):
+    def extract_reqDATA(
+        self,
+        predict_result: Optional[list] = None,
+        min_confidence: float = 0.0,
+        get_pos: bool = True,
+    ) -> list:
         """
         Works with PaddleOCR 3.4 predict() output:
         [
-        {
-            ...,
-            "rec_texts": [...],
-            "rec_scores": [...]
-        }
+            {
+                "rec_texts": [...],
+                "rec_scores": [...],
+                "rec_polys": [...],   # optional, for positions
+            }
         ]
-        It returns a clean formated result of the output given by the OCR.
+        Returns list of {"text", "accuracy"} or adds "pos" (top-left) when get_pos=True.
         """
+        clean: list = []
+
+        if not predict_result:
+            raise ValueError("predict_result is empty or None")
+
         try:
-            clean = []
-
-            if not predict_result:# if the arguements are not appropriate.this conditions scoops it out.
-                raise ArgumentError("the given output is NUL or not appropraite")
-                return clean
-
-            for page in predict_result:# the output is present in standered nested structure.
-                                       # this series of loops scoops out the required data and then
-                                       #presents them in simple and workable data format.
+            for page in predict_result:
                 if not isinstance(page, dict):
-                    raise DataError("The data is not present in required form,i.e,in list and dictionarys nested structure")
-                    continue
+                    raise ValueError(
+                        "Each page must be a dict with rec_texts / rec_scores"
+                    )
 
                 texts = page.get("rec_texts", [])
                 scores = page.get("rec_scores", [])
+                polys = page.get("rec_polys", [])
 
-                for text, score in zip(texts, scores):
-                    text = str(text).strip()
-                    score = float(score)
+                if len(texts) != len(scores):
+                    raise ValueError(
+                        f"rec_texts ({len(texts)}) and rec_scores ({len(scores)}) length mismatch"
+                    )
+                if get_pos and len(texts) != len(polys):
+                    raise ValueError(
+                        f"rec_polys ({len(polys)}) length mismatch with rec_texts ({len(texts)})"
+                    )
 
-                    if text and score >= min_confidence:# to remove any text which the model has confidence <min_confidence
-                        clean.append({
-                            "text": text,
-                            "accuracy": round(score, 4)
-                        })
+                if get_pos:
+                    rows = zip(texts, scores, polys)
+                else:
+                    rows = zip(texts, scores)
+
+                for row in rows:
+                    text = str(row[0]).strip()
+                    score = float(row[1])
+
+                    if not text or score < min_confidence:
+                        continue
+
+                    item = {
+                        "text": text,
+                        "accuracy": round(score, 3),
+                    }
+
+                    if get_pos:
+                        poly = np.asarray(row[2])
+                        # top-left corner for sorting (y then x)
+                        top_left = poly.min(axis=0)
+                        item["pos"] = [int(top_left[0]), int(top_left[1])]
+
+                    clean.append(item)
+
+        except ValueError:
+            raise
         except Exception as error:
-            raise RuntimeError(f"The function could not provide and output because{error}")
-        finally:
-            self.processed_output = clean
-            return clean 
+            raise RuntimeError(
+                f"The function could not provide an output because {error}"
+            ) from error
+
+        self.processed_output = clean
+        return clean
+             
+    def get_chess_moves(self,Ocr_output:Optional[list] = None)-> list:
+        try:
+            Moves = []
+            if (Ocr_output == None):
+                Ocr_output = self.processed_output
+            if (Ocr_output == None):
+                raise DataError("the data  provided is nul,can't extract  moves for obvious reasons")
+            for row in Ocr_output:
+                Moves.append(row['text'])
+
+            self.chess_moves = Moves
+            return Moves
+        except Exception as e:
+            raise RuntimeError(f"the Function could not provide with the results because:{e}")
+        
+    def Post_Proccessing(self) -> list:
+        """
+        pass
+        """
+        pass
     
     def remove_tempDATA(self) -> None:
         try:
@@ -227,11 +281,14 @@ class OCR():
             raise RuntimeError(f"temperory files could not be removed because: {error}")
 
 if __name__ == "__main__":
-    model = OCR(r'App\Data\ti7.jpeg', lang='en', enhance_mode='handwriting')
+    model = OCR(r'App\Data\ti9.jpeg', lang='en', enhance_mode='handwriting')
     model.enhance_for_ocr(model.image_bgr)  # mode='printed' to use the old pipeline
     model.text_Recognition(model.image_bgr)
-    print(model.extract_reqDATA(model.Ocr_output))
-    # model.remove_tempDATA()
+    
+    model.extract_reqDATA(model.Ocr_output)
+
+    print(model.get_chess_moves(model.processed_output))
+    model.remove_tempDATA()
     
     
 

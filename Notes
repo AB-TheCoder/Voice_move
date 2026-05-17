@@ -65,3 +65,6 @@ q/ what the hell is the optional thing.
 
 16/5/2026
 preprocessing needs to improve ,the results arent consistant. paddleocr has some inbuilt features which maybe be interfering
+
+17.5.2026 
+goals: figure out a way to extract the chess moves in an order.
