@@ -227,6 +227,7 @@ class OCR():
                     score = float(row[1])
 
                     if not text or score < min_confidence:
+                        text = ""
                         continue
 
                     item = {
@@ -251,16 +252,31 @@ class OCR():
 
         self.processed_output = clean
         return clean
-             
-    def get_chess_moves(self,Ocr_output:Optional[list] = None)-> list:
+    def remove_invalid_content(self,data:Optional[list] = None) -> list:
+        """THis function removes the invalid data recognised by the ocr .
+            This is one of the many component on getting only the chess moves out of the 
+            result."""
         try:
             Moves = []
             if (Ocr_output == None):
                 Ocr_output = self.processed_output
             if (Ocr_output == None):
                 raise DataError("the data  provided is nul,can't extract  moves for obvious reasons")
-            for row in Ocr_output:
-                Moves.append(row['text'])
+
+
+                    
+        except Exception as e:
+            raise RuntimeError(f'the method could not provide with the expected out put because{e}')
+
+    def get_chess_moves(self,Ocr_output:Optional[list] = None)-> list:
+
+        try:
+            Moves = []
+            if (Ocr_output == None):
+                Ocr_output = self.processed_output
+            if (Ocr_output == None):
+                raise DataError("the data  provided is nul,can't extract  moves for obvious reasons")
+            
 
             self.chess_moves = Moves
             return Moves
@@ -269,7 +285,9 @@ class OCR():
         
     def Post_Proccessing(self) -> list:
         """
-        pass
+        Over here i am going to validate the recognised chess moves using specific chess ai module
+        .this function will ensure that the ouput is legal and convert the moves into suitable format.
+        This will be the last step to this class.
         """
         pass
     
@@ -279,16 +297,21 @@ class OCR():
                 os.remove(self.enhanced_image_path)
         except Exception as error:
             raise RuntimeError(f"temperory files could not be removed because: {error}")
+    def Run(model):
+
+        try:
+            model.enhance_for_ocr(model.image_bgr)  # mode='printed' to use the old pipeline
+            model.text_Recognition(model.image_bgr)
+            model.extract_reqDATA(model.Ocr_output,min_confidence=4.00)
+            print(model.processed_output)
+            model.remove_tempDATA()
+        except Exception as e:
+            raise RuntimeError(f'the Program could not run because{e}')
+
 
 if __name__ == "__main__":
-    model = OCR(r'App\Data\ti9.jpeg', lang='en', enhance_mode='handwriting')
-    model.enhance_for_ocr(model.image_bgr)  # mode='printed' to use the old pipeline
-    model.text_Recognition(model.image_bgr)
-    
-    model.extract_reqDATA(model.Ocr_output)
-
-    print(model.get_chess_moves(model.processed_output))
-    model.remove_tempDATA()
+    model = OCR(r'App\Data\ti11.jpeg', lang='en', enhance_mode='handwriting')
+    model.Run()
     
     
 

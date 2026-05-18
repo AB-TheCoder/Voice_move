@@ -1,7 +1,9 @@
+from typing import Optional 
 from argparse import ArgumentError
 from sqlite3 import DataError
 import numpy as np
-
+"""this is the experimental file where before putting stuff on the main file i test it.
+     i only test some specific functions so it is efficient """
 try:
     from paddleocr import PaddleOCR
     import cv2
