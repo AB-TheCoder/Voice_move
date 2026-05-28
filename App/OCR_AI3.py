@@ -57,8 +57,14 @@ class OCR():
         try:
             
             ocr_model=PaddleOCR(
-                use_textline_orientation=self.use_textline,
-                lang=self.lang
+                lang=self.lang,               
+                text_det_box_thresh = 0.6,
+                
+                text_det_thresh=0.3,
+                text_det_unclip_ratio=1.8,
+                text_rec_score_thresh=0.6
+                
+                
             )
             return ocr_model   
         except (ArgumentError , ModuleNotFoundError) as error:
@@ -227,7 +233,6 @@ class OCR():
                     score = float(row[1])
 
                     if not text or score < min_confidence:
-                        text = ""
                         continue
 
                     item = {
@@ -252,37 +257,8 @@ class OCR():
 
         self.processed_output = clean
         return clean
-    def remove_invalid_content(self,data:Optional[list] = None) -> list:
-        """THis function removes the invalid data recognised by the ocr .
-            This is one of the many component on getting only the chess moves out of the 
-            result."""
-        try:
-            Moves = []
-            if (Ocr_output == None):
-                Ocr_output = self.processed_output
-            if (Ocr_output == None):
-                raise DataError("the data  provided is nul,can't extract  moves for obvious reasons")
 
 
-                    
-        except Exception as e:
-            raise RuntimeError(f'the method could not provide with the expected out put because{e}')
-
-    def get_chess_moves(self,Ocr_output:Optional[list] = None)-> list:
-
-        try:
-            Moves = []
-            if (Ocr_output == None):
-                Ocr_output = self.processed_output
-            if (Ocr_output == None):
-                raise DataError("the data  provided is nul,can't extract  moves for obvious reasons")
-            
-
-            self.chess_moves = Moves
-            return Moves
-        except Exception as e:
-            raise RuntimeError(f"the Function could not provide with the results because:{e}")
-        
     def Post_Proccessing(self) -> list:
         """
         Over here i am going to validate the recognised chess moves using specific chess ai module
@@ -301,16 +277,19 @@ class OCR():
 
         try:
             model.enhance_for_ocr(model.image_bgr)  # mode='printed' to use the old pipeline
-            model.text_Recognition(model.image_bgr)
-            model.extract_reqDATA(model.Ocr_output,min_confidence=4.00)
+            model.text_Recognition(model.enhanced_imagebgr)
+            print(model.Ocr_output)
+            model.extract_reqDATA(model.Ocr_output)
             print(model.processed_output)
+            for coloum in model.processed_output:
+                print(coloum['text'],sep=",")
             model.remove_tempDATA()
         except Exception as e:
             raise RuntimeError(f'the Program could not run because{e}')
 
 
 if __name__ == "__main__":
-    model = OCR(r'App\Data\ti11.jpeg', lang='en', enhance_mode='handwriting')
+    model = OCR(r'App\Data\ti1.jpg', lang='en', enhance_mode='handwriting')
     model.Run()
     
     
