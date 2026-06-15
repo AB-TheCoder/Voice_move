@@ -50,25 +50,35 @@ class OCR():
         self.only_detection :Optional[bool] = False    # arguements for paddleocr
         self.lang:Optional[str] = lang
         self.use_textline = use_textline
+        self._ocr_model = None
         
 
     @property
-    def ocr_model(self): # to create the ocr model . 
+    def ocr_model(self):
+        if self._ocr_model is not None:
+            return self._ocr_model
+        if PaddleOCR is None:
+            raise ModuleNotFoundError(
+                "paddleocr is not installed"
+            ) from _PADDLEOCR_IMPORT_ERROR
         try:
-            
-            ocr_model=PaddleOCR(
-                lang=self.lang,               
-                text_det_box_thresh = 0.6,
-                
-                text_det_thresh=0.3,
-                text_det_unclip_ratio=1.8,
-                text_rec_score_thresh=0.6
-                
-                
+            self._ocr_model = PaddleOCR(
+                lang=self.lang,
+                use_angle_cls=self.use_textline,
+                det_db_thresh=0.25,
+                det_db_box_thresh=0.45,
+                det_db_unclip_ratio=1.8,
+                det_limit_side_len=1600,  # 2.7.3 name (not det_max_side_len)
+                drop_score=0.55,
+                # use_space_char must stay True for en model — False causes IndexError
+                show_log=False,
+                use_gpu=False,
             )
-            return ocr_model   
-        except (ArgumentError , ModuleNotFoundError) as error:
-            print('there is some problem with the Paddleocr Model or the arguement')
+            return self._ocr_model
+        except (ArgumentError, ModuleNotFoundError) as error:
+            raise RuntimeError(
+                "PaddleOCR failed to initialize; check arguments"
+            ) from error
 
     @staticmethod
     def _to_grayscale(image_bgr: np.ndarray) -> np.ndarray:
@@ -174,7 +184,7 @@ class OCR():
             ):
                 raise DataError("the provided data is nul")
             model = self.ocr_model
-            output = model.predict(input = image_bgr)
+            output = model.ocr(image_bgr, cls=self.use_textline)
             self.Ocr_output=output
             return output
         except Exception as error:
@@ -188,13 +198,12 @@ class OCR():
         get_pos: bool = True,
     ) -> list:
         """
-        Works with PaddleOCR 3.4 predict() output:
+        Works with PaddleOCR 2.7.3 ocr() output:
         [
-            {
-                "rec_texts": [...],
-                "rec_scores": [...],
-                "rec_polys": [...],   # optional, for positions
-            }
+            [   # page
+                [box, (text, score)],   # box = [[x1,y1], ..., [x4,y4]]
+                ...
+            ]
         ]
         Returns list of {"text", "accuracy"} or adds "pos" (top-left) when get_pos=True.
         """
@@ -205,32 +214,24 @@ class OCR():
 
         try:
             for page in predict_result:
-                if not isinstance(page, dict):
+                if page is None:
+                    continue
+
+                if not isinstance(page, list):
                     raise ValueError(
-                        "Each page must be a dict with rec_texts / rec_scores"
+                        "Each page must be a list of [box, (text, score)] lines"
                     )
 
-                texts = page.get("rec_texts", [])
-                scores = page.get("rec_scores", [])
-                polys = page.get("rec_polys", [])
+                for line in page:
+                    if not line or len(line) < 2:
+                        continue
 
-                if len(texts) != len(scores):
-                    raise ValueError(
-                        f"rec_texts ({len(texts)}) and rec_scores ({len(scores)}) length mismatch"
-                    )
-                if get_pos and len(texts) != len(polys):
-                    raise ValueError(
-                        f"rec_polys ({len(polys)}) length mismatch with rec_texts ({len(texts)})"
-                    )
+                    box, rec = line[0], line[1]
+                    if not isinstance(rec, (list, tuple)) or len(rec) < 2:
+                        continue
 
-                if get_pos:
-                    rows = zip(texts, scores, polys)
-                else:
-                    rows = zip(texts, scores)
-
-                for row in rows:
-                    text = str(row[0]).strip()
-                    score = float(row[1])
+                    text = str(rec[0]).strip()
+                    score = float(rec[1])
 
                     if not text or score < min_confidence:
                         continue
@@ -240,8 +241,8 @@ class OCR():
                         "accuracy": round(score, 3),
                     }
 
-                    if get_pos:
-                        poly = np.asarray(row[2])
+                    if get_pos and box is not None:
+                        poly = np.asarray(box)
                         # top-left corner for sorting (y then x)
                         top_left = poly.min(axis=0)
                         item["pos"] = [int(top_left[0]), int(top_left[1])]
@@ -278,18 +279,17 @@ class OCR():
         try:
             model.enhance_for_ocr(model.image_bgr)  # mode='printed' to use the old pipeline
             model.text_Recognition(model.enhanced_imagebgr)
-            print(model.Ocr_output)
             model.extract_reqDATA(model.Ocr_output)
+            for dict in model.processed_output:
+                print(dict['text'])
             print(model.processed_output)
-            for coloum in model.processed_output:
-                print(coloum['text'],sep=",")
-            model.remove_tempDATA()
+            # model.remove_tempDATA()
         except Exception as e:
             raise RuntimeError(f'the Program could not run because{e}')
 
 
 if __name__ == "__main__":
-    model = OCR(r'App\Data\ti1.jpg', lang='en', enhance_mode='handwriting')
+    model = OCR(r'App\Data\ti5.jpeg', lang='en', enhance_mode='handwriting')
     model.Run()
     
     
