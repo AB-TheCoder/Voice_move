@@ -70,7 +70,10 @@ class OCR():
                 det_db_unclip_ratio=1.8,
                 det_limit_side_len=1600,  # 2.7.3 name (not det_max_side_len)
                 drop_score=0.55,
+                det_db_score_mode='slow',
                 # use_space_char must stay True for en model — False causes IndexError
+                enable_mkldnn=True,
+                cpu_threads=4,
                 show_log=False,
                 use_gpu=False,
             )
@@ -282,8 +285,8 @@ class OCR():
             model.extract_reqDATA(model.Ocr_output)
             for dict in model.processed_output:
                 print(dict['text'])
-            print(model.processed_output)
-            # model.remove_tempDATA()
+            # print(model.processed_output)
+            model.remove_tempDATA()
         except Exception as e:
             raise RuntimeError(f'the Program could not run because{e}')
 

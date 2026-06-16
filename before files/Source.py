@@ -4,16 +4,16 @@
 
 
 # API for the app
-import fastapi as api 
+# import fastapi as api 
 
 
 
 
-#----------------------------------------------------------------------------------------------------------------------------
-# image recognition Module 
-import google.genai as genai
-import chess
-import chess.pgn as chess_pgn
+# #----------------------------------------------------------------------------------------------------------------------------
+# # image recognition Module 
+# import google.genai as genai
+# import chess
+# import chess.pgn as chess_pgn
 
 
 
@@ -37,7 +37,8 @@ class OCR():
         if self.image_bgr is None:
             raise ValueError(f"Could not read image at path: {self.image_path}")
         try:
-            self.ai=genai.Client(api_key=api)
+            # self.ai=genai.Client(api_key=api)
+            pass
         except:
             print(" Valid api key not provided")
     
@@ -230,7 +231,7 @@ def start_clock(timer,increment):
 
 #------------------------------------------------------------------------------------------------------------------------
 # Stock Fish Analyis----
-import stockfish
+# import stockfish
 
 
 
