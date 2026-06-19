@@ -69,7 +69,7 @@ class OCR():
                 det_db_box_thresh=0.45,
                 det_db_unclip_ratio=1.8,
                 det_limit_side_len=1600,  # 2.7.3 name (not det_max_side_len)
-                drop_score=0.55,
+                drop_score=0.45,
                 det_db_score_mode='slow',
                 # use_space_char must stay True for en model — False causes IndexError
                 enable_mkldnn=True,
@@ -110,18 +110,69 @@ class OCR():
             )
         return gray
 
-    def _enhance_handwriting(self, gray: np.ndarray) -> np.ndarray:
-        gray = self._resize_for_ocr(gray, upscale=2.5)
-        gray = cv2.fastNlMeansDenoising(gray, None, h=8, templateWindowSize=7, searchWindowSize=21)
+    @staticmethod
+    def _deskew(gray: np.ndarray) -> np.ndarray:
+        """Rotate a slightly tilted text block toward horizontal."""
+        # Build a foreground mask first; using the raw inverse image makes the
+        # whole page look like a giant blob and can trigger 90-degree flips.
+        _, mask = cv2.threshold(
+            gray,
+            0,
+            255,
+            cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU,
+        )
+        coords = cv2.findNonZero(mask)
+        if coords is None:
+            return gray
 
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        rect = cv2.minAreaRect(coords)
+        angle = rect[-1]
+        if angle < -45:
+            angle = angle + 90
+
+        # Keep this conservative. Handwriting usually only needs a tiny correction.
+        if abs(angle) < 1.0 or abs(angle) > 15.0:
+            return gray
+
+        h, w = gray.shape[:2]
+        matrix = cv2.getRotationMatrix2D((w // 2, h // 2), angle, 1.0)
+        return cv2.warpAffine(
+            gray,
+            matrix,
+            (w, h),
+            flags=cv2.INTER_CUBIC,
+            borderMode=cv2.BORDER_REPLICATE,
+        )
+
+    def _enhance_handwriting(self, gray: np.ndarray) -> np.ndarray:
+        # Keep handwriting readable: clean the background, preserve strokes,
+        # and avoid turning the page into a harsh binary image too early.
+        gray = self._resize_for_ocr(gray, upscale=2.8)
+        gray = cv2.fastNlMeansDenoising(gray, None, h=5, templateWindowSize=7, searchWindowSize=21)
+
+        clahe = cv2.createCLAHE(clipLimit=2.3, tileGridSize=(8, 8))
         gray = clahe.apply(gray)
 
-        bg = cv2.GaussianBlur(gray, (0, 0), sigmaX=25, sigmaY=25)
+        bg = cv2.GaussianBlur(gray, (0, 0), sigmaX=21, sigmaY=21)
         gray = cv2.divide(gray, bg, scale=255)
 
-        blur = cv2.GaussianBlur(gray, (0, 0), sigmaX=1.0)
-        gray = cv2.addWeighted(gray, 1.4, blur, -0.4, 0)
+        gray = self._deskew(gray)
+
+        # Mix a soft binary mask back in so faint strokes survive preprocessing.
+        binary = cv2.adaptiveThreshold(
+            gray,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            31,
+            11,
+        )
+        gray = cv2.addWeighted(gray, 0.8, binary, 0.2, 0)
+
+        blur = cv2.GaussianBlur(gray, (0, 0), sigmaX=0.8)
+        gray = cv2.addWeighted(gray, 1.2, blur, -0.2, 0)
+
+        gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
 
         return cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
@@ -284,9 +335,9 @@ class OCR():
             model.text_Recognition(model.enhanced_imagebgr)
             model.extract_reqDATA(model.Ocr_output)
             for dict in model.processed_output:
-                print(dict['text'])
+                print(dict)
             # print(model.processed_output)
-            model.remove_tempDATA()
+            # model.remove_tempDATA()
         except Exception as e:
             raise RuntimeError(f'the Program could not run because{e}')
 
