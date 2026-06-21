@@ -111,6 +111,13 @@ class OCR():
         return gray
 
     @staticmethod
+    def _auto_invert_if_needed(gray: np.ndarray) -> np.ndarray:
+        """Make sure handwriting is dark on a light background."""
+        if float(np.mean(gray)) < 127.0:
+            return cv2.bitwise_not(gray)
+        return gray
+
+    @staticmethod
     def _deskew(gray: np.ndarray) -> np.ndarray:
         """Rotate a slightly tilted text block toward horizontal."""
         # Build a foreground mask first; using the raw inverse image makes the
@@ -145,32 +152,38 @@ class OCR():
         )
 
     def _enhance_handwriting(self, gray: np.ndarray) -> np.ndarray:
-        # Keep handwriting readable: clean the background, preserve strokes,
-        # and avoid turning the page into a harsh binary image too early.
-        gray = self._resize_for_ocr(gray, upscale=2.8)
-        gray = cv2.fastNlMeansDenoising(gray, None, h=5, templateWindowSize=7, searchWindowSize=21)
+        # Keep handwriting readable: increase local contrast, strengthen faint
+        # strokes, and avoid hard binarization until the very end.
+        gray = self._resize_for_ocr(gray, upscale=3.0)
+        gray = self._auto_invert_if_needed(gray)
+        gray = cv2.fastNlMeansDenoising(gray, None, h=4, templateWindowSize=7, searchWindowSize=21)
 
-        clahe = cv2.createCLAHE(clipLimit=2.3, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(clipLimit=2.6, tileGridSize=(8, 8))
         gray = clahe.apply(gray)
 
-        bg = cv2.GaussianBlur(gray, (0, 0), sigmaX=21, sigmaY=21)
+        bg = cv2.GaussianBlur(gray, (0, 0), sigmaX=23, sigmaY=23)
         gray = cv2.divide(gray, bg, scale=255)
 
         gray = self._deskew(gray)
 
-        # Mix a soft binary mask back in so faint strokes survive preprocessing.
+        # Build a stroke mask, thicken it slightly, then blend it back so thin
+        # handwriting stays visible without destroying the grayscale structure.
         binary = cv2.adaptiveThreshold(
             gray,
             255,
             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY,
-            31,
-            11,
+            cv2.THRESH_BINARY_INV,
+            33,
+            13,
         )
-        gray = cv2.addWeighted(gray, 0.8, binary, 0.2, 0)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+        binary = cv2.dilate(binary, kernel, iterations=1)
+        stroke_layer = cv2.bitwise_not(binary)
+        gray = cv2.addWeighted(gray, 0.68, stroke_layer, 0.32, 0)
 
-        blur = cv2.GaussianBlur(gray, (0, 0), sigmaX=0.8)
-        gray = cv2.addWeighted(gray, 1.2, blur, -0.2, 0)
+        blur = cv2.GaussianBlur(gray, (0, 0), sigmaX=0.6)
+        gray = cv2.addWeighted(gray, 1.18, blur, -0.18, 0)
 
         gray = cv2.normalize(gray, None, 0, 255, cv2.NORM_MINMAX)
 
