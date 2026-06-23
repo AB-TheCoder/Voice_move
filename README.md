@@ -56,7 +56,8 @@ clock:
 
 Image_recog:
     the image will be taken by the user (or uploaded) then to improve the results it will be enhanced through open cv python module.then a OCR ai will be used to recognise the moves .the output will be ran through a chess ai which will verify the accuracy of the interpreted moves and make changes accordingly.then another chess based module will be used to create a pgn for further workings.
-
+voice_recog:
+    this is another main feature for our application ,and probably more selling than the other one. the user will press the clock and then hold it to speak his/her move to register it onthe on app scoresheet.open-ai whisper will be used. 
 
 #### Gui:
 **@research required**
