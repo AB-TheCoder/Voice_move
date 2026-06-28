@@ -31,6 +31,7 @@ else:
 
 try:
     from scipy.io.wavfile import write
+    from scipy.io import wavfile
 except ModuleNotFoundError as error:  # pragma: no cover
     write = None  # type: ignore[assignment]
     _SCIPY_IMPORT_ERROR = error
@@ -45,9 +46,10 @@ except ModuleNotFoundError:  # pragma: no cover
 #--------------------------------------------------------------------------------------------------------------------------------
 # part1: recording the move(this must happen via the front hand or backend i am at doubt)
 class audio_record:
-    def __init__(self):
-        self.sample_rate = 16000
+    def __init__(self,audio_file :Optional[str] = None,sample_rate = 16000):
+        self.sample_rate = sample_rate
         self.array = None
+        self.audio_file = audio_file
         if sd is not None:
             sd.default.samplerate = self.sample_rate
         
@@ -68,14 +70,14 @@ class audio_record:
         
         print("recorded")
         
-        self.array = audio
+        self.recorded_array = audio
         return audio
     
     def convert_t_wave(self, audio_array: Optional[numpy.ndarray] = None) -> Path:
         ''' to convert numpy aaray data format to a wave file'''
         try:
             if audio_array is None:
-                audio_array = self.array
+                audio_array = self.recorded_array
             if audio_array is None:
                 raise ValueError('Audio_array is None')
 
@@ -90,22 +92,104 @@ class audio_record:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             write(str(output_path), self.sample_rate, audio_array)
             print('saved')
+            self.recorded_audio_file = str(output_path)
             return output_path
         except Exception as e:
             raise RuntimeError(f'the file could not be converted because: {e}')
-    def Playback(self, audio: Optional[numpy.ndarray] = None):
+    def convert_t_array(self,audio_file:Optional[str] = None) -> numpy.array:
         try:
-            if audio_array is None:
-                audio_array = self.array
-            if audio_array is None:
-                raise ValueError('Audio_array is None')
+            if audio_file is None:
+                audio_file = self.audio_file
+            if audio_file is None:
+                raise ValueError("No valid file provided")
+
+            sample_rate,audio_data = wavfile.read(audio_file)
+
+            self.file_sample_rate = sample_rate
+            self.file_audio_data = audio_data
+            return audio_data
         except Exception as e:
             raise RuntimeError(f'the PLACYBACK function could not run because: {e}')
+    def Playback(self, audio_data:Optional[numpy.array] = None,sample_rate :Optional[int] = None,recorded:bool = False) -> None:
+        try:
+            if recorded is False:
+                if audio_data is None:
+                    if hasattr(self,"file_audio_data"):
+                        audio_data = self.file_audio_data
+                    else:
+                        self.convert_t_array()
+                        audio_data = self.file_audio_data
+                if audio_data  is None:
+                    raise ValueError('no File provided')
+                if sample_rate is None:
+                    sample_rate = self.file_sample_rate
+            else:
+                if audio_data is None:
+                    if hasattr(self,"recorded_array"):
+                        audio_data = self.recorded_array
+                    else:
+                        self.record()
+                        audio_data = self.recorded_array
+                    
+                if audio_data is None:
+                    raise ValueError('no valid file is provided')
+
+
+                if sample_rate is None:
+                    sample_rate = self.sample_rate
+
+            print('playing')
+            sd.play(audio_data,sample_rate)
+            sd.wait()
+            print('complete')
+            return None
+        except Exception as e:
+            raise RuntimeError(f'the PLACYBACK function could not run because: {e}')
+
     @staticmethod
     def run():
         model = audio_record()
         model.record()
         model.convert_t_wave()
+        model.Playback(recorded=True)
+
+
+class nlp(audio_record):
+    """this is the main voice_recognition class
+         i will be using whisper by chatgpt to procces audio_files
+         the class is inherited from audio file hence if the audio had been recorded i will be easier"""
+        
+    def __init__(self,audio_file):
+        super().__init__(audio_file)
+    
+    def model(self):
+        try:
+            pass
+        except Exception as e:
+            raise RuntimeError(f'the program could not run because : {e}')
+            
+    def recognizing():
+        pass
+    @property
+    def seperating():
+        pass
+    def post_processing(self):
+        try:
+            pass
+        except Exception as e:
+            raise RuntimeError(f'the program could not run because : {e}')
+    def validification(self)-> list:
+        try:
+            pass
+        except Exception as e:
+            raise RuntimeError(f'the program could not run because : {e}')
+    
+    def Finale_proccesing(self):
+        try:
+            pass
+        except Exception as e:
+            raise RuntimeError(f'the program could not run because : {e}')
+
 
 if __name__ == "__main__":
     audio_record.run()
