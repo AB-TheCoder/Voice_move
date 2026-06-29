@@ -16,6 +16,7 @@ pipline for audical_scoresheet:
 6. updatation of text on the online scoresheet
 """
 # imports(primary)
+from ctypes import ArgumentError
 from pathlib import Path
 from typing import Optional
 
@@ -159,17 +160,32 @@ class nlp(audio_record):
          i will be using whisper by chatgpt to procces audio_files
          the class is inherited from audio file hence if the audio had been recorded i will be easier"""
         
-    def __init__(self,audio_file):
+    def __init__(self,audio_file,model:str='turbo'):
         super().__init__(audio_file)
-    
-    def model(self):
+        self.model_initialize(model)
+    @classmethod
+    def model_initialize(self,model:str):
         try:
-            pass
+            self.model = whisper.load_model(model)
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
             
-    def recognizing():
-        pass
+    def recognizing(self,audio_file:Optional[str] = None) -> str:
+        try:
+            if audio_file is None:
+                if  hasattr(super(),"audio_file"):
+                    audio_file == super().audio_file
+                else:
+                    if hasattr(super(),"recorded_audio_file"):
+                        audio_file == super().recorded_audio_file
+                    else:
+                        raise ArgumentError("No file provided")
+            
+
+            self.transcribed = self.model.transcribe(audio_file)
+            return self.transcribed
+        except Exception as e:
+            raise RuntimeError(f'the recognise function could not work because {e}')
     @property
     def seperating():
         pass
@@ -189,7 +205,12 @@ class nlp(audio_record):
             pass
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
-
-
+    @staticmethod
+    def run():
+        model = nlp(r'App\temp_data\images\audio_files\recording.wav')
+        model.transcribe()
+        print(model.transcribed)
 if __name__ == "__main__":
-    audio_record.run()
+    # audio_record.run()
+    nlp.run()
+
