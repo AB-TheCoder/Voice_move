@@ -207,7 +207,7 @@ class nlp(audio_record):
             raise RuntimeError(f'the program could not run because : {e}')
     @staticmethod
     def run():
-        model = nlp(r'App\temp_data\images\audio_files\recording.wav')
+        model = nlp(r'App\Data\audio_files\test1.wav')
         model.transcribe()
         print(model.transcribed)
 if __name__ == "__main__":

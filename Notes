@@ -107,3 +107,10 @@ aim: basic configuration of the system and uploadation of testing data files
 aim: start with main nlp framework 
 28/june/2026
 aim:  nlp framework and completetiong of recordplayer_function
+30/june/2026
+aim: complete recognition part
+2/july/2026
+aim: install whisper 
+3/july/2026
+aim: test whisper and get the results.
+report: whisper is working fine and the results are good.
