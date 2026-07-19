@@ -114,3 +114,17 @@ aim: install whisper
 3/july/2026
 aim: test whisper and get the results.
 report: whisper is working fine and the results are good.
+
+4/july/2026
+aim: configure whisper ai for voice recognition.
+report: some changes related to main nlp structure
+18/7/2026
+stuf:after a time i am back at continuiing my porject from today 
+the accuracy of model is quite good but still needs to be improved. 
+aim: next step -seperating
+report:i did not do anything
+19/7/2026
+notes:this is a lot easier thanthe ocr.each move will be proceesed seperatly.first the audio will be transcribed 
+than i will run regex over the text to get a proper notation.than i will add it to the move list.
+aim:clear things and regex
+report:regex done with the aid of ai . it works good but still need refining. moves with captures and some activity are not processed as expected

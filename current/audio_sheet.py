@@ -19,7 +19,7 @@ pipline for audical_scoresheet:
 from ctypes import ArgumentError
 from pathlib import Path
 from typing import Optional
-
+import re
 import numpy
 
 try:
@@ -139,10 +139,11 @@ class audio_record:
                 if sample_rate is None:
                     sample_rate = self.sample_rate
 
-            print('playing')
+            print('playing the audio file')
             sd.play(audio_data,sample_rate)
             sd.wait()
-            print('complete')
+            print('playback complete')
+
             return None
         except Exception as e:
             raise RuntimeError(f'the PLACYBACK function could not run because: {e}')
@@ -161,37 +162,177 @@ class nlp(audio_record):
          the class is inherited from audio file hence if the audio had been recorded i will be easier"""
         
     def __init__(self,audio_file,model:str='turbo'):
-        super().__init__(audio_file)
         self.model_initialize(model)
+        self.audio_file = audio_file
     @classmethod
     def model_initialize(self,model:str):
         try:
             self.model = whisper.load_model(model)
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
+    def playback(self,audio_file:Optional[str] = None)->None:
+        try:
+            if audio_file is None:
+                if  hasattr(self,"audio_file"):
+                    audio_file == self.audio_file
+                else:
+                    raise ArgumentError("No file provided")
             
+            super().Playback(audio_file)
+            
+            return None  
+        except Exception as e:
+            raise RuntimeError(f'the playback function could not run because : {e}')
     def recognizing(self,audio_file:Optional[str] = None) -> str:
         try:
             if audio_file is None:
-                if  hasattr(super(),"audio_file"):
-                    audio_file == super().audio_file
+                if  hasattr(self,"audio_file"):
+                    audio_file = self.audio_file
                 else:
-                    if hasattr(super(),"recorded_audio_file"):
-                        audio_file == super().recorded_audio_file
-                    else:
-                        raise ArgumentError("No file provided")
+                    raise ArgumentError("No file provided")
             
 
-            self.transcribed = self.model.transcribe(audio_file)
+            self.transcribed = self.model.transcribe(audio_file)['text']
             return self.transcribed
         except Exception as e:
             raise RuntimeError(f'the recognise function could not work because {e}')
-    @property
-    def seperating():
-        pass
-    def post_processing(self):
+#-------------------------------------------------------------------------------------------------------------
+# regex patterns
+    PIECE_MAP = {
+    r"\b(?:knight|night|nite)\b": "N",
+    r"\b(?:bishop|boshop)\b": "B",
+    r"\b(?:rook|brook|book)\b": "R",
+    r"\b(?:queen|queens)\b": "Q",
+    r"\b(?:king|kings)\b": "K",
+    r"\b(?:pawn|porn|pone)\b": "",  # pawn has no letter in SAN
+        }
+    FILE_MAP = {
+        r"\b(?:a|ay|eh)\b": "a",
+        r"\b(?:b|bee|be)\b": "b",
+        r"\b(?:c|see|sea|si)\b": "c",
+        r"\b(?:d|dee|the)\b": "d",
+        r"\b(?:e|ee)\b": "e",
+        r"\b(?:f|ef|eff)\b": "f",
+        r"\b(?:g|gee|ji)\b": "g",
+        r"\b(?:h|aitch|age|etch)\b": "h",
+        }
+    RANK_MAP = {
+        r"\b(?:one|1)\b": "1",
+        r"\b(?:two|to|too|2)\b": "2",
+        r"\b(?:three|3)\b": "3",
+        r"\b(?:four|for|4)\b": "4",
+        r"\b(?:five|5)\b": "5",
+        r"\b(?:six|6)\b": "6",
+        r"\b(?:seven|7)\b": "7",
+        r"\b(?:eight|ate|it|8)\b": "8",
+    }
+#---------------------------------------------------------------------------------------------------------------
+    def post_processing(self,raw:Optional[str]=None)->list:
+        ''' this function recieves the raw transcribed text and peforms regex over it. the nlp often misunderstand notation for other phrases
+        regex cleans up the data and then converts the text in to useable chess natation'''
+
         try:
-            pass
+            if not raw:
+                raw = self.transcribed   
+                
+            if not raw or not raw.strip():
+                return []
+            text = raw.lower().strip()
+            text = re.sub(r"[^\w\s\-]", " ", text)  # drop punctuation
+            text = re.sub(r"\s+", " ", text)
+            # Castling first (common Whisper variants)
+            if re.search(r"\b(castle|castles|castling)\b.*\b(queen|queenside|long)\b", text):
+                return ["O-O-O"]
+            if re.search(r"\b(castle|castles|castling)\b.*\b(king|kingside|short)\b", text):
+                return ["O-O"]
+            if re.search(r"\b(castle|castles|castling)\b", text):
+                return ["O-O"]  # default kingside
+            # Normalize spoken tokens → letters/numbers
+            for pattern, repl in nlp.PIECE_MAP.items():
+                text = re.sub(pattern, repl, text)
+            for pattern, repl in nlp.FILE_MAP.items():
+                text = re.sub(pattern, repl, text)
+            for pattern, repl in nlp.RANK_MAP.items():
+                text = re.sub(pattern, repl, text)
+            # Common filler words Whisper inserts
+            text = re.sub(
+                r"\b(to|takes|take|captures|capture|on|move|moves|plays|play)\b",
+                " ",
+                text,
+            )
+            text = re.sub(r"\s+", " ", text).strip()
+            # Capture / check / mate markers still spoken
+            capture = bool(re.search(r"\bx\b|takes|capture", raw.lower()))
+            checkmate = bool(re.search(r"\b(check\s*mate|checkmate|check\s*me|check\s*ma)\b", raw.lower()))
+            check = bool(re.search(r"\bcheck\b", raw.lower())) and not checkmate
+            # Pull piece + squares from cleaned text
+            # Examples after cleanup: "N f 3", "e 4", "N c 3", "e x d 5"
+            tokens = text.replace(" ", "")
+            # Pattern: optional piece, optional from-file/rank, optional x, destination square
+            move_re = re.compile(
+                r"(?P<piece>[NBRQK])?"          # piece
+                r"(?P<from_file>[a-h])?"        # disambiguation file
+                r"(?P<from_rank>[1-8])?"        # disambiguation rank
+                r"(?P<cap>x)?"                  # capture
+                r"(?P<to_file>[a-h])"
+                r"(?P<to_rank>[1-8])"
+                r"(?P<promo>[NBRQ])?"           # promotion piece if spoken
+            )
+            matches = list(move_re.finditer(tokens))
+            moves = []
+            for m in matches:
+                piece = m.group("piece") or ""
+                from_file = m.group("from_file") or ""
+                from_rank = m.group("from_rank") or ""
+                to_file = m.group("to_file")
+                to_rank = m.group("to_rank")
+                promo = m.group("promo") or ""
+                # Prefer spoken capture if regex missed "x"
+                cap = "x" if (m.group("cap") or capture) else ""
+                # Pawn capture needs from-file: "e takes d5" → exd5
+                if not piece and cap and from_file:
+                    notation = f"{from_file}{cap}{to_file}{to_rank}"
+                elif not piece and cap and not from_file:
+                    # ambiguous pawn capture; keep destination only as fallback
+                    notation = f"x{to_file}{to_rank}"
+                else:
+                    # Avoid treating destination file as disambiguation when no piece
+                    # e.g. "e4" should not become "e4" with from_file=e wrongly split.
+                    # If only one file+rank exist, treat as destination.
+                    if not piece and from_file and from_rank and not to_file:
+                        notation = f"{from_file}{from_rank}"
+                    else:
+                        # If piece + two squares spoken poorly, keep piece + destination
+                        if piece and from_file and from_rank and to_file and to_rank:
+                            # likely "knight c3" mis-split; prefer piece + last square
+                            notation = f"{piece}{cap}{to_file}{to_rank}"
+                        else:
+                            notation = f"{piece}{from_file}{from_rank}{cap}{to_file}{to_rank}"
+                if promo:
+                    notation += f"={promo}"
+                if checkmate:
+                    notation += "#"
+                elif check:
+                    notation += "+"
+                moves.append(notation)
+            # Fallback: already looks like SAN in the raw transcript
+            if not moves:
+                san_like = re.findall(
+                    r"\b(?:O-O-O|O-O|[KQRBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRBN])?[+#]?)\b",
+                    raw,
+                    flags=re.IGNORECASE,
+                )
+                moves = [m.upper().replace("O-O", "O-O") for m in san_like]  # keep castling case
+                # Fix piece letters only
+                fixed = []
+                for m in san_like:
+                    if m.upper() in ("O-O", "O-O-O"):
+                        fixed.append(m.upper().replace("0", "O"))
+                    else:
+                        fixed.append(m[0].upper() + m[1:] if m[0].isalpha() else m)
+                moves = fixed
+            self.processed = moves
+            return moves
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
     def validification(self)-> list:
@@ -206,10 +347,17 @@ class nlp(audio_record):
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
     @staticmethod
-    def run():
-        model = nlp(r'App\Data\audio_files\test1.wav')
-        model.transcribe()
-        print(model.transcribed)
+    def run()->None:
+        try:
+            model = nlp(r'App\Data\audio_files\test9.wav',model='base.en')
+            model.playback()
+            model.recognizing()
+            print(model.transcribed)
+            model.post_processing()
+            print(model.processed)
+            return None
+        except Exception as e:
+            raise RuntimeError(f'the program could not run because : {e}')
 if __name__ == "__main__":
     # audio_record.run()
     nlp.run()
