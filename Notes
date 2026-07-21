@@ -128,3 +128,12 @@ notes:this is a lot easier thanthe ocr.each move will be proceesed seperatly.fir
 than i will run regex over the text to get a proper notation.than i will add it to the move list.
 aim:clear things and regex
 report:regex done with the aid of ai . it works good but still need refining. moves with captures and some activity are not processed as expected
+20/7/2026 
+notes:
+aim: get hackatime and macadone thing , configure regex
+
+report:hackatime done regex left
+21/7/2026
+notes:well it is not as easy and simple as it seemed .for validifing i would need a complete game loop . like i need to create a chess game in real_life.maybe idk its not so tough
+aim:regex final completion
+report:
