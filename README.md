@@ -1,7 +1,6 @@
 # Chess Analysis
 
  
-
 ### Introduction: 
 
 Chess is a very analytical and ever-learning game. Learning from one's mistakes is essential regarding our personal ethics, and the same values also applies when playing chess. An ambitious chess player always learns from their mistakes and keeps the cycle of growth going. To learn from one's mistakes in life, one needs to reflect upon the  mistakes, and similarly, in chess, one needs to look back. 
