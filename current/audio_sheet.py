@@ -380,7 +380,14 @@ class nlp(audio_record):
             return None
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
-if __name__ == "__main__":
-    # audio_record.run()
-    nlp.run()
+#-------------------------------------------------------------------------------------------------------------------------------------
+#chess_gameloop
+    @staticmethod
+    def chess_loop():
+        '''the chess_loop for '''
+        if __name__ == "__main__":  
+            # audio_record.run()
+            nlp.run()
+
+
 
