@@ -16,18 +16,11 @@ pipline for audical_scoresheet:
 6. updatation of text on the online scoresheet
 """
 # imports(primary)
-from ctypes import ArgumentError
 from pathlib import Path
 from typing import Optional
 import re
 import numpy
 import chess
-
-#how tf did aarav not figure this out on his own- fine, ill do it MYSELF
-class ChessMoveValidator:
-    """Wraps python-chess to validate SAN moves agaist a actual board state"""
-
-    def __init__(self, board)
 
 try:
     import sounddevice as sd
@@ -51,16 +44,66 @@ try:
     import whisper  # type: ignore[import-not-found]
 except ModuleNotFoundError:  # pragma: no cover
     whisper = None  # type: ignore[assignment]
+
+
+#--------------------------------------------------------------------------------------------------------------------------------
+# chess move validation wrapper (uses python-chess)
+class ChessMoveValidator:
+    """Wraps python-chess to validate SAN moves against actual board state."""
+
+    def __init__(self, board: Optional[chess.Board] = None):
+        self.board = board if board is not None else chess.Board()
+
+    def _variants(self, san: str) -> list:
+        """Generates plausible rewrites of a regex-produced SAN string to handle
+        mismatches with what python-chess's parse_san() strictly expects
+        (e.g. disambiguation formatting, redundant origin squares)."""
+        variants = [san]
+
+        m = re.match(r"^([NBRQK])([a-h])([1-8])(x?)([a-h][1-8])(=[QRBN])?([+#])?$", san)
+        if m:
+            piece, ffile, frank, cap, dest, promo, suffix = m.groups()
+            promo = promo or ""
+            suffix = suffix or ""
+            variants.append(f"{piece}{ffile}{cap}{dest}{promo}{suffix}")   # file-only
+            variants.append(f"{piece}{frank}{cap}{dest}{promo}{suffix}")   # rank-only
+            variants.append(f"{piece}{cap}{dest}{promo}{suffix}")          # no disambiguation
+
+        return variants
+
+    def validate(self, move: str) -> Optional[str]:
+        """Tries to parse and push a SAN move onto the board.
+        Returns the canonical SAN string if legal, or None if no variant works."""
+        for candidate in self._variants(move):
+            try:
+                parsed = self.board.parse_san(candidate)
+                canonical_san = self.board.san(parsed)
+                self.board.push(parsed)
+                return canonical_san
+            except (chess.IllegalMoveError, chess.InvalidMoveError, chess.AmbiguousMoveError, ValueError):
+                continue
+        return None
+
+    def validate_list(self, moves: list) -> Optional[str]:
+        """Given several candidate SAN strings for the same spoken move
+        (from post_processing's regex output), returns the first one that's legal."""
+        for m in moves:
+            result = self.validate(m)
+            if result is not None:
+                return result
+        return None
+
+
 #--------------------------------------------------------------------------------------------------------------------------------
 # part1: recording the move(this must happen via the front hand or backend i am at doubt)
 class audio_record:
-    def __init__(self,audio_file :Optional[str] = None,sample_rate = 16000):
+    def __init__(self, audio_file: Optional[str] = None, sample_rate=16000):
         self.sample_rate = sample_rate
         self.array = None
         self.audio_file = audio_file
         if sd is not None:
             sd.default.samplerate = self.sample_rate
-        
+
     def record(self, duration: int = 10) -> numpy.ndarray:
         """this function is to record the move spoken by the user when,the user presses his clock after playing on hi move"""
         if sd is None:
@@ -75,12 +118,12 @@ class audio_record:
                 channels=1
             )
         sd.wait()
-        
+
         print("recorded")
-        
+
         self.recorded_array = audio
         return audio
-    
+
     def convert_t_wave(self, audio_array: Optional[numpy.ndarray] = None) -> Path:
         ''' to convert numpy aaray data format to a wave file'''
         try:
@@ -93,9 +136,9 @@ class audio_record:
                 raise ModuleNotFoundError(
                     "scipy is not installed; cannot write WAV files"
                 ) from _SCIPY_IMPORT_ERROR
-            
+
             print("converting")
-            
+
             output_path = Path("App") / "temp_data" / "images" / "audio_files" / "recording.wav"
             output_path.parent.mkdir(parents=True, exist_ok=True)
             write(str(output_path), self.sample_rate, audio_array)
@@ -104,50 +147,51 @@ class audio_record:
             return output_path
         except Exception as e:
             raise RuntimeError(f'the file could not be converted because: {e}')
-    def convert_t_array(self,audio_file:Optional[str] = None) -> numpy.array:
+
+    def convert_t_array(self, audio_file: Optional[str] = None) -> numpy.array:
         try:
             if audio_file is None:
                 audio_file = self.audio_file
             if audio_file is None:
                 raise ValueError("No valid file provided")
 
-            sample_rate,audio_data = wavfile.read(audio_file)
+            sample_rate, audio_data = wavfile.read(audio_file)
 
             self.file_sample_rate = sample_rate
             self.file_audio_data = audio_data
             return audio_data
         except Exception as e:
             raise RuntimeError(f'the PLACYBACK function could not run because: {e}')
-    def Playback(self, audio_data:Optional[numpy.array] = None,sample_rate :Optional[int] = None,recorded:bool = False) -> None:
+
+    def Playback(self, audio_data: Optional[numpy.array] = None, sample_rate: Optional[int] = None, recorded: bool = False) -> None:
         try:
             if recorded is False:
                 if audio_data is None:
-                    if hasattr(self,"file_audio_data"):
+                    if hasattr(self, "file_audio_data"):
                         audio_data = self.file_audio_data
                     else:
                         self.convert_t_array()
                         audio_data = self.file_audio_data
-                if audio_data  is None:
+                if audio_data is None:
                     raise ValueError('no File provided')
                 if sample_rate is None:
                     sample_rate = self.file_sample_rate
             else:
                 if audio_data is None:
-                    if hasattr(self,"recorded_array"):
+                    if hasattr(self, "recorded_array"):
                         audio_data = self.recorded_array
                     else:
                         self.record()
                         audio_data = self.recorded_array
-                    
+
                 if audio_data is None:
                     raise ValueError('no valid file is provided')
-
 
                 if sample_rate is None:
                     sample_rate = self.sample_rate
 
             print('playing the audio file')
-            sd.play(audio_data,sample_rate)
+            sd.play(audio_data, sample_rate)
             sd.wait()
             print('playback complete')
 
@@ -167,56 +211,57 @@ class nlp(audio_record):
     """this is the main voice_recognition class
          i will be using whisper by chatgpt to procces audio_files
          the class is inherited from audio file hence if the audio had been recorded i will be easier"""
-        
-    def __init__(self,audio_file,model:str='turbo'):
+
+    def __init__(self, audio_file, model: str = 'turbo'):
+        super().__init__(audio_file=audio_file)
         self.model_initialize(model)
         self.audio_file = audio_file
         self.Move = None
 
-    def model_initialize(self,model:str):
+    def model_initialize(self, model: str):
         try:
             self.model = whisper.load_model(model)
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
 
-    def playback(self,audio_file:Optional[str] = None)->None:
+    def playback(self, audio_file: Optional[str] = None) -> None:
         try:
             if audio_file is None:
-                if  hasattr(self, "audio_file"):
-                    audio_file == self.audio_file
-                else:
-                    raise ArgumentError("No file provided")
-            
-            audio_data = self.convert_t_array(audio_file)
-            super().Playback(audio_data = audio_data, recorded=False)
-            
-            return None  
-        except Exception as e:
-            raise RuntimeError(f'the playback function could not run because : {e}')
-
-    def recognizing(self,audio_file:Optional[str] = None) -> str:
-        try:
-            if audio_file is None:
-                if  hasattr(self, "audio_file"):
+                if hasattr(self, "audio_file"):
                     audio_file = self.audio_file
                 else:
                     raise ValueError("No file provided")
-            
+
+            audio_data = self.convert_t_array(audio_file)
+            super().Playback(audio_data=audio_data, recorded=False)
+
+            return None
+        except Exception as e:
+            raise RuntimeError(f'the playback function could not run because : {e}')
+
+    def recognizing(self, audio_file: Optional[str] = None) -> str:
+        try:
+            if audio_file is None:
+                if hasattr(self, "audio_file"):
+                    audio_file = self.audio_file
+                else:
+                    raise ValueError("No file provided")
 
             self.transcribed = self.model.transcribe(audio_file)['text']
             return self.transcribed
         except Exception as e:
             raise RuntimeError(f'the recognise function could not work because {e}')
+
 #-------------------------------------------------------------------------------------------------------------
-# regex patterns
+    # regex patterns
     PIECE_MAP = {
-    r"\b(?:knight|night|nite)\b": "N",
-    r"\b(?:bishop|boshop)\b": "B",
-    r"\b(?:rook|brook|book)\b": "R",
-    r"\b(?:queen|queens)\b": "Q",
-    r"\b(?:king|kings)\b": "K",
-    r"\b(?:pawn|porn|pone)\b": "",  # pawn has no letter in SAN
-        }
+        r"\b(?:knight|night|nite)\b": "N",
+        r"\b(?:bishop|boshop)\b": "B",
+        r"\b(?:rook|brook|book)\b": "R",
+        r"\b(?:queen|queens)\b": "Q",
+        r"\b(?:king|kings)\b": "K",
+        r"\b(?:pawn|porn|pone)\b": "",  # pawn has no letter in SAN
+    }
     FILE_MAP = {
         r"\b(?:a|ay|eh)\b": "a",
         r"\b(?:b|bee|be)\b": "b",
@@ -226,7 +271,7 @@ class nlp(audio_record):
         r"\b(?:f|ef|eff)\b": "f",
         r"\b(?:g|gee|ji)\b": "g",
         r"\b(?:h|aitch|age|etch)\b": "h",
-        }
+    }
     RANK_MAP = {
         r"\b(?:one|1)\b": "1",
         # note: do not map bare "to" → 2; "to" is usually a preposition ("knight to f3")
@@ -239,14 +284,14 @@ class nlp(audio_record):
         r"\b(?:eight|ate|it|8)\b": "8",
     }
 #---------------------------------------------------------------------------------------------------------------
-    def post_processing(self,raw:Optional[str]=None)->list:
+    def post_processing(self, raw: Optional[str] = None) -> list:
         ''' this function recieves the raw transcribed text and peforms regex over it. the nlp often misunderstand notation for other phrases
         regex cleans up the data and then converts the text in to useable chess natation'''
 
         try:
             if not raw:
-                raw = self.transcribed   
-                
+                raw = self.transcribed
+
             if not raw or not raw.strip():
                 return []
             text = raw.lower().strip()
@@ -352,31 +397,34 @@ class nlp(audio_record):
             return moves
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
- 
-    def validification(self,move:Optional[list] = None) -> bool:
-        """this functions aims at validifing the move using chess module.it creates a board @research required ***incomplete***"""
+
+    def validification(self, move: Optional[list] = None) -> Optional[str]:
+        """Validates candidate SAN move(s) against the current board state.
+        Returns the canonical SAN string if legal, or None if no candidate was legal."""
         try:
             if move is None:
-                try:
-                    move = self.Move 
-                except:
-                    raise ArgumentError('the Arguement provided is invalid')
-               
-            if move is None:
-                raise ArgumentError('the Arguement provided is invalid')
-        
+                move = self.Move
+            if not move:
+                raise ValueError('No move candidates to validate')
 
+            if not hasattr(self, "validator"):
+                self.validator = ChessMoveValidator()
+
+            result = self.validator.validate_list(move)
+            return result
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
-    def updating(self)->None:
+
+    def updating(self) -> None:
         try:
             pass
         except Exception as e:
             raise RuntimeError(f" the program could not run because :{e}")
+
     @staticmethod
-    def run()->None:
+    def run() -> None:
         try:
-            model = nlp(r'App\Data\audio_files\test9.wav',model='base.en')
+            model = nlp(r'App\Data\audio_files\test9.wav', model='base.en')
             model.playback()
             model.recognizing()
             print(model.transcribed)
@@ -385,14 +433,12 @@ class nlp(audio_record):
             return None
         except Exception as e:
             raise RuntimeError(f'the program could not run because : {e}')
+
 #-------------------------------------------------------------------------------------------------------------------------------------
-#chess_gameloop
+    # chess_gameloop
     @staticmethod
     def chess_loop():
         '''the chess_loop for '''
-        if __name__ == "__main__":  
+        if __name__ == "__main__":
             # audio_record.run()
             nlp.run()
-
-
-
