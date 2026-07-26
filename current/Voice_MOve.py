@@ -384,10 +384,15 @@ class nlp(audio_record):
 #chess_gameloop
     @staticmethod
     def chess_loop():
-        '''the chess_loop for '''
-        if __name__ == "__main__":  
-            # audio_record.run()
-            nlp.run()
+        '''this is the loop where the chess game is played ,the moves are drawn on a virtual chess board .
+         and then the voice arguements are validified with regarding the game '''
+        pass
+
+
+        
+if __name__ == "__main__":  
+     # audio_record.run()
+    nlp.run()
 
 
 
