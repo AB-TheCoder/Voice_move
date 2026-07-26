@@ -1,4 +1,3 @@
-
 '''
 this is the main file for the voice controlled chess notation(VCCN)
 this feature is a revolutionary way to record chess moves replacing the orthodox written method
@@ -535,4 +534,4 @@ class nlp(audio_record):
 if __name__ == "__main__":
     model = nlp(audio_file=None, model='base.en')
     model.move_loop()
- 
+    
