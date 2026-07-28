@@ -1,0 +1,49 @@
+# VoiceMove
+
+### Record. Analyze. Improve.
+
+VoiceMove is a chess platform designed to make recording and reviewing over-the-board games easier. Record your games using voice commands, digitize physical scoresheets, play with an integrated chess clock, and review your games with powerful engine analysis—all in one place.
+
+## The Spark
+
+While analyzing a friendly game, we realized how inefficient and time-consuming traditional scoresheets can be. Reviewing an over-the-board game often requires players to manually record moves, digitize their scoresheets, and then set up the game again for analysis.
+
+We believed there had to be a better way.
+
+So we created VoiceMove—a platform designed to make recording games faster, analyzing them easier, and learning from every game more effective.
+
+## What You Get
+
+With the VoiceMove beta for Android, you can:
+
+### ♟️ Built-in Chess Clock
+
+Play your games with an integrated chess clock, designed for a seamless over-the-board experience—even when playing offline.
+
+### 🎙️ Voice Notation
+
+Record your moves effortlessly using voice commands. Simply speak your moves and create a digital record of your game without constantly writing on a traditional scoresheet.
+
+### 📄 Scoresheet Image Analyzer
+
+Take a picture of a physical scoresheet and use our OCR-powered system to convert the recorded moves into a digital PGN game that can be reviewed and analyzed.
+
+### 📊 Engine Analysis
+
+Review your games with engine-powered analysis and gain insights into your play, helping you understand your mistakes and discover opportunities to improve.
+
+## What's Coming Next?
+
+We are working toward bringing VoiceMove to chess academies with a dedicated system designed to help coaches monitor student games, review performance, and create a more effective learning experience.
+
+Our goal is to make every game more than just a game—to turn it into an opportunity to learn.
+
+## Get in Touch
+
+Have questions, feedback, or suggestions?
+
+We'd love to hear from you.
+
+**Phone:** +91 76009 96777
+
+**Email:** [Bhattaarav2011@gmail.com](mailto:Bhattaarav2011@gmail.com)

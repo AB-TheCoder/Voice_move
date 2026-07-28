@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoiceChess — record over-the-board games by voice, digitise score sheets, and analyse with a built-in clock and chess engine.">
+  <title>VoiceChess — Chess analysis without the typing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head> -->
+<body> 
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" data-header>
+    <div class="shell header-inner">
+      <a class="brand" href="#top">VoiceChess</a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#origin">Origin</a>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#team">Team</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="nav-cta" href="#contact">Get in touch</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-label="Introduction">
+      <div class="hero-visual" aria-hidden="true">
+        <div class="board-plane"></div>
+        <div class="hero-glow"></div>
+      </div>
+      <div class="shell hero-content">
+        <p class="brand-mark">VoiceChess</p>
+        <h1>Stop typing moves. Speak them.</h1>
+        <p class="hero-lead">
+          The go-to platform for recording games by voice, digitising score sheets, and reviewing play with a clock and engine analysis.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact">Talk to us</a>
+          <a class="btn btn-ghost" href="#features">Explore features</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="origin">
+      <div class="shell narrow">
+        <p class="eyebrow">The spark</p>
+        <h2>Born from one frustrating analysis session.</h2>
+        <p>
+          While analysing a friendly chess game with a friend, typing every move onto a platform
+          felt slow, irritating, and inefficient. That was enough. The old workflow had to go —
+          replaced by a platform built for real learning, speed, and a cleaner over-the-board experience.
+        </p>
+        <p>
+          Chess rewards reflection. Ambitious players grow by looking back at their games.
+          VoiceChess exists to make that reflection easy instead of tedious.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-tint" id="features">
+      <div class="shell">
+        <div class="section-intro">
+          <p class="eyebrow">What you get</p>
+          <h2>Built for the board, not the keyboard.</h2>
+          <p>
+            A prototype Android experience powered by a Python analysis backend —
+            voice first, with score-sheet capture and engine review in the same flow.
+          </p>
+        </div>
+
+        <ul class="feature-list">
+          <li>
+            <h3>Voice move recording</h3>
+            <p>
+              Press the clock, hold, and speak your move. OpenAI Whisper turns speech into notation
+              and writes it to the live score sheet — the feature that sells the product.
+            </p>
+          </li>
+          <li>
+            <h3>Built-in chess clock</h3>
+            <p>
+              A practical timer woven into the recording flow so games stay timed without juggling extra tools.
+            </p>
+          </li>
+          <li>
+            <h3>Score sheet to PGN</h3>
+            <p>
+              Capture or upload a paper score sheet. OpenCV enhances the image, OCR reads the moves,
+              and a chess module verifies and exports clean PGN.
+            </p>
+          </li>
+          <li>
+            <h3>Engine analysis</h3>
+            <p>
+              After the game, a chess engine reviews the line and surfaces output through a clear interface —
+              so looking back becomes useful, not busywork.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="shell">
+        <div class="section-intro">
+          <p class="eyebrow">How it works</p>
+          <h2>Two paths into the same game file.</h2>
+        </div>
+
+        <div class="paths">
+          <article class="path">
+            <h3>Voice pipeline</h3>
+            <ol>
+              <li>Record the move on the clock press</li>
+              <li>Transcribe with Whisper</li>
+              <li>Clean notation with post-processing</li>
+              <li>Validate against a live chess game loop</li>
+              <li>Update the online score sheet</li>
+            </ol>
+          </article>
+          <article class="path">
+            <h3>Image pipeline</h3>
+            <ol>
+              <li>Click or upload a score-sheet photo</li>
+              <li>Enhance the image before recognition</li>
+              <li>Run OCR on the move columns</li>
+              <li>Verify moves with chess logic</li>
+              <li>Build a PGN for analysis</li>
+            </ol>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-accent" id="academies">
+      <div class="shell narrow">
+        <p class="eyebrow">For academies</p>
+        <h2>A tailored version for chess academies.</h2>
+        <p>
+          Coaching rooms need speed and consistency across many students.
+          We offer a special version of VoiceChess shaped for academy workflows —
+          recording, review, and digitisation without the usual paperwork drag.
+        </p>
+        <a class="btn btn-primary" href="#contact">Ask about academy access</a>
+      </div>
+    </section>
+
+    <section class="section" id="team">
+      <div class="shell">
+        <div class="section-intro">
+          <p class="eyebrow">Creators</p>
+          <h2>Hard work, shared ambition.</h2>
+          <p>
+            VoiceChess is the outcome of the dreams and work of its two creators —
+            building a collective product with clear ownership and shared decisions.
+          </p>
+        </div>
+
+        <ul class="team-list">
+          <li>
+            <h3>Aarav Bhatt</h3>
+            <p>Backend Python for the prototype — recognition, validation, and analysis pipeline.</p>
+          </li>
+          <li>
+            <h3>Vihaan Vasudeva</h3>
+            <p>Android GUI that connects player interaction to the Python API.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section section-tint" id="contact">
+      <div class="shell contact-block">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2>Ready to level up how you record and review games?</h2>
+          <p>
+            Reach out for product questions, academy setups, or collaboration.
+          </p>
+        </div>
+        <div class="contact-links">
+          <a href="tel:+917600996777">+91 76009 96777</a>
+          <a href="mailto:bhattaarav2011@gmail.com">bhattaarav2011@gmail.com</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <p class="footer-brand">VoiceChess</p>
+      <p>Chess analysis without the typing.</p>
+      <p class="footer-credit">Created by Aarav Bhatt &amp; Vihaan Vasudeva</p>
+    </div>
+  </footer>
+</body>
+</html>
