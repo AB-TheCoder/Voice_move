@@ -12,7 +12,7 @@ class VccnApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedmodebanner: false,
+        debugShowCheckedModeBanner: false,
         title: 'VCCN',
         home: const ClockScreen(),
         );
@@ -22,11 +22,25 @@ class VccnApp extends StatelessWidget {
 class TimeControl {
     final String label;
     final int minutes;
-    final int incrementsSeconds;
+    final int incrementSeconds;
 
-    const TimeControl(this.label, this.minute, this.incrementSecoonds);
-
+    const TimeControl(this.label, this.minutes, this.incrementSeconds);
 }
+
+void _resetGame() {
+  setState(() {
+    whiteTime = Duration(minutes: currentControl.minutes);
+    blackTime = Duration(minutes: currentControl.minutes);
+    whiteMoves = 0;
+    blackMoves = 1;
+    whiteToMove = true;
+  });
+}
+
+void _showAddTimeDialog() {
+  showDialog
+}
+
 const List<TimeControl> presets = [
     TimeControl("1 min", 1, 0),
     TimeControl("2 | 1", 2, 1),
@@ -34,7 +48,7 @@ const List<TimeControl> presets = [
     TimeControl("5 min", 5, 0),
     TimeControl("5 | 3", 5, 3),
     TimeControl("10 min", 10, 0),
-    Timecontrol("15 | 10", 15, 10),
+    TimeControl("15 | 10", 15, 10),
     TimeControl("30 min", 30, 0),
 ];
 
@@ -61,7 +75,7 @@ class _ClockScreenState extends State<ClockScreen> {
     _startTimer();
   }
 
-  viod _startTimer() {
+  void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
             if (whiteToMove) {
@@ -118,142 +132,143 @@ class _ClockScreenState extends State<ClockScreen> {
   }
 
   @override
-  Widget build(BuildContent context) {
+  Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
         body: SafeArea(
             child: Column(
                 children: [
-                    //m writing the code again for black and white
-                ]
-            )
-        )
-    )
-  }
-
-
-            // Black's side of the screen(inverted)
-          Expanded(
-            child: Transform.rotate(
-              angle: pi, //i wrote pi instead of 3.141 coz im a cool boy lmao
-              child: GestureDetector(
-                onTap: () {},
-                child:Container(
-                    width: double.infinity,
-                    color: const Color(0xFF8B8B8B),
-                    child: Stack(
+                    
+                Expanded(
+                    child: Transform.rotate(
+                        angle: pi,
+                        child: _ClockPanel(
+                            time: _format(blackTime),
+                            moves: blackMoves,
+                            timeControl: currentControl.label,
+                            onTap: () {},
+                            onTuneTap: _showTimeControlSheet,
+                        ),
+                    ),
+                ),
+                
+                //m writing the code again for black and white
+                //this is the control bar
+                Container(
+                    height: 75,
+                    color: const Color(0xFF202020),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-
-                            Positioned(
-                                top: 20,
-                                right: 20,
-                                child: Text(
-                                    "Moves: 1",
-                                    style: textStyle(
-                                        fontSize: 24,
-                                        color: Colors.grey.shade900,
-                                        fontWeight: FontWeight.w600,
-                                    ),
-                                ),
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.refresh, color: Colors.white, size: 34),
                             ),
-
-                            const Center(
-                                child: Text(
-                                    '15:00',
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 100,
-                                        fontWeight: FontWeight.w700,
-                                    ),
-                                ),
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.play_arrow, color: Colors.white, size: 36),
                             ),
-
-                            Positioned(
-                                bottom: 30,
-                                left: 0,
-                                right:0,
-                                child:Column(
-                                    chilren: const [
-
-                                        Icon(
-                                            Icons.tune,
-                                            size: 32, 
-                                            color: Colors.black,
-                                        ),
-
-                                        SizedBox(height: 8),
-
-                                        Text(
-                                            "15 min | 10 sec",
-                                            style: TextStyle(
-                                                fontsize: 24,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w600,
-                                            ),
-
-                                        ),
-
-                                    ],
-
-                                ),
-
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.history, color: Colors.white, size: 34),
                             ),
-
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.volume_up, color: Colors.white, size: 34),
+                            ),
                         ],
-
                     ),
 
                 ),
-
+                
+                //white
+                Expanded(
+              child: _ClockPanel(
+                time: _format(whiteTime),
+                moves: whiteMoves,
+                timeControl: currentControl.label,
+                onTap: () {},
+                onTuneTap: _showTimeControlSheet,
+              ),
             ),
-
+          ],
         ),
+      ),
+    );
+  }
+}
 
-        // Control bar attempt
+class _ClockPanel extends StatelessWidget {
+    final String time;
+    final int moves;
+    final String timeControl;
+    final VoidCallback onTap;
+    final VoidCallback onTuneTap;
 
-        Container(
-            height: 75
-            color: const Color(0xFF202020),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    const _ClockPanel({
+        required this.time,
+        required this.moves,
+        required this.timeControl,
+        required this.onTap,
+        required this.onTuneTap,
+    });
+
+    @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        color: const Color(0xFF8B8B8B),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 20,
+              right: 20,
+              child: Text(
+                "Moves: $moves",
+                style: TextStyle(
+                  fontSize: 24,
+                  color: Colors.grey.shade900,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                time,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 100,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: Column(
                 children: [
-
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 34,
-                        ),
+                  IconButton(
+                    onPressed: onTuneTap,
+                    icon: const Icon(Icons.tune, size: 32, color: Colors.black),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    timeControl,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
                     ),
-                    IconButton(
-                        onPressed: () {},
-                        icon: cnst Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 36,
-                        ),
-                    ),
-
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                            Icons.history,
-                            color: Colors.white,
-                            size: 34,
-
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                            Icons.volume_up,
-                            color: Colors.white,
-                            size: 34,
-                        ),
-                    ),
+                  ),
                 ],
+              ),
             ),
+          ],
         ),
-
-        //white size now
-
-        Expanded 
+      ),
+    );
+  }
+}
