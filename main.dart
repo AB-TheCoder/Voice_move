@@ -66,7 +66,7 @@ class _ClockScreenState extends State<ClockScreen> {
   //speech state
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _speechEnabled = false;
-  Sring _recognizedText = '';
+  String _recognizedText = '';
 
   @override
   void initState() {
@@ -110,7 +110,7 @@ class _ClockScreenState extends State<ClockScreen> {
 
 @override
 void dispose() {
-  _timer?.cancel() //always cancelling to avoid leaks
+  _timer?.cancel(); //always cancelling to avoid leaks
   super.dispose();
 }
 
@@ -224,8 +224,8 @@ void _showTimeControlSheet() {
     },
   );
 }
-//Custom time control
 
+//Custom time control
 void _showCustomDialog() {
   final minutesController = TextEditingController();
   final incrementController = TextEditingController();
@@ -237,32 +237,34 @@ void _showCustomDialog() {
         backgroundColor: const Color(0xFF202020),
         title: const Text("Custom time control", style: TextStyle(color: Colors.white)),
         content: Column(
-          mainAxisAlignment: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: minutesController,
               keyboardType: TextInputType.number,
               style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(labelText: "Minutes", labelStyle: TextStyle(color: Colors.white70)),
+            ),
+            TextField(
+              controller: incrementController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
               decoration: const InputDecoration(labelText: "Increment (seconds)", labelStyle: TextStyle(color: Colors.white70)),
-
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
-              //falls back to 10+0 if the file is empty or invalid
               final mins = int.tryParse(minutesController.text) ?? 10;
               final inc = int.tryParse(incrementController.text) ?? 0;
               setState(() {
                 currentControl = TimeControl("$mins | $inc", mins, inc);
                 whiteTime = Duration(minutes: mins);
                 blackTime = Duration(minutes: mins);
-
               });
-              Navigator.pop("Start"),
-
-            }
+              Navigator.pop(context);
+            },
             child: const Text("Start"),
           ),
         ],
@@ -313,10 +315,9 @@ void _showAddTimeDialog() {
           ],
         ),
       );
-    };
+    },
   );
 }
-
 //build
 
 @override
@@ -340,7 +341,7 @@ void _showAddTimeDialog() {
                                   recognizedText: _recognizedText,
                                   onHoldStart: () => _onHoldStart(false),
                                   onHoldEnd: () => _onHoldEnd(false),
-                                  onTuneTap: _showAddTimeDialog,
+                                  onTuneTap: _showTimeControlSheet,
                               ),
                           ),
                       ),
@@ -402,7 +403,7 @@ void _showAddTimeDialog() {
                     ),
                   ),
                 ),
-            ], // closes Stack
+            ], // closes stack
           ),
         ),
       );
@@ -413,7 +414,8 @@ void _showAddTimeDialog() {
 class _ClockPanel extends StatelessWidget {
   final String time;
   final int moves;
-  final String is Active; //true = this player's turn, false dimmed
+  final String timeControl;
+  final bool is Active; //true = this player's turn,  if false, then  dimmed
   final String recognizedText;
   final VoidCallback onHoldStart;
   final VoidCallback onHoldEnd;
@@ -429,64 +431,17 @@ class _ClockPanel extends StatelessWidget {
     required this.onHoldEnd,
     required this.onTuneTap,
   });
-}
 
-
-
-
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-bool gameOver = false;
-String? winner;
-
-
-
-
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-   String _format(Duration d) {
-    final minutes = d.inMinutes.toString().padLeft(2, '0');
-    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
-  }
-
-
-
-
-
-
-class _ClockPanel extends StatelessWidget {
-    final String time;
-    final int moves;
-    final String timeControl;
-    final VoidCallback onTap;
-    final VoidCallback onTuneTap;
-
-    const _ClockPanel({
-        required this.time,
-        required this.moves,
-        required this.timeControl,
-        required this.onTap,
-        required this.onTuneTap,
-    });
-
-    @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      // onLongPressStart/End pass a details object we don't need — the `_` discards it
+      onLongPressStart: (_) => onHoldStart(),
+      onLongPressEnd: (_) => onHoldEnd(),
       child: Container(
         width: double.infinity,
-        color: const Color(0xFF8B8B8B),
+        // Lighter grey when active (your turn), darker when inactive — matches chess.com clock (inspiration for this project if u didnt know)
+        color: isActive ? const Color(0xFF8B8B8B) : const Color(0xFF5A5A5A),
         child: Stack(
           children: [
             Positioned(
@@ -501,6 +456,20 @@ class _ClockPanel extends StatelessWidget {
                 ),
               ),
             ),
+
+            
+              Positioned(
+                top: 60,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Text(
+                    recognizedText,
+                    style: const TextStyle(fontSize: 18, color: Colors.black87),
+                  ),
+                ),
+              ),
+
             Center(
               child: Text(
                 time,
@@ -511,6 +480,7 @@ class _ClockPanel extends StatelessWidget {
                 ),
               ),
             ),
+
             Positioned(
               bottom: 30,
               left: 0,
@@ -539,3 +509,7 @@ class _ClockPanel extends StatelessWidget {
     );
   }
 }
+
+
+//what is the end to this gng. honestly would people even prefer to type their move if the model gets it wrong?. i believe i should try the in built iphone
+//model first and if it aint good enough even after adding biases, then we will just switch to model.en, which is 100mb whispr model.
