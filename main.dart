@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:dartchess/dartchess.dart' as chess;
 
 void main() {
   runApp(const VccnApp());
@@ -19,8 +20,71 @@ class VccnApp extends StatelessWidget {
         title: 'VCCN',
         home: const ClockScreen(),
         );
-    }
+    } 
 }
+//chunk 11 and 16, m adding real analysis for moves jus like the py file did
+class ParsedMove {
+  final String text;
+  final String? promotion;
+  ParsedMove(this.text, this.promotion);
+}
+
+class MoveParser {
+  static const Map<String, String> _pieceWords = {
+    'knight': 'N', 'night': 'N', 'bishop': 'B', 'rook': 'R', 'queen': 'Q', 'king': 'K',
+  };
+
+  static const Map<String, String> _numberWords = {
+    'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 'six': '6', 'seven': '7', 'eight': '8',
+  };
+
+  static ParsedMove? parse(String raw) {
+    if (raw.trim().isEmpty) return null;
+    String text = raw.toLowerCase().trim();
+
+    if (text.contains('castle') && text.contains('king')) return ParsedMove('O-O', null);
+    if (text.contains('castle') && text.contains('queen')) return ParsedMove('O-O-O', null);
+
+    _numberWords.forEach((word, digit) => text = text.replaceAll(word, digit));
+
+    final isCapture = text.contains('takes') || text.contains('captures');
+
+    String pieceLetter = '';
+
+    String pieceLetter = '';
+    for (final entry in _pieceWords.entries) {
+      if (text.startsWith(entry.key)) {
+        pieceLetter = entry.value;
+        break;
+      }
+    }
+
+    final squarePattern = RegExp(r'[a-h][1-8]');
+    final matches = squarePattern.allMatches(text).toList();
+    if (matches.isEmpty) return null;
+
+    final destinationMatch = matches.last;
+    final destination = destinationMatch.group(0)!;
+
+    String? promotionPiece;
+    final afterSquareText = text.substring(destinationMatch.end);
+    for (final entry in _pieceWords.entries) {
+      if (afterSquareText.contains(entry.key)) {
+        promotionPiece = entry.value;
+        break;
+      }
+
+    }
+    final baseText = pieceLetter.isEmpty
+        ? (isCapture ? 'x$destination' : destination)
+        : (isCapture ? '${pieceLetter}x$destination' : '$pieceLetter$destination');
+
+    return ParsedMove(baseText, promotionPiece);
+
+  }
+}
+
+
 //time control model. all along with minutes, increment and display label together
 
 class TimeControl {
@@ -43,6 +107,21 @@ const List<TimeControl> presets = [
     TimeControl("30 min", 30, 0),
 ];
 
+//candidate move (chunk 16) SAN + underlying move 
+class _CandidateMove {
+  final chess.Move move;
+  final String san;
+  _CandidateMove(this.move, this.san);
+}
+
+//chunk 18: move record
+class MoveRecord {
+  final String san;
+  final Duration timeTaken;
+  final Duration clockRemaining;
+  MoveRecord(this.san, this.timeTaken, this.clockRemaining);
+}
+
 //main clock screen
 class ClockScreen extends StatefulWidget {
   const ClockScreen({super.key});
@@ -63,17 +142,38 @@ class _ClockScreenState extends State<ClockScreen> {
   String? winner;
   Timer? _timer;
 
-  //speech state
+  bool _manualPause = false;
+  String? _endReason;
+  bool _isMuted = false; //mute toggle
+
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _speechEnabled = false;
   String _recognizedText = '';
+  String? _lastMoveError;
+
+  chess.Position _position = chess.Chess.initial;
+
+  //move history with move record
+  List<MoveRecord> _moveHistory = [];
+  DateTime _moveStartTime = DateTime.now();
+
+  List<String> _positionHistory = [];
+  List<_CandidateMove> _pendingCandidates = [];
+  bool get _awaitingConfirmation => _pendingCandidates.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
     _initSpeech();
+    _moveStartTime = DateTime.now();
   }
+
+  //speech state
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _speechEnabled = false;
+  String _recognizedText = '';
+
   
   void _initSpeech() async {
     _speechEnabled = await _speech.initialize(
@@ -95,6 +195,7 @@ class _ClockScreenState extends State<ClockScreen> {
           whiteTime = Duration.zero;
           gameOver = true;
           winner = "Black";
+          _endReason = "Time";
         }
       } else {
         blackTime -= const Duration(seconds: 1);
@@ -102,6 +203,7 @@ class _ClockScreenState extends State<ClockScreen> {
           blackTime = Duration.zero;
           gameOver = true;
           winner = "White";
+          _endReason = "Time";
         }
       }
     });
@@ -120,6 +222,14 @@ String _format(Duration d) {
   return '$minutes:$seconds';
 }
 
+//formats duration as H:MM:SS for pgn (inspiration from lichess analysis board)
+String _formatClk(Duration d) {
+  final hours = d.inHours;
+  final minutes = (d.inminutes % 60).toString().padLeft(2, '0');
+  final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
+  return '$hours:$minutes:$seconds';
+}
+
 void _switchTurn() {
   if (gameOver) return;
   setState(() {
@@ -131,7 +241,144 @@ void _switchTurn() {
       blackMoves++;
     }
     whiteToMove = !whiteToMove;
+    _moveStartTime = DateTime.now(); //restarting per move stopwatch for time notation
   });
+  _checkGameEndConditions();
+  if (!gameOver) _checkGameEndConditions();
+}
+void _checkGameEndConditions() {
+  if (_position.isCheckmate) {
+    setState(() {
+      gameOver = true;
+      winner = whiteToMove ? "Black" : "White";
+      _endReason = "Checkmate";
+    });
+  } else if (_position.isStalemate) {
+    setState(() {
+      gameOver = true;
+      winner = null;
+      _endReason = "Stalemate";
+    });
+  }
+}
+
+void _checkDrawConditions() {
+  final fenParts = _position.fen.split(' ');
+  final positionKey = fenParts.length >= 4 ? fenParts.sublist(0, 4).join(' ') : _position.fen;
+
+  _positionHistory.add(positionKey);
+  final occurrences = _positionHistory.where((p) => p == positionKey).length;
+
+  if (occurrences >= 3) {
+    setState(() {
+      gameOver = true;
+      winner = null;
+      _endReason = "Threefold repitition";
+    });
+    return;
+  }
+
+  if (_isInsufficientMaterial()) {
+    setState(() {
+      gameOver = true;
+      winner = null;
+      _endReason = "Insufficient material";
+    });
+  }
+}
+
+bool _isInsufficientMaterial() {
+  final all pieces = _position.board.pieces.values.toList();
+  final nonKingPieces = allPieces.where((p) => p.role != chess.Role.king).toList();
+
+  if (nonKingPieces.isEmpty) return true;
+  if (nonKingPieces.length == 1) {
+    final role = nonKingPieces.first.role;
+    if (role == chess.Role.bishop || role == chess.Role.knight) return true;
+  }
+  return false;
+}
+
+List<_CandidateMove> _findCandidateMoves(ParsedMove parsed) {
+  final results = <_CandidateMove>[];
+  final legalMoves = _position.legalMoves;
+
+  for (final entry in legalMoves.entries) {
+    final fromSquare = entry.key;
+    final destinations = entry.value;
+    final movingPiece = _position.board.pieceAt(fromSquare);
+    final isPawn = movingPiece?.role == chess.Role.pawn;
+
+    for (final toSquare in chess.SquareSet(destinations).squares) {
+      final isPromotionSquare = isPawn && (toSquare.rank == 0 || toSquare.rank == 7);
+
+      if (isPromotionSquare) {
+        final wanted = parsed.promotion ?? 'Q';
+        const roleMap = {
+          'Q': chess.Role.queen, 'R': chess.Role.rook, 'B': chess.Role.bishop, 'N': chess.Role.knight, };
+          final role = roleMap[wanted]!;
+          final move = chess.NormalMove(from: fromSquare, to: toSquare, promotion: role);
+          final sanResult = _position.makeSanUnchecked(move);
+          final san = sanResult?.$2 ?? '';
+          final sanWithoutPromotion = san.replaceAll(RegExp(r'=[QRBN]'), '');
+          if (_looselyMatches(parsed.text, sanWithoutPromotion)) {
+            results.add(_CandidateMove(move, san));
+          }
+        } else {
+          final move = chess.NormalMove(from: fromSquare, to: toSquare);
+          final sanResult = _position.makeSanUnchecked(move);
+          final san = sanResult?.$2 ?? '';
+          if (_looselyMatches(parsed.text, san)) {
+            results.add(_CandidateMove(move, san));
+          }
+        }
+      }
+    }
+    return results;
+  }
+
+  bool _looselyMatches(String guess, String realSan) {
+    String clean(String s) => s.replaceAll(RegExp(r'[+#]'), '').to toLowerCase();
+    final g = clean(guess);
+    final r = clean(realSan);
+    return r == g || r.replaceAll('x', '') == g.replaceAll('x', '');
+  }
+  void _proposeMove(String rawText) {
+    final parsed = MoveParser.parse(rawText);
+
+    if (parsed == null) {
+      setState(() {
+        _lastMoveError = "Couldn't understand - Try the move picker";
+        isPaused = false;
+      });
+      return;
+    }
+  }
+  final candidates = _findCandidateMoves(parsed);
+
+  if (candidates.isEmpty) {
+    setState(() {
+      _lastMoveError = "Illegal move: ${parsed.text}";
+      isPaused = false;
+    });
+    return;
+  }
+
+  setState(() {
+    _pendingCandidates = candidates;
+    _lastMoveError = null;
+  });
+}
+
+//chunk 18: confirming a move now records how long it took and what the mover's clock read right after- before turn switch
+
+void _confirmMove(_CandidateMove chosen) {
+  final timeTaken = DateTime.now().difference(_moveStartTime);
+  final clockAfter = whiteToMove ? whiteTime : blackTime;
+
+  setState(() {
+    _position = 
+  })
 }
 
 //press and hold + voice (chunk 9 and 10)
@@ -389,7 +636,7 @@ void _showAddTimeDialog() {
                     ),
                   ),
                 ],
-              ), // closes Column
+              ), // closes column
 
               if (gameOver)
                 Container(
