@@ -1,94 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>VoiceMove</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="VoiceChess — record over-the-board games by voice, digitise score sheets, and analyse with a built-in clock and chess engine.">
-        <script src="program.js" defer></script>
-        <link rel="stylesheet" href="reference.css">
-    </head>
-    <body>
-        <header>
-            <h1>VoiceMove</h1>
-            <p><strong>-Record Analyze Improve </strong></p>
-            <nav>
-                <a href="#Inspiration"> The Inspiration</a>
-                <a href="#Whatyouget">What You GET</a>
-                <a href="#home">MainScreen</a>
-                <a href="#FutureFeatures">In Future</a>
-                <a href="#Getintouch">Get in Touch</a>
-            </nav>
-        </header>
-        <main>
-            <section id="home">
-            <p><em>VoiceMove</em> is a chess platform designed to make recording and reviewing over-the-board games easier.
-                 Record your games using voice commands, digitize physical scoresheets, play with an integrated chess clock,
-                  and review your games with powerful engine analysis—<strong>all in one place.</strong></p>
-            </section>
-            <hr>
-            <br>
-            <section id="Inspiration">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VoiceMove — record over-the-board games by voice, digitise score sheets, and analyse with a built-in clock and chess engine.">
+    <title>VoiceMove</title>
+    <link rel="stylesheet" href="Graphics.css">
+    <script src="program.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <h1 class="brand__name">Voice<span class="brand__name-accent">Move</span></h1>
+            <p class="brand__tagline">Record · Analyze · Improve</p>
+        </div>
+
+        <nav class="site-nav" aria-label="Primary">
+            <a href="#inspiration">The Inspiration</a>
+            <a href="#features">What You Get</a>
+            <a href="#home">Overview</a>
+            <a href="#roadmap">What's Next</a>
+            <a href="#contact">Get in Touch</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="section section--intro">
+            <h1 class="brand__nameM">Voice<span class="brand__name-accentM">Move</span></h1>
+            <p class="brand__taglineM">Record · Analyze · Improve</p>
+            <p class="home-text">
+                <em>VoiceMove</em> is a chess platform designed to make recording and reviewing
+                over-the-board games easier. Record your games using voice commands, digitize
+                physical scoresheets, play with an integrated chess clock, and review your games
+                with powerful engine analysis—<strong>all in one place.</strong>
+            </p>
+        </section>
+
+        <section id="inspiration" class="section section--inspiration">
             <h2>The Spark</h2>
-            
-            <p>While analyzing a friendly game, we realized how inefficient and time-consuming traditional scoresheets can be. Reviewing an over-the-board game often requires players to manually record moves, digitize their scoresheets, and then set up the game again for analysis.
-                <br><br><em><b>We believed there had to be a better way.</b></em><br>
-                So we created<b> VoiceMove</b>—a platform designed to make recording games faster, analyzing them easier, and learning from every game more effective.</p>
-            </section>
-            <br>
-            <hr>
-            <section id="Whatyouget">
-                <h2>What you GET</h2>
-                <p>With the VoiceMove beta for Android, you can:</p>
-                    <dl>
-                        <dt><h3>♟️ Built-in Chess Clock </h3></dt>
-                        <dd>Play your games with an integrated chess clock, designed for a seamless over-the-board experience—even when playing offline.</dd>
+            <p>
+                While analyzing a friendly game, we realized how inefficient and time-consuming
+                traditional scoresheets can be. Reviewing an over-the-board game often requires
+                players to manually record moves, digitize their scoresheets, and then set up the
+                game again for analysis.
+                <em><strong>We believed there had to be a better way.</strong></em>
+                So we created <strong>VoiceMove</strong>—a platform designed to make recording
+                games faster, analyzing them easier, and learning from every game more effective.
+            </p>
+        </section>
 
-                        <dt><h3>🎙️ Voice Notation</h3></dt>
-                        <dd>Record your moves effortlessly using voice commands. Simply speak your moves and create a digital record of your game without constantly writing on a traditional scoresheet.</dd>
+        <section id="features" class="section section--features">
+            <h2>What You Get</h2>
+            <p>With the VoiceMove beta for Android, you can:</p>
 
-                        <dt><h3>📄 Scoresheet Image Analyzer</h3></dt>
-                        <dd>Take a picture of a physical scoresheet and use our OCR-powered system to convert the recorded moves into a digital PGN game that can be reviewed and analyzed.</dd>
-                        
-                        <dt><h3>📊 Engine Analysis</h3></dt>
-                        <dd>Review your games with engine-powered analysis and gain insights into your play, helping you understand your mistakes and discover opportunities to improve.</dd>
+            <dl class="feature-list">
+                <dt>Built-in Chess Clock</dt>
+                <dd>
+                    Play your games with an integrated chess clock, designed for a seamless
+                    over-the-board experience—even when playing offline.
+                </dd>
 
-                    </dl>
-                    
-                
-            <br>
-            <hr>
-            
-            </section>
-            <section id="FutureFeatures"> 
-                <h2> What's Coming Next?</h2>
-                <p>
-                    We are working toward bringing VoiceMove to chess academies with a dedicated system designed to help coaches monitor student games, review performance, and create a more effective learning experience.
-                    <br><em>Our goal is to make every game more than just a game—to turn it into an opportunity to learn.</em>
+                <dt>Voice Notation</dt>
+                <dd>
+                    Record your moves effortlessly using voice commands. Simply speak your moves
+                    and create a digital record of your game without constantly writing on a
+                    traditional scoresheet.
+                </dd>
 
-                </p>
-            </section>
-        </main>
-        <footer>
-            <section id="Getintouch">
-                <h2>Get In Touch</h2>
-                    <p>Have questions, feedback, or suggestions?<br>
-                        <em>We'd love to hear from you.</em>
-                        <br>
-                        Phone:<a href="tel:+917600996777">+91 76009 96777</a>
-                        <br>
-                        Email:<a href="mailto:bhattaarav2011@gmail.com">bhattaarav2011@gmail.com</a>
-                        <br>
-                        <strong>VoiceMove</strong>-Record Analyze Improve
-                        
-                    
-                    </p>
-                    <br>
+                <dt>Scoresheet Image Analyzer</dt>
+                <dd>
+                    Take a picture of a physical scoresheet and use our OCR-powered system to
+                    convert the recorded moves into a digital PGN game that can be reviewed and
+                    analyzed.
+                </dd>
 
-                    
-                    
-            </section>
-        </footer>
-        
-    </body>
+                <dt>Engine Analysis</dt>
+                <dd>
+                    Review your games with engine-powered analysis and gain insights into your
+                    play, helping you understand your mistakes and discover opportunities to improve.
+                </dd>
+            </dl>
+        </section>
+
+        <section id="roadmap" class="section section--roadmap">
+            <h2>What's Coming Next?</h2>
+            <p>
+                We are working toward bringing VoiceMove to chess academies with a dedicated
+                system designed to help coaches monitor student games, review performance, and
+                create a more effective learning experience.
+                <em>Our goal is to make every game more than just a game—to turn it into an
+                opportunity to learn.</em>
+            </p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <section id="contact" class="section section--contact">
+            <h2>Get In Touch</h2>
+            <p>
+                Have questions, feedback, or suggestions?
+                <em>We'd love to hear from you.</em>
+            </p>
+
+            <p class="contact-phone">
+                Phone: <a href="tel:+917600996777">+91 76009 96777</a>
+            </p>
+            <p class="contact-email">
+                Email: <a href="mailto:bhattaarav2011@gmail.com">bhattaarav2011@gmail.com</a>
+            </p>
+
+            <p class="site-footer__brand">
+                <strong>VoiceMove</strong> — Record · Analyze · Improve
+            </p>
+        </section>
+    </footer>
+</body>
 </html>

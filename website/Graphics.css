@@ -1,0 +1,184 @@
+/* the main styling sheet for the website  */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+/* Basics */
+:root {
+  /* Typography */
+  --font-family: "inter", sans-serif;
+
+  /* Background */
+  --bg-secondary: rgba(3, 10, 18, 1);
+  --bg-primary: rgba(7, 17, 28, 1);
+
+  /* Text */
+  --txt-primary: rgba(245, 245, 245, 1);
+  --txt-secondary: rgba(185, 193, 203, 1);
+  --txt-muted: rgba(120, 143, 157, 1);
+
+  /* Contrast */
+  --gold: rgba(212, 175, 55, 1);
+  --gold-bright: rgba(240, 194, 75, 1);
+  --gold-dark: rgba(160, 120, 20, 1);
+
+  /* Accents */
+  --blue: rgba(110, 150, 255, 1);
+  --teal: rgba(60, 210, 190, 1);
+  --purple: rgba(180, 100, 255, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  line-height: 1.65;
+  font-family: var(--font-family);
+  color: var(--txt-primary);
+  background-color: var(--bg-primary);
+}
+
+/* Header / brand */
+.site-header {
+  /* sticky header styles */
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1rem clamp(1.25rem, 4vw, 2rem);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid gray;
+  border-image: linear-gradient(
+    90deg,
+    transparent,
+    grey,
+    transparent
+  ) 1;
+}
+
+.brand {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline; /* lines up name + tagline on the text baseline */
+  gap: 0.75rem;          /* space between them */
+  flex-shrink: 0;
+}
+
+.brand__name,
+.brand__tagline {
+  margin: 0; /* remove default h1/p margins that push them apart */
+}
+
+.brand__name {
+  /* h1 / product name */
+  color: var(--txt-primary);
+}
+
+.brand__name-accent {
+  color: var(--gold-dark);
+}
+
+.brand__tagline {
+  /* Record · Analyze · Improve */
+  color: var(--gold-dark);
+}
+
+.site-nav {
+  /* primary navigation links */
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 0.65rem 1.1rem;
+}
+
+.site-nav a {
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--txt-primary);
+  white-space: nowrap;
+}
+
+.site-nav a:hover {
+  color: var(--gold-bright);
+  text-decoration: underline;
+}
+/* Sections */
+.section {
+  /* shared section spacing */
+  width: var(--shell);
+  margin: 0 auto;
+  padding: 2.5rem 0 1rem;
+  
+}
+
+.section--intro {
+  /* #home overview */
+  padding-left: 60px;
+
+  
+}
+.section--intro .brand__nameM {
+  /* h1 / product name */
+  margin: 0;
+  color: var(--txt-primary);
+  font-size: 4rem;
+  line-height: 1.1;
+}
+
+.section--intro .brand__name-accentM {
+  color: var(--gold);
+}
+
+.section--intro .brand__taglineM {
+  margin: 0.25rem 0 0;
+  color: var(--gold);
+  font-size: 1.3rem;
+  padding-left: 50px;
+}
+.section--intro .home-text{
+
+  
+  inline-size: 300px;
+  overflow-wrap: break-word;
+}
+.section--inspiration {
+  /* #inspiration */
+}
+
+.section--features {
+  /* #features */
+}
+
+.feature-list {
+  /* features definition list */
+}
+
+.section--roadmap {
+  /* #roadmap */
+}
+
+/* Footer / contact */
+.site-footer {
+  /* page footer shell */
+}
+
+.contact-phone,
+.contact-email {
+  /* contact lines */
+}
+
+.site-footer__brand {
+  /* closing brand line */
+}
