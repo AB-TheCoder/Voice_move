@@ -22,7 +22,7 @@ class VccnApp extends StatelessWidget {
         );
     } 
 }
-//chunk 11 and 16, m adding real analysis for moves jus like the py file did
+//chunk 11 and 16, m adding real analysis for moves jus like the py file did (move text parser)
 class ParsedMove {
   final String text;
   final String? promotion;
@@ -377,8 +377,16 @@ void _confirmMove(_CandidateMove chosen) {
   final clockAfter = whiteToMove ? whiteTime : blackTime;
 
   setState(() {
-    _position = 
+    _position = _position.play(chosen.move);
+    
   })
+}
+
+void _cancelPendingMove() {
+  setState(() {
+    _pendingCandidates = [];
+    isPaused = false;
+  });
 }
 
 //press and hold + voice (chunk 9 and 10)
@@ -393,13 +401,12 @@ void _onHoldStart(bool isWhitePanel) {
   setState(() {
     isPaused = true;
     _recognizedText = '';
+    _lastMoveError = null;
   });
 
   _speech.listen(
     onResult: (result) {
-      setState(() {
-        _recognizedText = result.recognizedWords;
-      });
+      setState(() => _recognizedText = result.recognizedWords);
     },
   );
 }
@@ -409,13 +416,42 @@ void _onHoldEnd(bool isWhitePanel) {
   if(isWhitePanel != whiteToMove) return;
 
   _speech.stop();
-  setState(() => isPaused = false);
 
   if (_recognizedText.isNotEmpty) {
-    debugPrint('Heard: $_recognizedText');
-    _switchTurn(); //placeholder- will become "validate the switch"
+    setState(() => isPaused = false);
+    return;
   }
+  _proposeMove(_recognizedText);
 }
+
+void _showManualMoveDialog() {
+  if (gameOver) return;
+  setState(() => isPaused = true);
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) {
+      return PieceSquarePicker(
+        onSubmit: (moveText, promotion) {
+          Navigator.pop(context);
+          setState(() => isPaused = false);
+
+        },
+      );
+    },
+  );
+}
+//adjust time attempt at chess.com's clock app scrool wheel type selector
+void _showAdjustTimeDialog(bool forWhite) {
+  final current = forWhite ? whiteTime : blackTime;
+  int selectedMinutes = current.inMinutes;
+  int selectedSeconds = current.inSeconds % 60;
+
+  
+}
+
 //reset
 
 void _resetGame() {
@@ -428,8 +464,51 @@ void _resetGame() {
     gameOver = false;
     winner = null;
     isPaused = false;
+    _manualPause = false;
+    _endReason = null;
     _recognizedText = '';
+    _lastMoveError = null;
+    _position = chess.Chess.initial;
+    _moveHistory = [];
+    _positionHistory = [];
+    _pendingCandidates = [];
+    _moveStartTime = DateTime.now()
   });
+}
+
+void _confirmReset() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF202020),
+        title: const Text("Reset Clock", style: TextStyle(color: COlors.white)),
+        content: const Text("This will reset the game and clocks.", style: TextStyle(color: Color.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButtom(
+            onPressed: () {
+              Navigator.pop(context);
+              _resetGame();
+            },
+            child: const Text("Confirm", style: TextStyle(color: Color.redAccent)),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _togglePause() {
+  if (gameOver) return;
+  setState(() => _manualPause = !_manualPause);
 }
 
 void _showTimeControlSheet() {
@@ -441,10 +520,8 @@ void _showTimeControlSheet() {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 16),
-          const Text(
-            "Select time control",
-            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
-          ),
+          const Text("Select time control",
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           ...presets.map((tc) => ListTile(
                 title: Text(tc.label, style: const TextStyle(color: Colors.white)),
@@ -519,7 +596,7 @@ void _showCustomDialog() {
     },
   );
 }
-
+//rewrite this to replace with chess.com's scrool wheel to save time instead
 void _showAddTimeDialog() {
   showDialog(
     context: context,
@@ -565,7 +642,90 @@ void _showAddTimeDialog() {
     },
   );
 }
-//build
+//build pgn (chunk 18)
+
+  String _buildPgn() {
+    final buffer = StringBuffer();
+    buffer.writeln('[Event "VCCN Game"]');
+    buffer.writeln('[TimeControl "${currentControl.label}"]');
+    buffer.writeln();
+
+    for (int i = 0; i < _moveHistory.length; i++) {
+      final record = _moveHistory[i];
+      if (i % 2 == 0) {
+        buffer.write('${(i ~/ 2) + 1}. ');
+      }
+      buffer.write('${record.san} {[%clk ${_formatClk(record.clockRemaining)}]} ');
+    }
+
+    if (gameOver) {
+      if (_endReason == "Stalemate" ||
+          _endReason == "Threefold repetition" ||
+          _endReason == "Insufficient material") {
+        buffer.write("1/2-1/2");
+      } else {
+        buffer.write(winner == "White" ? "1-0" : "0-1");
+      }
+    }
+
+    return buffer.toString().trim();
+  }
+
+  void _showPgnDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF202020),
+          title: const Text("Game PGN", style: TextStyle(color: Colors.white)),
+          content: SelectableText(_buildPgn(), style: const TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close")),
+          ],
+        );
+      },
+    );
+  }
+
+//move time review list (also chunk 18 )
+
+void _showMoveTimesDialog() {
+  showDialog(
+    context: context
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: const Color(0xFF202020),
+        title: const Text("Move Times", style: TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            intemCount: _moveHistory.lenth,
+            itemBuilder: (context, index) {
+              final record = _moveHistory[index];
+              final moveNumber = (index ~/ 2) +1;
+              final side = index % 2 == 0 ? "White" : "Black";
+              return ListTile(
+                dense: true,
+                title: Text(
+                  "$moveNumber. ${record.san} ($side)",
+                  style: const TextStyle(color: Colors.white),
+                ),
+                trailing: Text(
+                  "${record.timeTaken.inSeconds}s"
+                  style: const TextStyle(color: Colors.greenAccent),
+                ),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(onpressed: () => Navigator.pop(context), child: const Text("Close")),
+        ],
+      );
+    },
+  );
+}
 
 @override
   Widget build(BuildContext context) {
@@ -586,6 +746,7 @@ void _showAddTimeDialog() {
                                   timeControl: currentControl.label,
                                   isActive: !whiteToMove, //dims when its not black's turn
                                   recognizedText: _recognizedText,
+                                  errorText: _lastMoveError,
                                   onHoldStart: () => _onHoldStart(false),
                                   onHoldEnd: () => _onHoldEnd(false),
                                   onTuneTap: _showTimeControlSheet,
@@ -593,69 +754,111 @@ void _showAddTimeDialog() {
                           ),
                       ),
                       
-                      //m writing the code again for black and white
+                
                       //this is the control bar
                       Container(
-                          height: 75,
-                          color: const Color(0xFF202020),
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.refresh, color: Colors.white, size: 34),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.play_arrow, color: Colors.white, size: 36),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.history, color: Colors.white, size: 34),
-                                  ),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.volume_up, color: Colors.white, size: 34),
-                                  ),
-                              ],
-                          ),
-
+                        height: 75,
+                        color: const Color(0xFF202020),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              onPressed: _confirmReset,
+                              icon: const Icon(Icons.refresh, color: Colors.white, size: 30),
+                            ),
+                            IconButton(
+                              onPressed: _togglePause,
+                              icon: Icon(_manualPause ? Icons.play_arrow : Icons.pause, color: Colors.white, size: 32),
+                            ),
+                            IconButton(
+                              onPressed: _showAddTimeDialog,
+                              icon: const Icon(Icons.history, color: Colors.white, size: 30),
+                            ),
+                            IconButton(
+                              onPressed: _showManualMoveDialog,
+                              icon: const Icon(Icons.keyboard, color: Colors.white, size: 30),
+                            ),
+                            IconButton(
+                              onPressed: () => setState(() => _isMuted = !_isMuted),
+                              icon: Icon(_isMuted ? Icons.volume_off : Icons.volume_up, color: Colors.white, size: 30),
+                            ),
+                            IconButton(
+                              onPressed: _showPgnDialog,
+                              icon: const Icon(Icons.description, color: Colors.white, size: 30),
+                            ),
+                            IconButton(
+                              onPressed: _showMoveTimesDialog,
+                              icon: const Icon(Icons.timer, color: Colors.white, size: 30),
+                            ),
+                          ],
+                        ),
                       ),
+                      
                       
                       //white
                       Expanded(
-                    child: _ClockPanel(
-                      time: _format(whiteTime),
-                      moves: whiteMoves,
-                      timeControl: currentControl.label,
-                      isActive: whiteToMove,
-                      recognizedText: _recognizedText,
-                      onHoldStart: () => _onHoldStart(true),
-                      onHoldEnd: () => _onHoldEnd(true),
-                      onTuneTap: _showTimeControlSheet,
-                    ),
-                  ),
-                ],
-              ), // closes column
+                        child: _ClockPanel(
+                          time: _format(whiteTime),
+                          moves: whiteMoves,
+                          timeControl: currentControl.label,
+                          isActive: whiteToMove,
+                          recognizedText: _recognizedText,
+                          errorText: _lastMoveError,
+                          onHoldStart: () => _onHoldStart(true),
+                          onHoldEnd: () => _onHoldEnd(true),
+                          onTuneTap: _showTimeControlSheet,
+                        ),
+                      ),
+                    ],
+                  ), // closes column
+                  
+                  if (_awaitingConfirmation)
+                    Container(
+                      color: Colors.black87,
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _pendingCandidates.length > 1 ? "Which move did you mean?" : "Confirm move:",
+                              style: const TextStyle(color: Colors.white, fontSize: 20),
+                            ),
+                            const SizedBox(height: 16),
+                            ..._pendingCandidates.map((c) => Padding(
+                              padding: const EdgeInserts.symmetric(vertical: 4),
+                              child: ElevatedButton(
+                                onPressed: () => _confirmMove(c),
+                                child: Text(c.san),
+                              ),
+                            )),
+                            
+                          
+                          ]
 
-              if (gameOver)
-                Container(
-                  color: Colors.black87,
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Center(
-                    child: Text(
-                      "$winner wins on time",
-                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                        )
+                      )
+                    )
+
+                  if (gameOver)
+                    Container(
+                      color: Colors.black87,
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: Center(
+                        child: Text(
+                          "$winner wins on time",
+                          style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-            ], // closes stack
-          ),
-        ),
-      );
-    }
-  }
+                ], // closes stack
+              ),
+            ),
+          );
+        }
+
 
 //Clock panel (reuse for both white and black)
 class _ClockPanel extends StatelessWidget {
