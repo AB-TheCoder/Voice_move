@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:dartchess/dartchess.dart' as chess;
 
+
+
 void main() {
   runApp(const VccnApp());
 }
@@ -436,22 +438,153 @@ void _showManualMoveDialog() {
       return PieceSquarePicker(
         onSubmit: (moveText, promotion) {
           Navigator.pop(context);
+          _proposeMove(moveText);
+        },
+        onCancel: () {
+          Navigator.pop(context);
           setState(() => isPaused = false);
-
         },
       );
     },
   );
 }
+
+
 //adjust time attempt at chess.com's clock app scrool wheel type selector
+
 void _showAdjustTimeDialog(bool forWhite) {
   final current = forWhite ? whiteTime : blackTime;
   int selectedMinutes = current.inMinutes;
   int selectedSeconds = current.inSeconds % 60;
 
-  
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: kSheetBg,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
+    ),
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setSheetState) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Adjust time",
+                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: Colors.white54),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Time", style: TextStyle(color: Colors.white, fontSize: 15)),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2C2C2A),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '$selectedMinutes:${selectedSeconds.toString().padLeft(2, '0')}',
+                        style: const TextStyle(
+                          color: kPanelActive,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 180,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ListWheelScrollView.useDelegate(
+                          itemExtent: 40,
+                          diameterRatio: 1.4,
+                          physics: const FixedExtentScrollPhysics(),
+                          controller: FixedExtentScrollController(initialItem: selectedMinutes),
+                          onSelectedItemChanged: (i) => setSheetState(() => selectedMinutes = i),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: 180,
+                            builder: (context, i) => Center(
+                              child: Text('$i',
+                                  style: TextStyle(
+                                    color: i == selectedMinutes ? Colors.white : Colors.white38,
+                                    fontSize: i == selectedMinutes ? 22 : 17,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListWheelScrollView.useDelegate(
+                          itemExtent: 40,
+                          diameterRatio: 1.4,
+                          physics: const FixedExtentScrollPhysics(),
+                          controller: FixedExtentScrollController(initialItem: selectedSeconds),
+                          onSelectedItemChanged: (i) => setSheetState(() => selectedSeconds = i),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            childCount: 60,
+                            builder: (context, i) => Center(
+                              child: Text(i.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    color: i == selectedSeconds ? Colors.white : Colors.white38,
+                                    fontSize: i == selectedSeconds ? 22 : 17,
+                                    fontWeight: FontWeight.w600,
+                                  )),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPanelActive,
+                      foregroundColor: kOnActive,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      final newDuration = Duration(minutes: selectedMinutes, seconds: selectedSeconds);
+                      setState(() {
+                        if (forWhite) {
+                          whiteTime = newDuration;
+                        } else {
+                          blackTime = newDuration;
+                        }
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Save time", style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }
-
 //reset
 
 void _resetGame() {
@@ -481,17 +614,14 @@ void _confirmReset() {
     context: context,
     builder: (context) {
       return AlertDialog(
-        backgroundColor: const Color(0xFF202020),
-        title: const Text("Reset Clock", style: TextStyle(color: COlors.white)),
+        backgroundColor: kSheetBg
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Reset Clock", style: TextStyle(color: Colors.white)),
         content: const Text("This will reset the game and clocks.", style: TextStyle(color: Color.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: Colors.white70)),
           ),
           TextButtom(
             onPressed: () {
@@ -511,10 +641,19 @@ void _togglePause() {
   setState(() => _manualPause = !_manualPause);
 }
 
+void _toggleSound() {
+  setState(() {
+    _soundState = _soundState == SoundState.on ? SoundState.muted : SoundState.on;
+  });
+}
+
 void _showTimeControlSheet() {
   showModalBottomSheet(
     context: context,
-    backgroundColor: const Color(0xFF202020),
+    backgroundColor: kSheetBg,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
+    ),
     builder: (context) {
       return Column(
         mainAxisSize: MainAxisSize.min,
@@ -524,7 +663,8 @@ void _showTimeControlSheet() {
               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           ...presets.map((tc) => ListTile(
-                title: Text(tc.label, style: const TextStyle(color: Colors.white)),
+                title: Text(tc.label,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 onTap: () {
                   setState(() {
                     currentControl = tc;
@@ -589,7 +729,7 @@ void _showCustomDialog() {
               });
               Navigator.pop(context);
             },
-            child: const Text("Start"),
+            child: const Text("Start", style: TextStyle(color: kPanelActive)),
           ),
         ],
       );
@@ -655,7 +795,7 @@ void _showAddTimeDialog() {
       if (i % 2 == 0) {
         buffer.write('${(i ~/ 2) + 1}. ');
       }
-      buffer.write('${record.san} {[%clk ${_formatClk(record.clockRemaining)}]} ');
+      buffer.write('${record.san} {[%clk ${_formatClk(record.clockRemaining)}] [%emt ${_formatClk(record.timeTaken)}]} ');
     }
 
     if (gameOver) {
@@ -676,11 +816,12 @@ void _showAddTimeDialog() {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF202020),
+          backgroundColor: kSheetBg,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text("Game PGN", style: TextStyle(color: Colors.white)),
           content: SelectableText(_buildPgn(), style: const TextStyle(color: Colors.white70)),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close")),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close", style: TextStyle(color: Colors.white70))),
           ],
         );
       },
@@ -694,7 +835,8 @@ void _showMoveTimesDialog() {
     context: context
     builder: (context) {
       return AlertDialog(
-        backgroundColor: const Color(0xFF202020),
+        backgroundColor: kSheetBg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text("Move Times", style: TextStyle(color: Colors.white)),
         content: SizedBox(
           width: double.maxFinite,
@@ -713,14 +855,14 @@ void _showMoveTimesDialog() {
                 ),
                 trailing: Text(
                   "${record.timeTaken.inSeconds}s"
-                  style: const TextStyle(color: Colors.greenAccent),
+                  style: const TextStyle(color: kPanelActive, fontWeight: FontWeight.w700),
                 ),
               );
             },
           ),
         ),
         actions: [
-          TextButton(onpressed: () => Navigator.pop(context), child: const Text("Close")),
+          TextButton(onpressed: () => Navigator.pop(context), child: const Text("Close", style: TextStyle(color: Colors.white70))),
         ],
       );
     },
@@ -728,31 +870,36 @@ void _showMoveTimesDialog() {
 }
 
 @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-            child: Stack(
+Widget build(BuildContext context) {
+  final barExpanded = _manualPause || gameOver;
+
+  return Scaffold(
+    backgroundColor: kAppBg,
+    body: SafeArea(
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(kPanelGap),
+            child: Column(
               children: [
-                Column(
-                    children: [
-                        
-                      Expanded(
-                          child: Transform.rotate(
-                              angle: pi,
-                              child: _ClockPanel(
-                                  time: _format(blackTime),
-                                  moves: blackMoves,
-                                  timeControl: currentControl.label,
-                                  isActive: !whiteToMove, //dims when its not black's turn
-                                  recognizedText: _recognizedText,
-                                  errorText: _lastMoveError,
-                                  onHoldStart: () => _onHoldStart(false),
-                                  onHoldEnd: () => _onHoldEnd(false),
-                                  onTuneTap: _showTimeControlSheet,
-                              ),
-                          ),
-                      ),
+                Expanded(
+                  child: Transform.rotate(
+                    angle: pi,
+                    child: _ClockPanel(
+                      time: _format(blackTime),
+                      moves: blackMoves,
+                      timeControl: currentControl.label,
+                      isActive: !whiteToMove,
+                      isPausedGlobally: _manualPause,
+                      showTune: barExpanded,
+                      recognizedText: _recognizedText,
+                      errorText: _lastMoveError,
+                      onHoldStart: () => _onHoldStart(false),
+                      onHoldEnd: () => _onHoldEnd(false),
+                      onTuneTap: _showTimeControlSheet,
+                    ),
+                  ),
+                ),
                       
                 
                       //this is the control bar
