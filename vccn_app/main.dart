@@ -1,3 +1,4 @@
+//chunk 1: imports and design tokens
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -6,19 +7,38 @@ import 'package:dartchess/dartchess.dart' as chess;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/services.dart';
 
-//Design tokens: 
+//DESIGN TOKENS: (i designed and iterated the UI using claude, asking it to generate the desired UI after providing the existing one, the colors and animations are assisted by claude too)
 const String kFont = 'Inter';
 const String kClockFont = 'Manrope';
 
+const Color kAppBg = Color(0xFF161512);
+const Color kPanelActive = Color(0xFF81B64C);
+const Color kPanelIdle = Color(0xFF3E3D3A);
+const Color kOnActive = Color(0xFF16240B);
+const Color kOnIdle = Color(0xFFA8A7A3);
+const Color kBarIcon = Color(0xFFEDEDEB);
+const Color kSheetBg = Color(0xFF222220);
+const Color kDanger = Color(0xFFE24B4A);
+const Color kTarget = Color(0xFFD9A441);
+
+const double kPanelRadius = 24;
+const double kPanelGap = 8;
+const double kBarHeight = 76;
+const double kIconsScale = 1.05;
 
 
+const Duration kBarFade = Duration(milliseconds: 260);
+const Duration kBarMove = Duration(milliseconds: 650);
+const Duration kTuneFade = Duration(milliseconds: : 240);
+const Duration kTuneSlide = Duration(milliseconds: 300);
 
+//chunk 2: main() and VccnApp root widget
 
 void main() {
   runApp(const VccnApp());
 }
 
-//Root app widget
+//ROOT APP WIDGET
 
 class VccnApp extends StatelessWidget {
   const VccnApp({super.key});
@@ -28,25 +48,259 @@ class VccnApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'VCCN',
+        theme: ThemeData(
+          fontFamily: kFont,
+          scaffoldBackgroundColor: kAppBg,
+        ),
         home: const ClockScreen(),
-        );
-    } 
+        ); 
+    }
 }
-//chunk 11 and 16, im adding real analysis for moves jus like the py file did (move text parser)
-class ParsedMove {
-  final String text;
-  final String? promotion;
-  ParsedMove(this.text, this.promotion);
+
+// chunk 3: spokenmove: this is the parsed move data model:
+
+class SpokenMove {
+  final chess.Role? role;
+  final chess.File? fromFile;
+  final chess.Rank? fromRank;
+  final chess.Square? to;
+  final chess.Role? promotion;
+  final bool isCapture;
+  final bool kingsideCastle;
+  final bool queensideCastle;
+
+  const SpokenMove({
+    this.role,
+    this.fromFile,
+    this.fromRank,
+    this.to,
+    this.promotion,
+    this.isCapture = false,
+    this.kingsideCastle = false,
+    this.queensideCastle = false,
+  });
+  bool get isEmpty => to == null && !kingsideCastle && !queensideCastle;
 }
+
+//chunk 4: Move parser vocabulary maps((files, ranks, pieces, captures, SAN letters)) (ive been brainstroming fallicies for this system using claude, and imma just try to solve them here)
+//MOVE PARSER
+
 
 class MoveParser {
-  static const Map<String, String> _pieceWords = {
-    'knight': 'N', 'night': 'N', 'bishop': 'B', 'rook': 'R', 'queen': 'Q', 'king': 'K',
+  static const Map<String, String> _fileWords = {
+    'alpha': 'a', 'alfa': 'a', 'a': 'a', 'ay': 'a', 'eh': 'a', 'hey': 'a',
+    'bravo': 'b', 'b': 'b', 'be': 'b', 'bee': 'b', 'bea': 'b',
+    'charlie': 'c', 'charley': 'c', 'c': 'c', 'see': 'c', 'sea': 'c', 'si': 'c',
+    'delta': 'd', 'd': 'd', 'dee': 'd', 'de': 'd', 'the': 'd',
+    'echo': 'e', 'e': 'e', 'ee': 'e', 'eee': 'e',
+    'foxtrot': 'f', 'fox': 'f', 'f': 'f', 'ef': 'f', 'eff': 'f',
+    'golf': 'g', 'g': 'g', 'gee': 'g', 'jee': 'g', 'ge': 'g',
+    'hotel': 'h', 'h': 'h', 'aitch': 'h', 'aich': 'h', 'ache': 'h', 'each': 'h',
   };
 
-  static const Map<String, String> _numberWords = {
-    'one': '1', 'two': '2', 'three': '3', 'four': '4', 'five': '5', 'six': '6', 'seven': '7', 'eight': '8',
+  static const Map<String, String> _rankWords = {
+    'one': '1', 'won': '1', 'wun': '1', '1': '1',
+    'two': '2', 'too': '2', 'tu': '2', '2': '2',
+    'three': '3', 'tree': '3', 'free': '3', 'thee': '3', '3': '3',
+    'four': '4', 'fore': '4', 'faux': '4', '4': '4',
+    'five': '5', 'fife': '5', '5': '5',
+    'six': '6', 'sicks': '6', 'sex': '6', '6': '6',
+    'seven': '7', 'sevin': '7', '7': '7',
+    'eight': '8', 'ate': '8', 'ait': '8', 'hate': '8', '8': '8',
   };
+
+  static const Map<String, chess.Role> _pieceWords = {
+    'knight': chess.Role.knight, 'night': chess.Role.knight,
+    'nite': chess.Role.knight, 'knights': chess.Role.knight,
+    'bishop': chess.Role.bishop, 'bishops': chess.Role.bishop,
+    'bishup': chess.Role.bishop,
+    'rook': chess.Role.rook, 'rooks': chess.Role.rook, 'rock': chess.Role.rook,
+    'brook': chess.Role.rook, 'ruck': chess.Role.rook, 'root': chess.Role.rook,
+    'queen': chess.Role.queen, 'queens': chess.Role.queen, 'quinn': chess.Role.queen,
+    'king': chess.Role.king, 'kings': chess.Role.king,
+    'pawn': chess.Role.pawn, 'pawns': chess.Role.pawn, 'porn': chess.Role.pawn, //twin (sad that iphone native could even transcribe ts into porn)
+    'pon': chess.Role.pawn, 'palm': chess.Role.pawn,
+  };
+
+  static const Set<String> _captureWords = {
+    'takes', 'take', 'taking', 'captures', 'capture', 'x', 'ex', 'times', 'eats',
+  };
+
+  static const Map<String, chess.Role> _sanLetters = {
+    'n': chess.Role.knight, 'b': chess.Role.bishop, 'r': chess.Role.rook,
+    'q': chess.Role.queen, 'k': chess.Role.king,
+  };
+
+  static final RegExp _squareRe = RegExp(r'^([a-h])([1-8])$');
+  static final RegExp _sanRe = RegExp(r'^([nbrqk])x?([a-h])([1-8])$');
+  
+
+//chunk 5: move parser (.parse()) --- castling detection logic
+
+static SpokenMove? parse(String raw) {
+  if (raw.trim().isEmpty) return null;
+
+  final text = raw
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+  if (text.isEmpty) return null;
+
+  //castling---
+  // Logic:
+    //   - "queenside"/"long"/"big" -> queenside castle
+    //   - "kingside"/"short" -> kingside castle
+    //   - bare "castle" with no side named -> BOTH flags set, so
+    //     _matchMoves returns both legal castling candidates and the
+    //     existing confirm-move UI lets the player pick, instead of silently guessing kingside
+
+    final mentionsCastle = text.contains('castle') ||
+        text.contains('castles') ||
+        text.contains('casling');
+    final mentionsShort = text.contains('short');
+    final mentionsLong = text..contains('long') || text.contains('big');
+
+    if (mentionsCastle || mentionsShort || mentionsLong) {
+      final wantsQueenside = 
+        (text.contains('queen') || mentionsLong) && !mentionsShort;
+      final wantsKingside = 
+          (text.contains('king') || mentionsShort) && !wantsQueenside;
+
+      if (wantsQueenside) {
+        return const SpokenMove(queensideCastle: true);
+      }
+      if (wantsKingside) {
+        return const SpokenMove(kingsideCastle: true);
+      }
+      if (mentionsCastle) {
+        return const SpokenMove(kingsideCastle: true, queensideCastle: true);
+      }
+    }
+
+    //chunk 6: MoveParser.parse()- tokenizing, enpassant, symbol merge, role/dest extraction
+    final symbols = <_Sym>[];
+    // "en passant" doesn't name a square of its own — it's a spoken
+    // qualifier on a normal pawn capture (e.g. "e5 takes d6 en
+    // passant"). dartchess already generates the en passant capture
+    // as an ordinary legal move to the passed-over square, so no
+    // special-case move logic is needed here — this only has to (a)
+    // register capture intent, since players often say "en passant"
+    // instead of "takes", and (b) strip the phrase before tokenizing
+    // so "passant" and "en" don't get treated as unrecognized noise
+    // tokens (harmless either way, but cleaner)
+    bool isCapture = text.contains('en passant') || text.contains('onpassant');
+    final cleanedText =
+        text.replaceAll('en passant', ' ').replaceAll('onpassant', ' ');
+
+    for (final token in cleanedText.split(' ')) {
+      if (token.isEmpty) continue;
+
+      if (_captureWords.contains(token)) {
+        isCapture = true;
+        continue;
+      }
+
+      final sq = _squareRe.firstMatch(token);
+      if (sq != null) {
+        symbold.add(_Sym.square(token));
+        continue;
+      }
+
+      final san = _sanRe.firstMatch(token);
+      if (san != null) {
+        symbols.add(_Sym.piece(_sanLetters[san.group(1)!]));
+        symbols.add(_Sym.square('${san.group(2)}${san.group(3)}'));
+        if (token.contains('x')) isCapture = true;
+        continue;
+      }
+      final piece = _pieceWords[token];
+      if (piece != null) {
+        symbols.add(_Sym.piece(piece));
+        continue;
+      }
+
+      final file = _fileWords[token];
+      if (file != null) {
+        symbols.add(_Sym.file(file));
+        continue;
+      }
+
+      final rank = _rankWords[token];
+      if (rank != null) {
+        symbols.add(_Sym.rank(rank));
+        continue;
+      }
+    }
+
+
+    final merged = <_Sym>[];
+    for (int i = 0; i < symbols.length; i++) {
+      final s = symbols[i];
+      if (s.kind == _SymKind.file &&
+          i + 1 < symbols.length &&
+          symbols[i + 1].kind == _SymKind.rank) {
+        merged.add(_Sym.square('${s.text}${symbols[i+1].text}'));
+        i++;
+      } else {
+        merged.add(s);
+      }
+    }
+
+    int destIndex = -1;
+    for (int i = merged.length - 1; i >= 0; i--) {
+      if (merged[i].kind == _SymKind.square) {
+        destIndex = i;
+        break;
+      }
+    }
+    if (destIndex == -1) return null;
+
+    final to = chess.Square.parse(merged[destIndex].text);
+    if (to == null) return null;
+
+    chess.Role? role;
+    chess.Role? promotion;
+    chess.File? fromFile;
+    chess.Rank? fromRank;
+
+    for (int i = 0; i < merged.length; i++) {
+      final s = merged[i];
+      if (i < destIndex) {
+        switch (s.kind) {
+          case _SymKind.piece:
+            role ??= s.role;
+          case _SymKind.square:
+            final origin = chess.Square.parse(s.text);
+            if (origin != null) {
+              fromFile = origin.file;
+              fromRank = origin.rank;
+            }
+          case _SymKind.file:
+            fromFile ??= chess.File.fromName(s.text);
+          case _SymKind.rank:
+            fromRank ??= chess.Rank.fromName(s.text);
+        }
+      } else if (i > destIndex && s.kind == _SymKind.piece) {
+        promotion ??= s.role;
+      }
+    }
+
+    if (promotion == chess.Role.king || promotion == chess.Role.pawn) {
+      promotion = null;
+    }
+
+    return SpokenMove(
+      role: role,
+      fromFile: fromFile,
+      fromRank: fromRank,
+      to: to,
+      promotion: promotion,
+      isCapture: isCapture,
+    );
+  }
+}
+
 
   static ParsedMove? parse(String raw) {
     if (raw.trim().isEmpty) return null;
@@ -92,6 +346,11 @@ class MoveParser {
     return ParsedMove(baseText, promotionPiece);
 
   }
+}
+class ParsedMove {
+  final String text;
+  final String? promotion;
+  ParsedMove(this.text, this.promotion);
 }
 
 
