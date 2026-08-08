@@ -300,6 +300,21 @@ static SpokenMove? parse(String raw) {
     );
   }
 }
+//chunk 7: _SymKind enum and _Sym helper class
+enum _SymKind { square, file, rank, piece }
+
+class _Sym {
+  final _SymKind kind;
+  final String text;
+  final chess.Role? role;
+
+  const _Sym._(this.kind, this.text, this.role);
+
+  factory _Sym.square(String t) => _Sym._(_SymKind.square, t, null);
+  factory _Sym.file(String t) => _Sym._(_SymKind.file, t, null);
+  factory _Sym.rank(String t) => _Sym._(_SymKind.rank, t, null);
+  factory _Sym.piece(chess.Role r) => _Sym._(_SymKind.piece, '', r);
+}
 
 
   static ParsedMove? parse(String raw) {
