@@ -26,10 +26,9 @@ const double kPanelGap = 8;
 const double kBarHeight = 76;
 const double kIconsScale = 1.05;
 
-
 const Duration kBarFade = Duration(milliseconds: 260);
 const Duration kBarMove = Duration(milliseconds: 650);
-const Duration kTuneFade = Duration(milliseconds: : 240);
+const Duration kTuneFade = Duration(milliseconds: 240);
 const Duration kTuneSlide = Duration(milliseconds: 300);
 
 //chunk 2: main() and VccnApp root widget
@@ -46,15 +45,12 @@ class VccnApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'VCCN',
-        theme: ThemeData(
-          fontFamily: kFont,
-          scaffoldBackgroundColor: kAppBg,
-        ),
-        home: const ClockScreen(),
-        ); 
-    }
+      debugShowCheckedModeBanner: false,
+      title: 'VCCN',
+      theme: ThemeData(fontFamily: kFont, scaffoldBackgroundColor: kAppBg),
+      home: const ClockScreen(),
+    );
+  }
 }
 
 // chunk 3: spokenmove: this is the parsed move data model:
@@ -82,89 +78,170 @@ class SpokenMove {
   bool get isEmpty => to == null && !kingsideCastle && !queensideCastle;
 }
 
-//chunk 4: Move parser vocabulary maps((files, ranks, pieces, captures, SAN letters)) (ive been brainstroming fallicies for this system using claude, and imma just try to solve them here)
-//MOVE PARSER
-
+//chunk 4: Move parser vocabulary maps((files, ranks, pieces, captures, SAN letters))
+//MOVE PARSER (this was ai generated coz i aint gonna write allat)
 
 class MoveParser {
   static const Map<String, String> _fileWords = {
-    'alpha': 'a', 'alfa': 'a', 'a': 'a', 'ay': 'a', 'eh': 'a', 'hey': 'a',
-    'bravo': 'b', 'b': 'b', 'be': 'b', 'bee': 'b', 'bea': 'b',
-    'charlie': 'c', 'charley': 'c', 'c': 'c', 'see': 'c', 'sea': 'c', 'si': 'c',
-    'delta': 'd', 'd': 'd', 'dee': 'd', 'de': 'd', 'the': 'd',
-    'echo': 'e', 'e': 'e', 'ee': 'e', 'eee': 'e',
-    'foxtrot': 'f', 'fox': 'f', 'f': 'f', 'ef': 'f', 'eff': 'f',
-    'golf': 'g', 'g': 'g', 'gee': 'g', 'jee': 'g', 'ge': 'g',
-    'hotel': 'h', 'h': 'h', 'aitch': 'h', 'aich': 'h', 'ache': 'h', 'each': 'h',
+    'alpha': 'a',
+    'alfa': 'a',
+    'a': 'a',
+    'ay': 'a',
+    'eh': 'a',
+    'hey': 'a',
+    'bravo': 'b',
+    'b': 'b',
+    'be': 'b',
+    'bee': 'b',
+    'bea': 'b',
+    'charlie': 'c',
+    'charley': 'c',
+    'c': 'c',
+    'see': 'c',
+    'sea': 'c',
+    'si': 'c',
+    'delta': 'd',
+    'd': 'd',
+    'dee': 'd',
+    'de': 'd',
+    'the': 'd',
+    'echo': 'e',
+    'e': 'e',
+    'ee': 'e',
+    'eee': 'e',
+    'foxtrot': 'f',
+    'fox': 'f',
+    'f': 'f',
+    'ef': 'f',
+    'eff': 'f',
+    'golf': 'g',
+    'g': 'g',
+    'gee': 'g',
+    'jee': 'g',
+    'ge': 'g',
+    'hotel': 'h',
+    'h': 'h',
+    'aitch': 'h',
+    'aich': 'h',
+    'ache': 'h',
+    'each': 'h',
   };
 
   static const Map<String, String> _rankWords = {
-    'one': '1', 'won': '1', 'wun': '1', '1': '1',
-    'two': '2', 'too': '2', 'tu': '2', '2': '2',
-    'three': '3', 'tree': '3', 'free': '3', 'thee': '3', '3': '3',
-    'four': '4', 'fore': '4', 'faux': '4', '4': '4',
-    'five': '5', 'fife': '5', '5': '5',
-    'six': '6', 'sicks': '6', 'sex': '6', '6': '6',
-    'seven': '7', 'sevin': '7', '7': '7',
-    'eight': '8', 'ate': '8', 'ait': '8', 'hate': '8', '8': '8',
+    'one': '1',
+    'won': '1',
+    'wun': '1',
+    '1': '1',
+    'two': '2',
+    'too': '2',
+    'tu': '2',
+    '2': '2',
+    'three': '3',
+    'tree': '3',
+    'free': '3',
+    'thee': '3',
+    '3': '3',
+    'four': '4',
+    'fore': '4',
+    'faux': '4',
+    '4': '4',
+    'five': '5',
+    'fife': '5',
+    '5': '5',
+    'six': '6',
+    'sicks': '6',
+    'sex': '6',
+    '6': '6',
+    'seven': '7',
+    'sevin': '7',
+    '7': '7',
+    'eight': '8',
+    'ate': '8',
+    'ait': '8',
+    'hate': '8',
+    '8': '8',
   };
 
   static const Map<String, chess.Role> _pieceWords = {
-    'knight': chess.Role.knight, 'night': chess.Role.knight,
-    'nite': chess.Role.knight, 'knights': chess.Role.knight,
-    'bishop': chess.Role.bishop, 'bishops': chess.Role.bishop,
+    'knight': chess.Role.knight,
+    'night': chess.Role.knight,
+    'nite': chess.Role.knight,
+    'knights': chess.Role.knight,
+    'bishop': chess.Role.bishop,
+    'bishops': chess.Role.bishop,
     'bishup': chess.Role.bishop,
-    'rook': chess.Role.rook, 'rooks': chess.Role.rook, 'rock': chess.Role.rook,
-    'brook': chess.Role.rook, 'ruck': chess.Role.rook, 'root': chess.Role.rook,
-    'queen': chess.Role.queen, 'queens': chess.Role.queen, 'quinn': chess.Role.queen,
-    'king': chess.Role.king, 'kings': chess.Role.king,
-    'pawn': chess.Role.pawn, 'pawns': chess.Role.pawn, 'porn': chess.Role.pawn, //twin (sad that iphone native could even transcribe ts into porn)
-    'pon': chess.Role.pawn, 'palm': chess.Role.pawn,
+    'rook': chess.Role.rook,
+    'rooks': chess.Role.rook,
+    'rock': chess.Role.rook,
+    'brook': chess.Role.rook,
+    'ruck': chess.Role.rook,
+    'root': chess.Role.rook,
+    'queen': chess.Role.queen,
+    'queens': chess.Role.queen,
+    'quinn': chess.Role.queen,
+    'king': chess.Role.king,
+    'kings': chess.Role.king,
+    'pawn': chess.Role.pawn,
+    'pawns': chess.Role.pawn,
+    'porn': chess.Role.pawn,
+    'pon': chess.Role.pawn,
+    'palm': chess.Role.pawn,
   };
 
   static const Set<String> _captureWords = {
-    'takes', 'take', 'taking', 'captures', 'capture', 'x', 'ex', 'times', 'eats',
+    'takes',
+    'take',
+    'taking',
+    'captures',
+    'capture',
+    'x',
+    'ex',
+    'times',
+    'eats',
   };
 
   static const Map<String, chess.Role> _sanLetters = {
-    'n': chess.Role.knight, 'b': chess.Role.bishop, 'r': chess.Role.rook,
-    'q': chess.Role.queen, 'k': chess.Role.king,
+    'n': chess.Role.knight,
+    'b': chess.Role.bishop,
+    'r': chess.Role.rook,
+    'q': chess.Role.queen,
+    'k': chess.Role.king,
   };
 
   static final RegExp _squareRe = RegExp(r'^([a-h])([1-8])$');
   static final RegExp _sanRe = RegExp(r'^([nbrqk])x?([a-h])([1-8])$');
-  
 
-//chunk 5: move parser (.parse()) --- castling detection logic
+  //chunk 5: move parser (.parse()) --- castling detection logic
 
-static SpokenMove? parse(String raw) {
-  if (raw.trim().isEmpty) return null;
+  static SpokenMove? parse(String raw) {
+    if (raw.trim().isEmpty) return null;
 
-  final text = raw
-      .toLowerCase()
-      .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
-  if (text.isEmpty) return null;
+    final text = raw
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    if (text.isEmpty) return null;
 
-  //castling---
-  // Logic:
+    //castling---
+    // Logic:
     //   - "queenside"/"long"/"big" -> queenside castle
     //   - "kingside"/"short" -> kingside castle
     //   - bare "castle" with no side named -> BOTH flags set, so
     //     _matchMoves returns both legal castling candidates and the
     //     existing confirm-move UI lets the player pick, instead of silently guessing kingside
 
-    final mentionsCastle = text.contains('castle') ||
+    final mentionsCastle =
+        text.contains('castle') ||
         text.contains('castles') ||
         text.contains('casling');
     final mentionsShort = text.contains('short');
-    final mentionsLong = text..contains('long') || text.contains('big');
+    final mentionsLong = text.contains('long') || text.contains('big');
 
     if (mentionsCastle || mentionsShort || mentionsLong) {
-      final wantsQueenside = 
-        (text.contains('queen') || mentionsLong) && !mentionsShort;
-      final wantsKingside = 
+      final wantsQueenside =
+          (text.contains('queen') || mentionsLong) && !mentionsShort;
+      final wantsKingside =
           (text.contains('king') || mentionsShort) && !wantsQueenside;
 
       if (wantsQueenside) {
@@ -190,8 +267,9 @@ static SpokenMove? parse(String raw) {
     // so "passant" and "en" don't get treated as unrecognized noise
     // tokens (harmless either way, but cleaner)
     bool isCapture = text.contains('en passant') || text.contains('onpassant');
-    final cleanedText =
-        text.replaceAll('en passant', ' ').replaceAll('onpassant', ' ');
+    final cleanedText = text
+        .replaceAll('en passant', ' ')
+        .replaceAll('onpassant', ' ');
 
     for (final token in cleanedText.split(' ')) {
       if (token.isEmpty) continue;
@@ -203,13 +281,13 @@ static SpokenMove? parse(String raw) {
 
       final sq = _squareRe.firstMatch(token);
       if (sq != null) {
-        symbold.add(_Sym.square(token));
+        symbols.add(_Sym.square(token));
         continue;
       }
 
       final san = _sanRe.firstMatch(token);
       if (san != null) {
-        symbols.add(_Sym.piece(_sanLetters[san.group(1)!]));
+        symbols.add(_Sym.piece(_sanLetters[san.group(1)!]!));
         symbols.add(_Sym.square('${san.group(2)}${san.group(3)}'));
         if (token.contains('x')) isCapture = true;
         continue;
@@ -233,14 +311,13 @@ static SpokenMove? parse(String raw) {
       }
     }
 
-
     final merged = <_Sym>[];
     for (int i = 0; i < symbols.length; i++) {
       final s = symbols[i];
       if (s.kind == _SymKind.file &&
           i + 1 < symbols.length &&
           symbols[i + 1].kind == _SymKind.rank) {
-        merged.add(_Sym.square('${s.text}${symbols[i+1].text}'));
+        merged.add(_Sym.square('${s.text}${symbols[i + 1].text}'));
         i++;
       } else {
         merged.add(s);
@@ -300,6 +377,7 @@ static SpokenMove? parse(String raw) {
     );
   }
 }
+
 //chunk 7: _SymKind enum and _Sym helper class
 enum _SymKind { square, file, rank, piece }
 
@@ -328,21 +406,21 @@ class TimeControl {
 }
 
 const List<TimeControl> presets = [
-    TimeControl("1 min", 1, 0),
-    TimeControl("2 | 1", 2, 1),
-    TimeControl("3 min", 3, 0),
-    TimeControl("3 | 2", 3, 2),
-    TimeControl("5 min", 5, 0),
-    TimeControl("5 | 3", 5, 3),
-    TimeControl("10 min", 10, 0),
-    TimeControl("15 | 10", 15, 10),
-    TimeControl("30 min", 30, 0),
+  TimeControl("1 min", 1, 0),
+  TimeControl("2 | 1", 2, 1),
+  TimeControl("3 min", 3, 0),
+  TimeControl("3 | 2", 3, 2),
+  TimeControl("5 min", 5, 0),
+  TimeControl("5 | 3", 5, 3),
+  TimeControl("10 min", 10, 0),
+  TimeControl("15 | 10", 15, 10),
+  TimeControl("30 min", 30, 0),
 ];
 
-class _CandidateMove {
+class _Candidate {
   final chess.Move move;
   final String san;
-  _CandidateMove(this.move, this.san);
+  _Candidate(this.move, this.san);
 }
 
 class MoveRecord {
@@ -353,7 +431,7 @@ class MoveRecord {
   const MoveRecord(this.san, this.timeTaken, this.clockRemaining, this.byWhite);
 }
 
-enum SoundState { on, muted}
+enum SoundState { on, muted }
 
 //chunk 9: ClockScreen widget shell + _clockscreenstate feilds
 
@@ -365,7 +443,7 @@ class ClockScreen extends StatefulWidget {
   State<ClockScreen> createState() => _ClockScreenState();
 }
 
-class _ClockScreenState extends State<ClockScreen> {
+class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
   TimeControl currentControl = presets[7]; //setting default to 15|10
   late Duration whiteTime = Duration(minutes: currentControl.minutes);
   late Duration blackTime = Duration(minutes: currentControl.minutes);
@@ -410,11 +488,10 @@ class _ClockScreenState extends State<ClockScreen> {
 
   //gonna change this later because i dont want the player always having to press confirmation for each move, ill just add a undo button to the sucessmove dialogue after transciption
 
-
   List<String> _positionHistory = [];
-  List<_CandidateMove> _pendingCandidates = [];
+  List<_Candidate> _pendingCandidates = [];
   bool get _awaitingConfirmation => _pendingCandidates.isNotEmpty;
-  
+
   @override
   //chunk 10: initState/dispose/didChangeAppLifecycleState and _initSpeech
   void initState() {
@@ -438,7 +515,8 @@ class _ClockScreenState extends State<ClockScreen> {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) { //thats a mouthful
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    //thats a mouthful
     if (state != AppLifecycleState.resumed && _isListening) {
       _speech.stop();
       _finalResultTimer?.cancel();
@@ -464,18 +542,16 @@ class _ClockScreenState extends State<ClockScreen> {
             _processUtterance = false; //FIX: reset on error
           });
         }
-      }
+      },
       onStatus: (status) => debugPrint('Speech status: $status'),
-
     );
     if (!mounted) return;
     setState(() => _speechEnabled = enabled);
   }
 
-  
   //chunk 11: Starttimer, _flagfall, _feedback, formatting helpers
-  
-  void _feedback({ bool heavy = false}) {
+
+  void _feedback({bool heavy = false}) {
     if (_soundState == SoundState.muted) return;
     SystemSound.play(SystemSoundType.click);
     if (heavy) {
@@ -484,62 +560,62 @@ class _ClockScreenState extends State<ClockScreen> {
       HapticFeedback.lightImpact();
     }
   }
-  
+
   void _flagFall(String winnerSide) {
-   gameOver = true;
-   winner = winnerSide;
-   _endReason = "Time";
-   _feedback(heavy: true); 
+    gameOver = true;
+    winner = winnerSide;
+    _endReason = "Time";
+    _feedback(heavy: true);
   }
 
   void _startTimer() {
-  _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-    if (gameOver || isPaused || _manualPause) return;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (gameOver || isPaused || _manualPause) return;
 
-    setState(() {
-      if (whiteToMove) {
-        whiteTime -= const Duration(seconds: 1);
-        if (whiteTime <= Duration.zero) {
-          whiteTime = Duration.zero;
-          _flagFall("Black");
+      setState(() {
+        if (whiteToMove) {
+          whiteTime -= const Duration(seconds: 1);
+          if (whiteTime <= Duration.zero) {
+            whiteTime = Duration.zero;
+            _flagFall("Black");
+          }
+        } else {
+          blackTime -= const Duration(seconds: 1);
+          if (blackTime <= Duration.zero) {
+            blackTime = Duration.zero;
+            _flagFall("White");
+          }
         }
-      } else {
-        blackTime -= const Duration(seconds: 1);
-        if (blackTime <= Duration.zero) {
-          blackTime = Duration.zero;
-          _flagFall("White");
-        }
-      }
+      });
     });
-  });
-}
-
-String _format(Duration d) {
-  final hours = d.inHours;
-  final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
-  final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
-  if (hours > 0) {
-    return '$hours:$minutes:$seconds';
   }
-  return '$minutes:$seconds';
-}
+
+  String _format(Duration d) {
+    final hours = d.inHours;
+    final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
+    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
+    if (hours > 0) {
+      return '$hours:$minutes:$seconds';
+    }
+    return '$minutes:$seconds';
+  }
 
   //formats duration as H:MM:SS for pgn (inspiration from lichess analysis board)
   String _formatClk(Duration d) {
     final hours = d.inHours;
-    final minutes = (d.inminutes % 60).toString().padLeft(2, '0');
+    final minutes = (d.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
     return '$hours:$minutes:$seconds';
   }
 
-  String _formatClk(Duration d) {
+  String _formatTaken(Duration d) {
     if (d.inMinutes >= 1) {
-      return '${d.inMinutes}m ${(d.inSeconds % 60)s}';
+      return '${d.inMinutes}m ${(d.inSeconds % 60)}s';
     }
     return '${d.inSeconds}.${(d.inMilliseconds % 1000) ~/ 100}s';
   }
 
-  String _positionKey(chess.position p) {
+  String _positionKey(chess.Position p) {
     // Defensive: dartchess's `fen` getter shouldn't throw for a
     // Position reached via legal play, but this guards threefold
     // detection from crashing the whole game loop if it ever does —
@@ -556,7 +632,7 @@ String _format(Duration d) {
 
   // chunk 12: _matchMoves- the move-matching engine-
 
-  List<_Candidate> _matchmoves(SpokenMove spoken) {
+  List<_Candidate> _matchMoves(SpokenMove spoken) {
     final withRole = <_Candidate>[];
     final pawnOnly = <_Candidate>[];
     final anyRole = <_Candidate>[];
@@ -567,19 +643,15 @@ String _format(Duration d) {
       final piece = _position.board.pieceAt(from);
       if (piece == null) continue;
 
-      for (final entry in _position.legalMoves.entries) {
-        final from = entry.key;
-        final piece = _position.board.pieceAt(from);
-        if (piece == null) continue;
-
-        for (final to in entry.value.squares) {
+      for (final to in entry.value.squares) {
         final isPawn = piece.role == chess.Role.pawn;
-        final promotes = isPawn &&
+        final promotes =
+            isPawn &&
             (to.rank == chess.Rank.first || to.rank == chess.Rank.eighth);
 
         final promoRoles = promotes
             ? <chess.Role?>[spoken.promotion ?? chess.Role.queen]
-            : <chess.Role>[null];
+            : <chess.Role?>[null];
 
         for (final promo in promoRoles) {
           final move = chess.NormalMove(from: from, to: to, promotion: promo);
@@ -619,7 +691,6 @@ String _format(Duration d) {
         }
       }
     }
-    
 
     List<_Candidate> result;
     if (spoken.role != null) {
@@ -649,7 +720,7 @@ String _format(Duration d) {
 
     // Role was named explicitly (e.g. "knight takes e5"); narrow within that already-role-filtered pool the same way as before.
 
-    if(spoken.isCapture && spoken.role != null && result.length > 1) {
+    if (spoken.isCapture && spoken.role != null && result.length > 1) {
       final captures = result.where((c) => c.san.contains('x')).toList();
       if (captures.isNotEmpty) result = captures;
     }
@@ -668,137 +739,143 @@ String _format(Duration d) {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: kSheetBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(16)),
-        title: const Text("Draw offered", style: TextStyle(color: Colors.white)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          "Draw offered",
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           "Does the other player accept the draw?",
           style: TextStyle(color: Colors.white70),
-      ),
-      actions: [
+        ),
+        actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Decline", style: TextStyle(color: Colors.white70)),
-
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(dialogContext);
-            setState(() {
-              gameOver = true;
-              winner = null;
-              _endReason = "Draw agreed";
-            });
-            _feedback(heavy: true);
-          },
-          child: const Text("Accept", style: TextStyle(color: kPanelActive)),
-        ),
-      ],
-    ),
-  );
-}
-
-// FIX: every exit path of this method now resets _processingUtterance,
-// and _armRecognizedTextTimer no longer leaves the flag stuck.
-void _proposeSpoken(String rawText) {
-  final lower = rawText.toLowerCase();
-  if (lower.contains('resign')) {
-    final saysWhite = lower.contains('white');
-    final saysBlack = lower.contains('black');
-    final whiteResigns = saysWhite && !saysBlack
-        ? true
-        : saysBlack && !saysWhite
-            ? false
-            : whiteToMove;
-    _resign(whiteResigns);
-    _processingUtterance = false;
-    return;
+            child: const Text(
+              "Decline",
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              setState(() {
+                gameOver = true;
+                winner = null;
+                _endReason = "Draw agreed";
+              });
+              _feedback(heavy: true);
+            },
+            child: const Text("Accept", style: TextStyle(color: kPanelActive)),
+          ),
+        ],
+      ),
+    );
   }
 
-  if (lower.contains('draw')) {
-    _offerDraw();
+  // FIX: every exit path of this method now resets _processingUtterance,
+  // and _armRecognizedTextTimer no longer leaves the flag stuck.
+  void _proposeSpoken(String rawText) {
+    final lower = rawText.toLowerCase();
+    if (lower.contains('resign')) {
+      final saysWhite = lower.contains('white');
+      final saysBlack = lower.contains('black');
+      final whiteResigns = saysWhite && !saysBlack
+          ? true
+          : saysBlack && !saysWhite
+          ? false
+          : whiteToMove;
+      _resign(whiteResigns);
+      _processUtterance = false;
+      return;
+    }
+
+    if (lower.contains('draw')) {
+      _offerDraw();
+      _processUtterance = false;
+      return;
+    }
+
+    final spoken = MoveParser.parse(rawText);
+
+    // FIX: both failure branches now show the Try Again / Enter
+    // Manually recovery overlay instead of a fading inline hint, and
+    // deliberately leave isPaused=true so the clock stays frozen until the user resolves it via one of the two buttons
+    if (spoken == null || spoken.isEmpty) {
+      setState(() {
+        _lastMoveError = null;
+        _recoveryMessage = "Move not detected";
+      });
+      _processUtterance = false;
+      return;
+    }
+
+    final candidates = _matchMoves(spoken);
+
+    if (candidates.isEmpty) {
+      setState(() {
+        _lastMoveError = null;
+        _recoveryMessage = "Move not detected";
+      });
+      _processUtterance = false;
+      return;
+    }
+
+    setState(() {
+      _pendingCandidates = candidates;
+      _lastMoveError = null;
+      _recoveryMessage = null;
+    });
     _processUtterance = false;
-    return;
   }
 
-  final spoken = MoveParser.parse(rawText);
-
-  // FIX: both failure branches now show the Try Again / Enter
-  // Manually recovery overlay instead of a fading inline hint, and
-  // deliberately leave isPaused=true so the clock stays frozen until the user resolves it via one of the two buttons
-  if (spoken == null || spoken.isEmpty) {
+  //chunk 14: resign and _proposeFromSquares (manual move picker legality path)
+  void _resign(bool whiteResigns) {
     setState(() {
+      gameOver = true;
+      winner = whiteResigns ? "Black" : "White";
+      _endReason = "Resignation";
+      isPaused = false;
+      _recognizedText = '';
       _lastMoveError = null;
-      _recoveryMessage = "Move not detected";
     });
-    _processingUtterance = false;
-    return;
+    _feedback(heavy: true);
   }
 
-  final candidates = _matchMoves(spoken);
+  void _proposeFromSquares(String fromName, String toName) {
+    final from = chess.Square.parse(fromName);
+    final to = chess.Square.parse(toName);
+    if (from == null || to == null) {
+      setState(() {
+        _lastMoveError = "Invalid square";
+        isPaused = false;
+      });
+      return;
+    }
 
-  if (candidates.isEmpty) {
-    setState(() {
-      _lastMoveError = null;
-      _recoveryMessage = "Move not detected";
-    });
-    _processingUtterance = false;
-    return;
-  }
+    final piece = _position.board.pieceAt(from);
+    final promotes =
+        piece?.role == chess.Role.pawn &&
+        (to.rank == chess.Rank.first || to.rank == chess.Rank.eighth);
 
-  setState(() {
-    _pendingCandidates = candidates;
-    _lastMoveError = null;
-    _recoveryMessage = null;
-  });
-  _processingUtterance = false;
-}
+    final roles = promotes
+        ? <chess.Role?>[
+            chess.Role.queen,
+            chess.Role.rook,
+            chess.Role.bishop,
+            chess.Role.knight,
+          ]
+        : <chess.Role?>[null];
 
-//chunk 14: resign and _proposeFromSquares (manual move picker legality path)
-void _resign(bool whiteResigns) {
-  setState(() {
-    gameOver = true;
-    winner = whiteResigns ? "Black" : "White";
-    _endReason = "Resignation";
-    isPaused = false;
-    _recognizedText = '';
-    _lastMoveError = null;
-  });
-  _feedback(heavy: true);
-}
+    final candidates = <_Candidate>[];
+    for (final promo in roles) {
+      final move = chess.NormalMove(from: from, to: to, promotion: promo);
+      if (!_position.isLegal(move)) continue;
+      final (san, _) = _position.makeSanUnchecked(move);
+      candidates.add(_Candidate(move, san));
+    }
 
-void _proposeFromSquares(String fromName, String toName) {
-  final from = chess.Square.parse(fromName);
-final to = chess.Square.parse(toName);
-if (from == null || to == null) {
-  setState(() {
-    _lastMoveError = "Invalid square";
-    isPaused = false;
-  });
-  return;
-}
-
-final piece = _position.board.pieceAt(from);
-final promotes = piece?.role == chess.Role.pawn &&
-    (to.rank == chess.Rank.first || to.rank == chess.Rank.eighth);
-
-final roles = promotes
-    ? <chess.Role?>[
-        chess.Role.queen,
-        chess.Role.rook,
-        chess.Role.bishop,
-        chess.Role.knight,
-      ]
-    : <chess.Role?>[null];
-
-  final candidates = <_Candidate>[];
-  for (final promo in roles) {
-    final move = chess.NormalMove(from: from, to: to, promotion: promo);
-    if (!_position.isLegal(move)) continue;
-    final (san, _) = _position.makeSanUnchecked(move);
-    candidates.add(_Candidate(move, san));
-  }
-
-  if (candidates.isEmpty) {
+    if (candidates.isEmpty) {
       setState(() {
         _lastMoveError = "Illegal: ${from.name}${to.name}";
         isPaused = false;
@@ -821,7 +898,7 @@ final roles = promotes
     // in the resulting position), and against a Confirm tap that was already in flight landing after Cancel already cleared state
     // Once `chosen` is no longer present in `_pendingCandidates` which happens the instant the first confirm (or a cancel) runs any further call for the same tap is a no-op.
 
-    if (!_pendingCandidates.contaiins(chosen)) return;
+    if (!_pendingCandidates.contains(chosen)) return;
 
     final now = DateTime.now();
     final timeTaken = now.difference(_moveStartTime);
@@ -838,12 +915,14 @@ final roles = promotes
         blackMoves++;
       }
 
-      _moveHistory.add(MoveRecord(
-        chosen.san,
-        timeTaken,
-        movedByWhite ? whiteTime : blackTime,
-        movedByWhite,
-      ));
+      _moveHistory.add(
+        MoveRecord(
+          chosen.san,
+          timeTaken,
+          movedByWhite ? whiteTime : blackTime,
+          movedByWhite,
+        ),
+      );
 
       whiteToMove = !whiteToMove;
       _moveStartTime = now;
@@ -856,504 +935,517 @@ final roles = promotes
     });
 
     _recognizedTextTimer?.cancel();
-    _processingUtterance = false; // FIX: guarantee reset once a move lands
+    _processUtterance = false; // FIX: guarantee reset once a move lands
     _feedback();
     _evaluateGameEnd();
   }
 
-  
-    
+  void _evaluateGameEnd() {
+    String? reason;
+    String? winnerSide;
 
-  
-
-
-
-    bool _looselyMatches(String guess, String realSan) {
-      String clean(String s) => s.replaceAll(RegExp(r'[+#]'), '').to toLowerCase();
-      final g = clean(guess);
-      final r = clean(realSan);
-      return r == g || r.replaceAll('x', '') == g.replaceAll('x', '');
-    }
-    void _proposeMove(String rawText) {
-      final parsed = MoveParser.parse(rawText);
-
-      if (parsed == null) {
-        setState(() {
-          _lastMoveError = "Couldn't understand - Try the move picker";
-          isPaused = false;
-        });
-        return;
+    if (_position.isCheckmate) {
+      reason = "Checkmate";
+      winnerSide = _position.turn == chess.Side.white ? "Black" : "White";
+    } else if (_position.isStalemate) {
+      reason = "Stalemate";
+    } else if (_position.isInsufficientMaterial) {
+      reason = "Insufficient material";
+    } else if (_position.halfmoves >= 100) {
+      reason = "50-move rule";
+    } else {
+      final key = _positionKey(_position);
+      if (_positionHistory.where((p) => p == key).length >= 3) {
+        reason = "Threefold repitition";
       }
     }
-    final candidates = _findCandidateMoves(parsed);
 
-    if (candidates.isEmpty) {
-      setState(() {
-        _lastMoveError = "Illegal move: ${parsed.text}";
-        isPaused = false;
-      });
+    if (reason == null) return;
+
+    setState(() {
+      gameOver = true;
+      winner = winnerSide;
+      _endReason = reason;
+    });
+    _feedback(heavy: true);
+  }
+
+  void _cancelPendingMove() {
+    _recognizedTextTimer?.cancel();
+    setState(() {
+      _pendingCandidates = [];
+      _recognizedText = '';
+      _recoveryMessage = null;
+      isPaused = false;
+    });
+    _processUtterance = false; // FIX: reset on cancel too
+  }
+  // FIX (vuln #4): the clock previously only paused inside
+  // _onHoldStart, which is wired to onLongPressStart — Flutter's
+  // default long-press recognizer waits ~500ms of holding before that
+  // fires. That's a real, silent gap where the clock keeps ticking
+  // after the player has already started their hold, on every single voice move
+  // onLongPressDown fires the instant the finger touches
+  // down, before the hold duration is even evaluated, so pausing here
+  // closes that gap. This does NOT start listening — only _onHoldStart
+  // (after the real long-press threshold) engages the mic, same as before
+
+  //chunk 16: _onHoldDown/_onHoldStart/_onHoldEnd/_processUtterance -press-and-hold voice flow;
+
+  void _onHoldDown(bool isWhitePanel) {
+    if (gameOver || _awaitingConfirmation) return;
+    if (isWhitePanel != whiteToMove) return;
+
+    if (_manualPause) return;
+    if (isPaused) return;
+    setState(() => isPaused = true);
+  }
+
+  // Shared by the real long-press path and the undo-triggered
+  // re-listen (_undoLastMove above), so both stay in sync with the
+  // same guards, timers, and speech.listen() setup rather than two
+  // divergent copies of this logic.
+
+  void _startListeningFor(bool isWhitePanel) {
+    if (gameOver || _awaitingConfirmation) return;
+    if (isWhitePanel != whiteToMove) return;
+    if (_isListening) return; // FIX: ignore a stray double hold-start
+    // FIX (vuln #3): previously never checked _manualPause, so
+    // tapping Pause didn't actually stop a player from holding to
+    // speak, getting a move recognized, and confirming it while the
+    // app visually showed "paused".
+    if (_manualPause) return;
+
+    if (!_speechEnabled) {
+      setState(() => _lastMoveError = "Mic unavailable — use the keyboard");
       return;
     }
 
+    _finalResultTimer?.cancel();
+    _recognizedTextTimer?.cancel();
+    _hardTimeoutTimer?.cancel();
     setState(() {
-      _pendingCandidates = candidates;
+      isPaused = true;
+      _isListening = true;
+      _processUtterance = false;
+      _recognizedText = '';
       _lastMoveError = null;
+      _recoveryMessage = null;
+    });
+
+    _speech.listen(
+      onResult: (result) {
+        if (!mounted) return;
+        setState(() => _recognizedText = result.recognizedWords);
+        if (result.finalResult && !_isListening) {
+          _finalResultTimer?.cancel();
+          _processUtteranceMethod();
+        }
+      },
+      listenFor: const Duration(seconds: 12),
+      pauseFor: const Duration(seconds: 4),
+      localeId: 'en_US',
+    );
+
+    // FIX: hard fallback — if the engine never calls onResult with a
+    // final result and the hold is never released, force a stop and
+    // process whatever's been heard (or show recovery) after a beat
+    // past the engine's own 12s window, instead of hanging forever.
+    _hardTimeoutTimer = Timer(const Duration(seconds: 13), () {
+      if (mounted && _isListening) {
+        _onHoldEnd(isWhitePanel);
+      }
     });
   }
 
+  void _onHoldStart(bool isWhitePanel) => _startListeningFor(isWhitePanel);
 
+  void _onHoldEnd(bool isWhitePanel) {
+    if (isWhitePanel != whiteToMove) return;
 
-  void _switchTurn() {
+    if (_isListening) {
+      _hardTimeoutTimer?.cancel();
+      setState(() => _isListening = false);
+      _speech.stop();
+
+      _finalResultTimer?.cancel();
+      _finalResultTimer = Timer(const Duration(milliseconds: 400), () {
+        if (mounted) _processUtteranceMethod();
+      });
+    } else if (isPaused) {
+      // FIX (vuln #4, companion): the hold was released (or cancelled)
+      // before the long-press threshold ever engaged the mic — e.g. a
+      // quick tap, or _startListeningFor's own guards (gameOver,
+      // _manualPause, _awaitingConfirmation) blocked it. _onHoldDown
+      // already paused the clock on touch-down, so it must be
+      // un-paused here too, or a short accidental tap would leave the
+      // clock frozen with no listening session to ever resolve it.
+      setState(() => isPaused = false);
+    }
+  }
+
+  void _processUtteranceMethod() {
+    if (_processUtterance) return;
+    _processUtterance = true;
+
+    final heard = _recognizedText.trim();
+    if (heard.isEmpty) {
+      setState(() {
+        _lastMoveError = null;
+        _recoveryMessage = "Move not detected";
+      });
+      _processUtterance = false;
+      return;
+    }
+    _proposeSpoken(heard);
+  }
+
+  //NEW: 'try again' to be dismissed and start listening right away, without needing to hold the panel
+
+  //chunk 17: _retryVoice, _switchToManual, _legalMoveData, _showManualMoveDialog
+
+  void _retryVoice() {
+    setState(() => _recoveryMessage = null);
+    _startListeningFor(whiteToMove);
+  }
+
+  // NEW: "Enter Manually" — dismiss the overlay and jump straight to the keyboard square picker
+
+  void _switchToManual() {
+    setState(() => _recoveryMessage = null);
+    _showManualMoveDialog();
+  }
+
+  // FIX: builds a from-square -> legal-destination-squares map from the
+  // live position, used to power the reworked keyboard picker so it can
+  // only ever offer legal moves instead of letting the user tap blind.
+  // Builds both the from -> legal-destinations map and a from -> piece
+  // role map, so the picker can show a piece-type selector row and
+  // highlight-by-role before drilling into a specific square.
+  ({Map<String, Set<String>> legalMoves, Map<String, chess.Role> pieceRoles})
+  _legalMoveData() {
+    final moves = <String, Set<String>>{};
+    final roles = <String, chess.Role>{};
+    for (final entry in _position.legalMoves.entries) {
+      final from = entry.key;
+      final piece = _position.board.pieceAt(from);
+      if (piece == null) continue;
+      final dests = entry.value.squares.map((s) => s.name).toSet();
+      if (dests.isEmpty) continue;
+      moves[from.name] = dests;
+      roles[from.name] = piece.role;
+    }
+    return (legalMoves: moves, pieceRoles: roles);
+  }
+
+  void _showManualMoveDialog() {
     if (gameOver) return;
     setState(() {
-      if (whiteToMove) {
-        whiteTime += Duration(seconds: currentControl.incrementSeconds);
-        whiteMoves++;
-      } else {
-        blackTime += Duration(seconds: currentControl.incrementSeconds);
-        blackMoves++;
-      }
-      whiteToMove = !whiteToMove;
-      _moveStartTime = DateTime.now(); //restarting per move stopwatch for time notation
+      isPaused = true;
+      _recoveryMessage = null;
     });
-    _checkGameEndConditions();
-    if (!gameOver) _checkGameEndConditions();
-  }
-  void _checkGameEndConditions() {
-    if (_position.isCheckmate) {
-      setState(() {
-        gameOver = true;
-        winner = whiteToMove ? "Black" : "White";
-        _endReason = "Checkmate";
-      });
-    } else if (_position.isStalemate) {
-      setState(() {
-        gameOver = true;
-        winner = null;
-        _endReason = "Stalemate";
-      });
-    }
-  }
 
-  void _checkDrawConditions() {
-    final fenParts = _position.fen.split(' ');
-    final positionKey = fenParts.length >= 4 ? fenParts.sublist(0, 4).join(' ') : _position.fen;
-
-    _positionHistory.add(positionKey);
-    final occurrences = _positionHistory.where((p) => p == positionKey).length;
-
-    if (occurrences >= 3) {
-      setState(() {
-        gameOver = true;
-        winner = null;
-        _endReason = "Threefold repitition";
-      });
-      return;
-    }
-
-    if (_isInsufficientMaterial()) {
-      setState(() {
-        gameOver = true;
-        winner = null;
-        _endReason = "Insufficient material";
-      });
-    }
-  }
-
-  bool _isInsufficientMaterial() {
-    final all pieces = _position.board.pieces.values.toList();
-    final nonKingPieces = allPieces.where((p) => p.role != chess.Role.king).toList();
-
-    if (nonKingPieces.isEmpty) return true;
-    if (nonKingPieces.length == 1) {
-      final role = nonKingPieces.first.role;
-      if (role == chess.Role.bishop || role == chess.Role.knight) return true;
-    }
-    return false;
-  }
-
-
-
-
-
-  static ParsedMove? parse(String raw) {
-    if (raw.trim().isEmpty) return null;
-    String text = raw.toLowerCase().trim();
-
-    if (text.contains('castle') && text.contains('king')) return ParsedMove('O-O', null);
-    if (text.contains('castle') && text.contains('queen')) return ParsedMove('O-O-O', null);
-
-    _numberWords.forEach((word, digit) => text = text.replaceAll(word, digit));
-
-    final isCapture = text.contains('takes') || text.contains('captures');
-
-    String pieceLetter = '';
-
-    String pieceLetter = '';
-    for (final entry in _pieceWords.entries) {
-      if (text.startsWith(entry.key)) {
-        pieceLetter = entry.value;
-        break;
-      }
-    }
-
-    final squarePattern = RegExp(r'[a-h][1-8]');
-    final matches = squarePattern.allMatches(text).toList();
-    if (matches.isEmpty) return null;
-
-    final destinationMatch = matches.last;
-    final destination = destinationMatch.group(0)!;
-
-    String? promotionPiece;
-    final afterSquareText = text.substring(destinationMatch.end);
-    for (final entry in _pieceWords.entries) {
-      if (afterSquareText.contains(entry.key)) {
-        promotionPiece = entry.value;
-        break;
-      }
-
-    }
-    final baseText = pieceLetter.isEmpty
-        ? (isCapture ? 'x$destination' : destination)
-        : (isCapture ? '${pieceLetter}x$destination' : '$pieceLetter$destination');
-
-    return ParsedMove(baseText, promotionPiece);
-
-  }
-}
-class ParsedMove {
-  final String text;
-  final String? promotion;
-  ParsedMove(this.text, this.promotion);
-}
-
-
-//time control- model all along with minutes and seconds, increment and display label together
-
-class TimeControl {
-    final String label;
-    final int minutes;
-    final int incrementSeconds;
-
-    const TimeControl(this.label, this.minutes, this.incrementSeconds);
-}
-
-
-
-  
-//preset time controls(will add more later)
-
-
-//candidate move (chunk 16) SAN + underlying move 
-
-
-//main clock screen
- {
-
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-    _initSpeech();
-    _moveStartTime = DateTime.now();
-  }
-
-  //speech state
-  final stt.SpeechToText _speech = stt.SpeechToText();
-  bool _speechEnabled = false;
-  String _recognizedText = '';
-
-  
-  void _initSpeech() async {
-    _speechEnabled = await _speech.initialize(
-      onError: (error) => debugPrint('Speech error: $error'),
-      onStatus: (status) => debugPrint('Speech status: $status'),
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final data = _legalMoveData();
+        return PieceSquarePicker(
+          legalMoves: data.legalMoves,
+          pieceRoles: data.pieceRoles,
+          whiteToMove: whiteToMove,
+          onSubmit: (fromSquare, toSquare) {
+            Navigator.pop(sheetContext);
+            _proposeFromSquares(fromSquare, toSquare);
+          },
+          onCancel: () {
+            Navigator.pop(sheetContext);
+            setState(() => isPaused = false);
+          },
+        );
+      },
     );
-    setState(() {});
   }
-//Freezes if the game is over OR a hold-to-speak is in progress.
 
-  
+  //chunk 18: _resetGame, _confirmReset, _togglePause, _toggleSound
 
-//chunk 18: confirming a move now records how long it took and what the mover's clock read right after- before turn switch
-
-
-
-//press and hold + voice (chunk 9 and 10)
-//called when a player presses down on their own clock panel.
-  // Pauses BOTH clocks and starts listening for their move.
-
-void _onHoldStart(bool isWhitePanel) {
-  if (gameOver) return;
-  if (isWhitePanel !=whiteToMove) return; //if the wrong player pressed, ignores
-  if (!_speechEnabled) return;
-
-  setState(() {
-    isPaused = true;
-    _recognizedText = '';
-    _lastMoveError = null;
-  });
-
-  _speech.listen(
-    onResult: (result) {
-      setState(() => _recognizedText = result.recognizedWords);
-    },
-  );
-}
-
-void _onHoldEnd(bool isWhitePanel) {
-  if (gameOver) return;
-  if(isWhitePanel != whiteToMove) return;
-
-  _speech.stop();
-
-  if (_recognizedText.isNotEmpty) {
-    setState(() => isPaused = false);
-    return;
+  void _resetGame() {
+    setState(() {
+      whiteTime = Duration(minutes: currentControl.minutes);
+      blackTime = Duration(minutes: currentControl.minutes);
+      whiteMoves = 0;
+      blackMoves = 0;
+      whiteToMove = true;
+      gameOver = false;
+      winner = null;
+      isPaused = false;
+      _manualPause = false;
+      _endReason = null;
+      _recognizedText = '';
+      _lastMoveError = null;
+      _recoveryMessage = null;
+      _position = chess.Chess.initial;
+      _moveHistory = [];
+      _positionHistory = [_positionKey(chess.Chess.initial)];
+      _pendingCandidates = [];
+      _moveStartTime = DateTime.now();
+    });
+    _processUtterance = false; // FIX: also clear on reset
   }
-  _proposeMove(_recognizedText);
-}
 
-void _showManualMoveDialog() {
-  if (gameOver) return;
-  setState(() => isPaused = true);
+  void _confirmReset() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: kSheetBg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            "Reset clock",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            "This will reset the game and clocks.",
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _resetGame();
+              },
+              child: const Text("Confirm", style: TextStyle(color: kDanger)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
-    builder: (context) {
-      return PieceSquarePicker(
-        onSubmit: (moveText, promotion) {
-          Navigator.pop(context);
-          _proposeMove(moveText);
-        },
-        onCancel: () {
-          Navigator.pop(context);
-          setState(() => isPaused = false);
-        },
-      );
-    },
-  );
-}
+  void _togglePause() {
+    if (gameOver) return;
+    setState(() => _manualPause = !_manualPause);
+  }
 
+  void _toggleSound() {
+    setState(() {
+      _soundState = _soundState == SoundState.on
+          ? SoundState.muted
+          : SoundState.on;
+    });
+    if (_soundState == SoundState.on) _feedback();
+  }
 
-//adjust time attempt at chess.com's clock app scrool wheel type selector
+  //adjust time attempt at chess.com's clock app scrool wheel type selector
 
-void _showAdjustTimeDialog(bool forWhite) {
-  final current = forWhite ? whiteTime : blackTime;
-  int selectedMinutes = current.inMinutes;
-  int selectedSeconds = current.inSeconds % 60;
+  void _showAdjustTimeDialog(bool forWhite) {
+    final current = forWhite ? whiteTime : blackTime;
+    int selectedMinutes = current.inMinutes;
+    int selectedSeconds = current.inSeconds % 60;
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: kSheetBg,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
-    ),
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setSheetState) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Adjust time",
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close, color: Colors.white54),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text("Time", style: TextStyle(color: Colors.white, fontSize: 15)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2C2C2A),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '$selectedMinutes:${selectedSeconds.toString().padLeft(2, '0')}',
-                        style: const TextStyle(
-                          color: kPanelActive,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          fontFeatures: [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 180,
-                  child: Row(
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: kSheetBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: ListWheelScrollView.useDelegate(
-                          itemExtent: 40,
-                          diameterRatio: 1.4,
-                          physics: const FixedExtentScrollPhysics(),
-                          controller: FixedExtentScrollController(initialItem: selectedMinutes),
-                          onSelectedItemChanged: (i) => setSheetState(() => selectedMinutes = i),
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            childCount: 180,
-                            builder: (context, i) => Center(
-                              child: Text('$i',
-                                  style: TextStyle(
-                                    color: i == selectedMinutes ? Colors.white : Colors.white38,
-                                    fontSize: i == selectedMinutes ? 22 : 17,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                            ),
-                          ),
+                      const Text(
+                        "Adjust time",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Expanded(
-                        child: ListWheelScrollView.useDelegate(
-                          itemExtent: 40,
-                          diameterRatio: 1.4,
-                          physics: const FixedExtentScrollPhysics(),
-                          controller: FixedExtentScrollController(initialItem: selectedSeconds),
-                          onSelectedItemChanged: (i) => setSheetState(() => selectedSeconds = i),
-                          childDelegate: ListWheelChildBuilderDelegate(
-                            childCount: 60,
-                            builder: (context, i) => Center(
-                              child: Text(i.toString().padLeft(2, '0'),
-                                  style: TextStyle(
-                                    color: i == selectedSeconds ? Colors.white : Colors.white38,
-                                    fontSize: i == selectedSeconds ? 22 : 17,
-                                    fontWeight: FontWeight.w600,
-                                  )),
-                            ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Colors.white54),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Time",
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2C2C2A),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '$selectedMinutes:${selectedSeconds.toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            color: kPanelActive,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPanelActive,
-                      foregroundColor: kOnActive,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 180,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            diameterRatio: 1.4,
+                            physics: const FixedExtentScrollPhysics(),
+                            controller: FixedExtentScrollController(
+                              initialItem: selectedMinutes,
+                            ),
+                            onSelectedItemChanged: (i) =>
+                                setSheetState(() => selectedMinutes = i),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 180,
+                              builder: (context, i) => Center(
+                                child: Text(
+                                  '$i',
+                                  style: TextStyle(
+                                    color: i == selectedMinutes
+                                        ? Colors.white
+                                        : Colors.white38,
+                                    fontSize: i == selectedMinutes ? 22 : 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListWheelScrollView.useDelegate(
+                            itemExtent: 40,
+                            diameterRatio: 1.4,
+                            physics: const FixedExtentScrollPhysics(),
+                            controller: FixedExtentScrollController(
+                              initialItem: selectedSeconds,
+                            ),
+                            onSelectedItemChanged: (i) =>
+                                setSheetState(() => selectedSeconds = i),
+                            childDelegate: ListWheelChildBuilderDelegate(
+                              childCount: 60,
+                              builder: (context, i) => Center(
+                                child: Text(
+                                  i.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    color: i == selectedSeconds
+                                        ? Colors.white
+                                        : Colors.white38,
+                                    fontSize: i == selectedSeconds ? 22 : 17,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      final newDuration = Duration(minutes: selectedMinutes, seconds: selectedSeconds);
-                      setState(() {
-                        if (forWhite) {
-                          whiteTime = newDuration;
-                        } else {
-                          blackTime = newDuration;
-                        }
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Save time", style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kPanelActive,
+                        foregroundColor: kOnActive,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        final newDuration = Duration(
+                          minutes: selectedMinutes,
+                          seconds: selectedSeconds,
+                        );
+                        setState(() {
+                          if (forWhite) {
+                            whiteTime = newDuration;
+                          } else {
+                            blackTime = newDuration;
+                          }
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Save time",
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showTimeControlSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: kSheetBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            const Text(
+              "Select time control",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...presets.map(
+              (tc) => ListTile(
+                title: Text(
+                  tc.label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
-}
-//reset
-
-void _resetGame() {
-  setState(() {
-    whiteTime = Duration(minutes: currentControl.minutes);
-    blackTime = Duration(minutes: currentControl.minutes);
-    whiteMoves = 0;
-    blackMoves = 1;
-    whiteToMove = true;
-    gameOver = false;
-    winner = null;
-    isPaused = false;
-    _manualPause = false;
-    _endReason = null;
-    _recognizedText = '';
-    _lastMoveError = null;
-    _position = chess.Chess.initial;
-    _moveHistory = [];
-    _positionHistory = [];
-    _pendingCandidates = [];
-    _moveStartTime = DateTime.now()
-  });
-}
-
-void _confirmReset() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: kSheetBg
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Reset Clock", style: TextStyle(color: Colors.white)),
-        content: const Text("This will reset the game and clocks.", style: TextStyle(color: Color.white70)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel", style: TextStyle(color: Colors.white70)),
-          ),
-          TextButtom(
-            onPressed: () {
-              Navigator.pop(context);
-              _resetGame();
-            },
-            child: const Text("Confirm", style: TextStyle(color: Color.redAccent)),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void _togglePause() {
-  if (gameOver) return;
-  setState(() => _manualPause = !_manualPause);
-}
-
-void _toggleSound() {
-  setState(() {
-    _soundState = _soundState == SoundState.on ? SoundState.muted : SoundState.on;
-  });
-}
-
-void _showTimeControlSheet() {
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: kSheetBg,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
-    ),
-    builder: (context) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 16),
-          const Text("Select time control",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          ...presets.map((tc) => ListTile(
-                title: Text(tc.label,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 onTap: () {
                   setState(() {
                     currentControl = tc;
@@ -1362,116 +1454,142 @@ void _showTimeControlSheet() {
                   });
                   Navigator.pop(context);
                 },
-              )),
-          const Divider(color: Colors.white24),
-          ListTile(
-            title: const Text("Custom...", style: TextStyle(color: Colors.white)),
-            onTap: () {
-              Navigator.pop(context);
-              _showCustomDialog();
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
-      );
-    },
-  );
-}
-
-//Custom time control
-void _showCustomDialog() {
-  final minutesController = TextEditingController();
-  final incrementController = TextEditingController();
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF202020),
-        title: const Text("Custom time control", style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: minutesController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: "Minutes", labelStyle: TextStyle(color: Colors.white70)),
-            ),
-            TextField(
-              controller: incrementController,
-              keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(labelText: "Increment (seconds)", labelStyle: TextStyle(color: Colors.white70)),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              final mins = int.tryParse(minutesController.text) ?? 10;
-              final inc = int.tryParse(incrementController.text) ?? 0;
-              setState(() {
-                currentControl = TimeControl("$mins | $inc", mins, inc);
-                whiteTime = Duration(minutes: mins);
-                blackTime = Duration(minutes: mins);
-              });
-              Navigator.pop(context);
-            },
-            child: const Text("Start", style: TextStyle(color: kPanelActive)),
-          ),
-        ],
-      );
-    },
-  );
-}
-//rewrite this to replace with chess.com's scrool wheel to save time instead
-void _showAddTimeDialog() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: const Color(0xFF202020),
-        title: const Text("Add time", style: TextStyle(color: Colors.white)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              title: const Text("+1 min to White", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                setState(() => whiteTime += const Duration(minutes: 1));
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text("+15 sec to White", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                setState(() => whiteTime += const Duration(seconds: 15));
-                Navigator.pop(context);
-              },
+              ),
             ),
             const Divider(color: Colors.white24),
             ListTile(
-              title: const Text("+1 min to Black", style: TextStyle(color: Colors.white)),
+              title: const Text(
+                "Custom...",
+                style: TextStyle(color: Colors.white),
+              ),
               onTap: () {
-                setState(() => blackTime += const Duration(minutes: 1));
                 Navigator.pop(context);
+                _showCustomDialog();
               },
             ),
-            ListTile(
-              title: const Text("+15 sec to Black", style: TextStyle(color: Colors.white)),
-              onTap: () {
-                setState(() => blackTime += const Duration(seconds: 15));
+            const SizedBox(height: 16),
+          ],
+        );
+      },
+    );
+  }
+
+  //Custom time control
+  void _showCustomDialog() {
+    final minutesController = TextEditingController();
+    final incrementController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF202020),
+          title: const Text(
+            "Custom time control",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: minutesController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: "Minutes",
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+              ),
+              TextField(
+                controller: incrementController,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  labelText: "Increment (seconds)",
+                  labelStyle: TextStyle(color: Colors.white70),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                final mins = int.tryParse(minutesController.text) ?? 10;
+                final inc = int.tryParse(incrementController.text) ?? 0;
+                setState(() {
+                  currentControl = TimeControl("$mins | $inc", mins, inc);
+                  whiteTime = Duration(minutes: mins);
+                  blackTime = Duration(minutes: mins);
+                });
                 Navigator.pop(context);
               },
+              child: const Text("Start", style: TextStyle(color: kPanelActive)),
             ),
           ],
-        ),
-      );
-    },
-  );
-}
-//build pgn (chunk 18)
+        );
+      },
+    );
+  }
+
+  //rewrite this to replace with chess.com's scrool wheel to save time instead
+  void _showAddTimeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF202020),
+          title: const Text("Add time", style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text(
+                  "+1 min to White",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  setState(() => whiteTime += const Duration(minutes: 1));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  "+15 sec to White",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  setState(() => whiteTime += const Duration(seconds: 15));
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(color: Colors.white24),
+              ListTile(
+                title: const Text(
+                  "+1 min to Black",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  setState(() => blackTime += const Duration(minutes: 1));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  "+15 sec to Black",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  setState(() => blackTime += const Duration(seconds: 15));
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  //build pgn (chunk 18)
 
   String _buildPgn() {
     final buffer = StringBuffer();
@@ -1484,7 +1602,9 @@ void _showAddTimeDialog() {
       if (i % 2 == 0) {
         buffer.write('${(i ~/ 2) + 1}. ');
       }
-      buffer.write('${record.san} {[%clk ${_formatClk(record.clockRemaining)}] [%emt ${_formatClk(record.timeTaken)}]} ');
+      buffer.write(
+        '${record.san} {[%clk ${_formatClk(record.clockRemaining)}] [%emt ${_formatTaken(record.timeTaken)}]} ',
+      );
     }
 
     if (gameOver) {
@@ -1506,214 +1626,272 @@ void _showAddTimeDialog() {
       builder: (context) {
         return AlertDialog(
           backgroundColor: kSheetBg,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Text("Game PGN", style: TextStyle(color: Colors.white)),
-          content: SelectableText(_buildPgn(), style: const TextStyle(color: Colors.white70)),
+          content: SelectableText(
+            _buildPgn(),
+            style: const TextStyle(color: Colors.white70),
+          ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Close", style: TextStyle(color: Colors.white70))),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
           ],
         );
       },
     );
   }
 
-//move time review list (also chunk 18 )
+  //move time review list (also chunk 18 )
 
-void _showMoveTimesDialog() {
-  showDialog(
-    context: context
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: kSheetBg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Move Times", style: TextStyle(color: Colors.white)),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            intemCount: _moveHistory.lenth,
-            itemBuilder: (context, index) {
-              final record = _moveHistory[index];
-              final moveNumber = (index ~/ 2) +1;
-              final side = index % 2 == 0 ? "White" : "Black";
-              return ListTile(
-                dense: true,
-                title: Text(
-                  "$moveNumber. ${record.san} ($side)",
-                  style: const TextStyle(color: Colors.white),
-                ),
-                trailing: Text(
-                  "${record.timeTaken.inSeconds}s"
-                  style: const TextStyle(color: kPanelActive, fontWeight: FontWeight.w700),
-                ),
-              );
-            },
+  void _showMoveTimesDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: kSheetBg,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        actions: [
-          TextButton(onpressed: () => Navigator.pop(context), child: const Text("Close", style: TextStyle(color: Colors.white70))),
-        ],
-      );
-    },
-  );
-}
+          title: const Text(
+            "Move Times",
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: _moveHistory.length,
+              itemBuilder: (context, index) {
+                final record = _moveHistory[index];
+                final moveNumber = (index ~/ 2) + 1;
+                final side = index % 2 == 0 ? "White" : "Black";
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    "$moveNumber. ${record.san} ($side)",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: Text(
+                    "${record.timeTaken.inSeconds}s",
+                    style: const TextStyle(
+                      color: kPanelActive,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-@override
-Widget build(BuildContext context) {
-  final barExpanded = _manualPause || gameOver;
+  @override
+  Widget build(BuildContext context) {
+    final barExpanded = _manualPause || gameOver;
 
-  return Scaffold(
-    backgroundColor: kAppBg,
-    body: SafeArea(
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(kPanelGap),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Transform.rotate(
-                    angle: pi,
+    return Scaffold(
+      backgroundColor: kAppBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(kPanelGap),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Transform.rotate(
+                      angle: pi,
+                      child: _ClockPanel(
+                        time: _format(blackTime),
+                        moves: blackMoves,
+                        timeControl: currentControl.label,
+                        isActive: !whiteToMove,
+                        recognizedText: _recognizedText,
+                        onHoldStart: () => _onHoldStart(false),
+                        onHoldEnd: () => _onHoldEnd(false),
+                        onTuneTap: _showTimeControlSheet,
+                      ),
+                    ),
+                  ),
+
+                  //this is the control bar, originally had 6 icons which claude suggested, but im narrowing down to 4 icons.
+                  // will be adding a glowing orange when the move is being recorded. maybe inspired by claude voice-mode type. will be using AI to make the animations smooth for everything.
+                  // ill be adding a PGN along with the time taken in the PGN button itself. the glowing orange will be showed when the person holds
+                  //the clock side, and itll sort of pulse also maybe, and will fade out when move is recorded/when the stop holding.
+                  // ill be adding a small rounded rectangle which will show the recorded move for 5 seconds above the clock font, and if it is not lgal by parse, then itll automatically to record again: 1) retry recording using voice 2) use the keyboard selector/manually
+                  // also, we gotta add a check for "Black resigns" or "White resigns" or draw- like "Draw accepted" by either of the player and it would be added to the PGN
+                  // further, i also want to add smooth animations everywhere.
+                  // gotta figure out the flutter running again. will be using AI to debug
+                  // will be using regular Icons.iconname pack for icons on the bar etc.
+                  // also gotta design proper UI for PGN- will we adding time taken along with it- was thinking of taking inspiration of lichess analysis board side bar- not sure, will be adding my accents to it
+
+                  //i logged basically no time today, ill be trying to log 10 hrs on saturday and sunday combined. hopefully will complete uptilthe UI and the backend parsing for each page.
+                  //thus, AI usage might be a little higher than usual because i need someone to architect the code for me, but itll still be nominal
+                  Container(
+                    height: 75,
+                    color: const Color(0xFF202020),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        IconButton(
+                          onPressed: _confirmReset,
+                          icon: const Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _togglePause,
+                          icon: Icon(
+                            _manualPause ? Icons.play_arrow : Icons.pause,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showAddTimeDialog,
+                          icon: const Icon(
+                            Icons.history,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showManualMoveDialog,
+                          icon: const Icon(
+                            Icons.keyboard,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _toggleSound(),
+                          icon: Icon(
+                            _soundState == SoundState.muted
+                                ? Icons.volume_off
+                                : Icons.volume_up,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showPgnDialog,
+                          icon: const Icon(
+                            Icons.description,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _showMoveTimesDialog,
+                          icon: const Icon(
+                            Icons.timer,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  //white
+                  Expanded(
                     child: _ClockPanel(
-                      time: _format(blackTime),
-                      moves: blackMoves,
+                      time: _format(whiteTime),
+                      moves: whiteMoves,
                       timeControl: currentControl.label,
-                      isActive: !whiteToMove,
-                      isPausedGlobally: _manualPause,
-                      showTune: barExpanded,
+                      isActive: whiteToMove,
                       recognizedText: _recognizedText,
-                      errorText: _lastMoveError,
-                      onHoldStart: () => _onHoldStart(false),
-                      onHoldEnd: () => _onHoldEnd(false),
+                      onHoldStart: () => _onHoldStart(true),
+                      onHoldEnd: () => _onHoldEnd(true),
                       onTuneTap: _showTimeControlSheet,
                     ),
                   ),
-                ),
-                      
-                
-                      //this is the control bar, originally had 6 icons which claude suggested, but im narrowing down to 4 icons.
-                      // will be adding a glowing orange when the move is being recorded. maybe inspired by claude voice-mode type. will be using AI to make the animations smooth for everything.
-                      // ill be adding a PGN along with the time taken in the PGN button itself. the glowing orange will be showed when the person holds
-                      //the clock side, and itll sort of pulse also maybe, and will fade out when move is recorded/when the stop holding. 
-                      // ill be adding a small rounded rectangle which will show the recorded move for 5 seconds above the clock font, and if it is not lgal by parse, then itll automatically to record again: 1) retry recording using voice 2) use the keyboard selector/manually
-                      // also, we gotta add a check for "Black resigns" or "White resigns" or draw- like "Draw accepted" by either of the player and it would be added to the PGN
-                      // further, i also want to add smooth animations everywhere.
-                      // gotta figure out the flutter running again. will be using AI to debug
-                      // will be using regular Icons.iconname pack for icons on the bar etc.
-                      // also gotta design proper UI for PGN- will we adding time taken along with it- was thinking of taking inspiration of lichess analysis board side bar- not sure, will be adding my accents to it
+                ],
+              ), // closes column
+            ),
 
-                      //i logged basically no time today, ill be trying to log 10 hrs on saturday and sunday combined. hopefully will complete uptilthe UI and the backend parsing for each page.
-                      //thus, AI usage might be a little higher than usual because i need someone to architect the code for me, but itll still be nominal
-                      Container(
-                        height: 75,
-                        color: const Color(0xFF202020),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              onPressed: _confirmReset,
-                              icon: const Icon(Icons.refresh, color: Colors.white, size: 30),
-                            ),
-                            IconButton(
-                              onPressed: _togglePause,
-                              icon: Icon(_manualPause ? Icons.play_arrow : Icons.pause, color: Colors.white, size: 32),
-                            ),
-                            IconButton(
-                              onPressed: _showAddTimeDialog,
-                              icon: const Icon(Icons.history, color: Colors.white, size: 30),
-                            ),
-                            IconButton(
-                              onPressed: _showManualMoveDialog,
-                              icon: const Icon(Icons.keyboard, color: Colors.white, size: 30),
-                            ),
-                            IconButton(
-                              onPressed: () => setState(() => _isMuted = !_isMuted),
-                              icon: Icon(_isMuted ? Icons.volume_off : Icons.volume_up, color: Colors.white, size: 30),
-                            ),
-                            IconButton(
-                              onPressed: _showPgnDialog,
-                              icon: const Icon(Icons.description, color: Colors.white, size: 30),
-                            ),
-                            IconButton(
-                              onPressed: _showMoveTimesDialog,
-                              icon: const Icon(Icons.timer, color: Colors.white, size: 30),
-                            ),
-                          ],
+            if (_awaitingConfirmation)
+              Container(
+                color: Colors.black87,
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _pendingCandidates.length > 1
+                            ? "Which move did you mean?"
+                            : "Confirm move:",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
                         ),
                       ),
-                      
-                      
-                      //white
-                      Expanded(
-                        child: _ClockPanel(
-                          time: _format(whiteTime),
-                          moves: whiteMoves,
-                          timeControl: currentControl.label,
-                          isActive: whiteToMove,
-                          recognizedText: _recognizedText,
-                          errorText: _lastMoveError,
-                          onHoldStart: () => _onHoldStart(true),
-                          onHoldEnd: () => _onHoldEnd(true),
-                          onTuneTap: _showTimeControlSheet,
+                      const SizedBox(height: 16),
+                      ..._pendingCandidates.map(
+                        (c) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: ElevatedButton(
+                            onPressed: () => _confirmMove(c),
+                            child: Text(c.san),
+                          ),
                         ),
                       ),
                     ],
-                  ), // closes column
-                  
-                  if (_awaitingConfirmation)
-                    Container(
-                      color: Colors.black87,
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _pendingCandidates.length > 1 ? "Which move did you mean?" : "Confirm move:",
-                              style: const TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                            const SizedBox(height: 16),
-                            ..._pendingCandidates.map((c) => Padding(
-                              padding: const EdgeInserts.symmetric(vertical: 4),
-                              child: ElevatedButton(
-                                onPressed: () => _confirmMove(c),
-                                child: Text(c.san),
-                              ),
-                            )),
-                            
-                          
-                          ]
-
-                        )
-                      )
-                    )
-
-                  if (gameOver)
-                    Container(
-                      color: Colors.black87,
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: Center(
-                        child: Text(
-                          "$winner wins on time",
-                          style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                ], // closes stack
+                  ),
+                ),
               ),
-            ),
-          );
-        }
 
+            if (gameOver)
+              Container(
+                color: Colors.black87,
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: Text(
+                    "$winner wins on time",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ], // closes stack
+        ),
+      ),
+    );
+  }
+}
 
 //Clock panel (reuse for both white and black)
 class _ClockPanel extends StatelessWidget {
   final String time;
   final int moves;
   final String timeControl;
-  final bool is Active; //true = this player's turn,  if false, then  dimmed
+  final bool isActive; //true = this player's turn,  if false, then  dimmed
   final String recognizedText;
   final VoidCallback onHoldStart;
   final VoidCallback onHoldEnd;
@@ -1730,8 +1908,8 @@ class _ClockPanel extends StatelessWidget {
     required this.onTuneTap,
   });
 
-@override
-Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       // onLongPressStart/End pass a details object we don't need — the `_` discards it
       onLongPressStart: (_) => onHoldStart(),
@@ -1755,18 +1933,17 @@ Widget build(BuildContext context) {
               ),
             ),
 
-            
-              Positioned(
-                top: 60,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Text(
-                    recognizedText,
-                    style: const TextStyle(fontSize: 18, color: Colors.black87),
-                  ),
+            Positioned(
+              top: 60,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  recognizedText,
+                  style: const TextStyle(fontSize: 18, color: Colors.black87),
                 ),
               ),
+            ),
 
             Center(
               child: Text(
@@ -1807,7 +1984,3 @@ Widget build(BuildContext context) {
     );
   }
 }
-
-
-//what is the end to this gng. honestly would people even prefer to type their move if the model gets it wrong?. i believe i should try the in built iphone
-//model first and if it aint good enough even after adding biases, then we will just switch to model.en, which is 100mb whispr model.
