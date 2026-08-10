@@ -7,6 +7,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:dartchess/dartchess.dart' as chess;
 import 'dart:ui' show FontFeature;
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 
 //DESIGN TOKENS: (i designed and iterated the UI using claude, asking it to generate the desired UI after providing the existing one, the colors and animations are assisted by claude too)
 const String kFont = 'Inter';
@@ -453,7 +454,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
   // for black before black had made any move, and stayed permanently
   // one ahead of the true count thereafter. Nothing else in the UI
   // frames this as a fullmove number, so this was a plain display bug.
-  int blackMoves = 1;
+  int blackMoves = 0;
   bool whiteToMove = true;
   bool gameOver = false;
   bool isPaused = false;
@@ -1314,7 +1315,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 
             setState(() {
               if (forWhite) {
-                whitetime = newDuration;
+                whiteTime = newDuration;
               } else {
                 blackTime = newDuration;
               }
@@ -1485,7 +1486,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       '[Date "${DateTime.now().toIso8601String().split('T').first}"]',
     );
     buffer.writeln(
-      '[TimeControl "${currentControl.incrementSeconds * 60}'
+      '[TimeControl "${currentControl.minutes * 60}'
       '${currentControl.incrementSeconds > 0 ? '+${currentControl.incrementSeconds}' : ''}"]',
     );
 
@@ -1575,8 +1576,8 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
                   ),
                   _ControlBar(
                     expanded: barExpanded,
-                    _manualPause: _manualPause,
-                    SoundState: _soundState,
+                    manualPause: _manualPause,
+                    soundState: _soundState,
                     moveCount: _moveHistory.length,
                     icons: [
                       _BarIcon(
@@ -1794,7 +1795,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 //chunk 22: _RecoveryButton and _TimeScrollWheelSheet/State
 
 //Recovery overlay button (try agaib/ enter manually)
-class _recoveryButton extends StatelessWidget {
+class _RecoveryButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool filled;
@@ -1804,7 +1805,7 @@ class _recoveryButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.filled,
-    required this,onPressed,
+    required this.onPressed,
   });
 
   @override
@@ -1858,7 +1859,7 @@ class _TimeScrollWheelSheet extends StatefulWidget {
   });
 
   @override
-  State<_TimeScrollWheelSheet> createState() => _TimeScrollWheelSheet();
+  State<_TimeScrollWheelSheet> createState() => _TimeScrollWheelSheetState();
 }
 
   class _TimeScrollWheelSheetState extends State<_TimeScrollWheelSheet> {
@@ -1880,6 +1881,7 @@ class _TimeScrollWheelSheet extends StatefulWidget {
       _hourController = FixedExtentScrollController(initialItem: _hours);
       _minController = FixedExtentScrollController(initialItem: _minutes);
       _secController = FixedExtentScrollController(initialItem: _seconds);
+    }
 
     @override
     void dispose() {
@@ -2077,7 +2079,7 @@ class _PgnSheet extends StatelessWidget {
     for (int i = 0; i < moves.length; i += 2) {
       pairs.add((moves[i], i + 1 < moves.length ? moves[i + 1] : null));
     }
- 
+
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.7,
@@ -2173,7 +2175,7 @@ class _PgnSheet extends StatelessWidget {
                               ),
                             );
                           }
- 
+
                           final (white, black) = pairs[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -2241,7 +2243,7 @@ class _MoveCell extends StatelessWidget {
             color: kPanelActive,
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            fontFeatures: [FontFeature. tabularFigues()],
+            fontFeatures: [FontFeature.tabularFigures()],
           ),
         ),
       ],
@@ -2302,10 +2304,10 @@ class _ControlBar extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final top = (height - _slot) / 2;
- 
+
           final laidOut =
               expanded ? icons : icons.where((i) => !i.collapsible).toList();
- 
+
           double centreOf(int index, int count) => width * (index + 1) / (count + 1);
 
 
@@ -2367,9 +2369,9 @@ class _ControlBar extends StatelessWidget {
     switch (kind) {
       case _BarIconKind.refresh:
         return Icon(Icons.refresh, color: kBarIcon, size: size);
-      case _BarIconKind.playPause;
+      case _BarIconKind.playPause:
         return manualPause
-            ? _HollowPauseIcon(size: size, color: kPanelActive)
+            ? _HollowPlayIcon(size: size, color: kPanelActive)
             : _HollowPauseIcon(size: size, color: kBarIcon);
       case _BarIconKind.keyboard:
         return Icon(Icons.keyboard, color: kBarIcon, size: size);
@@ -2385,3 +2387,5 @@ class _ControlBar extends StatelessWidget {
       case _BarIconKind.description:
         // NEW: small badge showing the move count on the PGN icon,
         // driven by the `moveCount` field above (only shown once at least one move has been played).
+
+        
