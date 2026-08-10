@@ -2060,102 +2060,328 @@ class _TimeScrollWheelSheet extends StatefulWidget {
 
 //PGN sheet (compiling this at the end idk why, it was as part of the plan (chunk wise))
 
+class _PgnSheet extends StatelessWidget {
+  final String pgn;
+  final List<MoveRecord> moves;
+  final String Function(Duration) formatTaken;
 
-//Clock panel (reuse for both white and black)
-class _ClockPanel extends StatelessWidget {
-  final String time;
-  final int moves;
-  final String timeControl;
-  final bool isActive; //true = this player's turn,  if false, then  dimmed
-  final String recognizedText;
-  final VoidCallback onHoldStart;
-  final VoidCallback onHoldEnd;
-  final VoidCallback onTuneTap;
-
-  const _ClockPanel({
-    required this.time,
+  const _PgnSheet({
+    required this.pgn,
     required this.moves,
-    required this.timeControl,
-    required this.isActive,
-    required this.recognizedText,
-    required this.onHoldStart,
-    required this.onHoldEnd,
-    required this.onTuneTap,
+    required this.formatTaken,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      // onLongPressStart/End pass a details object we don't need — the `_` discards it
-      onLongPressStart: (_) => onHoldStart(),
-      onLongPressEnd: (_) => onHoldEnd(),
-      child: Container(
-        width: double.infinity,
-        // Lighter grey when active (your turn), darker when inactive — matches chess.com clock (inspiration for this project if u didnt know)
-        color: isActive ? const Color(0xFF8B8B8B) : const Color(0xFF5A5A5A),
-        child: Stack(
-          children: [
-            Positioned(
-              top: 20,
-              right: 20,
-              child: Text(
-                "Moves: $moves",
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.grey.shade900,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-
-            Positioned(
-              top: 60,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Text(
-                  recognizedText,
-                  style: const TextStyle(fontSize: 18, color: Colors.black87),
-                ),
-              ),
-            ),
-
-            Center(
-              child: Text(
-                time,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 100,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-
-            Positioned(
-              bottom: 30,
-              left: 0,
-              right: 0,
-              child: Column(
+    final pairs = <(MoveRecord?, MoveRecord?)>[];
+    for (int i = 0; i < moves.length; i += 2) {
+      pairs.add((moves[i], i + 1 < moves.length ? moves[i + 1] : null));
+    }
+ 
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.7,
+      maxChildSize: 0.92,
+      builder: (context, scrollController) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  IconButton(
-                    onPressed: onTuneTap,
-                    icon: const Icon(Icons.tune, size: 32, color: Colors.black),
+                  const Expanded(
+                    child: Text("Game PGN",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800)),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    timeControl,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  // NEW: share-sheet export. Goes straight to
+                  // Lichess/chess.com import, Messages, Mail, AirDrop,
+                  // etc. — copy-to-clipboard stays as a fallback next
+                  // to it rather than being replaced.
+                  TextButton.icon(
+                    onPressed: () async {
+                      await SharePlus.instance.share(
+                        ShareParams(
+                          text: pgn,
+                          subject: 'VCCN Game',
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.ios_share, size: 18, color: kPanelActive),
+                    label: const Text("Share",
+                        style: TextStyle(
+                            color: kPanelActive, fontWeight: FontWeight.w700)),
+                  ),
+                  const SizedBox(width: 4),
+                  TextButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: pgn));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("PGN copied"),
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, size: 18, color: kPanelActive),
+                    label: const Text("Copy",
+                        style: TextStyle(
+                            color: kPanelActive, fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
+              const SizedBox(height: 4),
+              Row(
+                children: const [
+                  SizedBox(width: 34, child: Text("#", style: _headStyle)),
+                  Expanded(child: Text("WHITE", style: _headStyle)),
+                  Expanded(child: Text("BLACK", style: _headStyle)),
+                ],
+              ),
+              const Divider(color: Colors.white24, height: 14),
+              Expanded(
+                child: moves.isEmpty
+                    ? const Center(
+                        child: Text("No moves yet",
+                            style: TextStyle(color: Colors.white38)),
+                      )
+                    : ListView.builder(
+                        controller: scrollController,
+                        itemCount: pairs.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == pairs.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2C2C2A),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: SelectableText(
+                                  pgn,
+                                  style: const TextStyle(
+                                      color: Colors.white60,
+                                      fontSize: 12,
+                                      height: 1.5),
+                                ),
+                              ),
+                            );
+                          }
+ 
+                          final (white, black) = pairs[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 34,
+                                  child: Text("${index + 1}.",
+                                      style: const TextStyle(
+                                          color: Colors.white38,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600)),
+                                ),
+                                Expanded(
+                                    child: _MoveCell(
+                                        record: white,
+                                        formatTaken: formatTaken)),
+                                Expanded(
+                                    child: _MoveCell(
+                                        record: black,
+                                        formatTaken: formatTaken)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
+
+const TextStyle _headStyle = TextStyle(
+  color: Colors.white38,
+  fontSize: 11,
+  fontWeight: FontWeight.w800,
+  letterSpacing: 0.8,
+);
+
+class _MoveCell extends StatelessWidget {
+  final MoveRecord? record;
+  final String Function(Duration) formatTaken;
+
+  const _MoveCell({required this.record, required this.formatTaken});
+
+  @override
+  Widget build(BuildContext context) {
+    if (record == null) return const SizedBox.shrink();
+    return Row(
+      children: [
+        Text(
+          record!.san,
+          style: const TextStyle(
+              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
+          
+        ),
+        const SizedBox(width: 6),
+        Text(
+          formatTaken(record!.timeTaken),
+          style: const TextStyle(
+            color: kPanelActive,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            fontFeatures: [FontFeature. tabularFigues()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+//chunk 24: control bar system - _BarIcon, _ControlBar, hollow icons, painter
+
+//Control Bar
+
+enum _BarIconKind { refresh, playPause, keyboard, timeControl, sound, description }
+
+class _BarIcon {
+  final _BarIconKind kind;
+  final VoidCallback onPressed;
+  final bool collapsible;
+
+  const _BarIcon({
+    required this.kind,
+    required this.onPressed,
+    this.collapsible = false,
+  });
+}
+
+class _ControlBar extends StatelessWidget {
+  final bool expanded;
+  final List<_BarIcon> icons;
+  final bool manualPause;
+  final SoundState soundState;
+  // FIX: this was passed at the call site (`moveCount: _moveHistory.length`)
+  // but never declared here — a real compile error (undefined named
+  // parameter), not something cosmetic. Now declared and actually used: drives a small badge on the PGN icon showing the move count.
+
+  final int moveCount;
+  final double height;
+  final double growth;
+
+  const _ControlBar({
+    required this.expanded,
+    required this.icons,
+    required this.manualPause,
+    required this.soundState,
+    required this.moveCount,
+    this.height = kBarHeight,
+    this.growth = 1.22
+  });
+
+  static const double _slot = 60;
+  static const double _baseSize = 32;
+  static const double _pauseBaseSize = 34;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final top = (height - _slot) / 2;
+ 
+          final laidOut =
+              expanded ? icons : icons.where((i) => !i.collapsible).toList();
+ 
+          double centreOf(int index, int count) => width * (index + 1) / (count + 1);
+
+
+          return Stack(
+            children: List.generate(icons.length, (i) {
+              final item = icons[i];
+              final slotIndex = laidOut.indexOf(item);
+              final double centre = slotIndex >= 0
+                  ? centreOf(slotIndex, laidOut.length)
+                  : centreOf(i, icons.length);
+
+              final bool visible = item.collapsible ? expanded : true;
+              final bool isPauseKind = item.kind == _BarIconKind.playPause;
+              final double base = (isPauseKind ? _pauseBaseSize : _baseSize)* kIconsScale;
+              final double targetSize = expanded ? base : base * growth;
+
+              return AnimatedPositioned(
+                duration: kBarMove,
+                curve: const Cubic(0.16, 1, 0.3, 1),
+                left: centre - _slot / 2,
+                top: top,
+                width: _slot,
+                height: _slot,
+                child: AnimatedOpacity(
+                  duration: kBarFade,
+                  curve: Curves.easeInOut,
+                  opacity: visible ? 1.0 : 0.0,
+                  child: IgnorePointer(
+                    ignoring: !visible,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(end: targetSize),
+                      duration: kBarMove,
+                      curve: const Cubic(0.16, 1, 0.3, 1),
+                      builder: (context, size, _) {
+                        return SizedBox(
+                          width: _slot,
+                          height: _slot,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: BoxConstraints.tightFor(
+                                width: _slot, height: _slot),
+                            onPressed: item.onPressed,
+                            icon: Center(child: _resolveIcon(item.kind, size)),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _resolveIcon(_BarIconKind kind, double size) {
+    switch (kind) {
+      case _BarIconKind.refresh:
+        return Icon(Icons.refresh, color: kBarIcon, size: size);
+      case _BarIconKind.playPause;
+        return manualPause
+            ? _HollowPauseIcon(size: size, color: kPanelActive)
+            : _HollowPauseIcon(size: size, color: kBarIcon);
+      case _BarIconKind.keyboard:
+        return Icon(Icons.keyboard, color: kBarIcon, size: size);
+      case _BarIconKind.timeControl:
+        return Icon(Icons.timer_outlined, color: kBarIcon, size: size);
+      case _BarIconKind.sound:
+        return Icon(
+          soundState == SoundState.on ? Icons.volume_up : Icons.volume_off,
+
+          color: kBarIcon,
+          size: size,
+        );
+      case _BarIconKind.description:
+        // NEW: small badge showing the move count on the PGN icon,
+        // driven by the `moveCount` field above (only shown once at least one move has been played).
