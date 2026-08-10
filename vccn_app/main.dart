@@ -1246,12 +1246,12 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
     if (_soundState == SoundState.on) _feedback();
   }
 
+  //chunk 19: _showTimeEditDialog and scroll wheel time adjuster (like chess.com app)
+
   //adjust time attempt at chess.com's clock app scrool wheel type selector
 
-  void _showAdjustTimeDialog(bool forWhite) {
-    final current = forWhite ? whiteTime : blackTime;
-    int selectedMinutes = current.inMinutes;
-    int selectedSeconds = current.inSeconds % 60;
+  void _showTimeEditDialog(bool forWhite) {
+    final currentDuration = forWhite ? whiteTime : blackTime;
 
     showModalBottomSheet(
       context: context,
@@ -1259,139 +1259,39 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
       ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Adjust time",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close, color: Colors.white54),
-                      ),
-                    ],
+      builder: (sheetContext) {
+        return _TimeScrollWheelSheet(
+          forWhite: forWhite,
+          initialDuration: currentDuration,
+          onSave: (newDuration) {
+            if (newDuration == Duration.zero) {
+              showDialog(
+                context: context,
+                builder: (confirmContext) => AlertDialog(
+                  backgroundColor: kSheetBg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Time",
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2C2C2A),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$selectedMinutes:${selectedSeconds.toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                            color: kPanelActive,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            fontFeatures: [FontFeature.tabularFigures()],
-                          ),
-                        ),
-                      ),
-                    ],
+                  title: const Text(
+                    "Set time to 0:00?",
+                    style: TextStyle(color: Colors.white),
                   ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 180,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            itemExtent: 40,
-                            diameterRatio: 1.4,
-                            physics: const FixedExtentScrollPhysics(),
-                            controller: FixedExtentScrollController(
-                              initialItem: selectedMinutes,
-                            ),
-                            onSelectedItemChanged: (i) =>
-                                setSheetState(() => selectedMinutes = i),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 180,
-                              builder: (context, i) => Center(
-                                child: Text(
-                                  '$i',
-                                  style: TextStyle(
-                                    color: i == selectedMinutes
-                                        ? Colors.white
-                                        : Colors.white38,
-                                    fontSize: i == selectedMinutes ? 22 : 17,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            itemExtent: 40,
-                            diameterRatio: 1.4,
-                            physics: const FixedExtentScrollPhysics(),
-                            controller: FixedExtentScrollController(
-                              initialItem: selectedSeconds,
-                            ),
-                            onSelectedItemChanged: (i) =>
-                                setSheetState(() => selectedSeconds = i),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              childCount: 60,
-                              builder: (context, i) => Center(
-                                child: Text(
-                                  i.toString().padLeft(2, '0'),
-                                  style: TextStyle(
-                                    color: i == selectedSeconds
-                                        ? Colors.white
-                                        : Colors.white38,
-                                    fontSize: i == selectedSeconds ? 22 : 17,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                  content: Text(
+                    "${forWhite ? 'White' : 'Black'} will flag on the next tick.",
+
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(confirmContext),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPanelActive,
-                        foregroundColor: kOnActive,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
+                    TextButton(
                       onPressed: () {
-                        final newDuration = Duration(
-                          minutes: selectedMinutes,
-                          seconds: selectedSeconds,
-                        );
+                        Navigator.pop(confirmContext);
                         setState(() {
                           if (forWhite) {
                             whiteTime = newDuration;
@@ -1399,22 +1299,32 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
                             blackTime = newDuration;
                           }
                         });
-                        Navigator.pop(context);
                       },
                       child: const Text(
-                        "Save time",
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        "Confirm",
+                        style: TextStyle(color: kDanger),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
+                  ],
+                ),
+              );
+              return;
+            }
+
+            setState(() {
+              if (forWhite) {
+                whitetime = newDuration;
+              } else {
+                blackTime = newDuration;
+              }
+            });
           },
         );
       },
     );
   }
+
+  //chunk 20: _showTimeControlSheet and _showCustomDialog
 
   void _showTimeControlSheet() {
     showModalBottomSheet(
@@ -1423,52 +1333,63 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
       ),
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 16),
-            const Text(
-              "Select time control",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...presets.map(
-              (tc) => ListTile(
-                title: Text(
-                  tc.label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                "Select time control",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
-                onTap: () {
-                  setState(() {
-                    currentControl = tc;
-                    whiteTime = Duration(minutes: tc.minutes);
-                    blackTime = Duration(minutes: tc.minutes);
-                  });
-                  Navigator.pop(context);
-                },
               ),
-            ),
-            const Divider(color: Colors.white24),
-            ListTile(
-              title: const Text(
-                "Custom...",
-                style: TextStyle(color: Colors.white),
+              const SizedBox(height: 8),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    ...presets.map(
+                      (tc) => ListTile(
+                        title: Text(
+                          tc.label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        trailing: tc.label == currentControl.label
+                            ? const Icon(Icons.check, color: kPanelActive)
+                            : null,
+                        onTap: () {
+                          Navigator.pop(sheetContext);
+                          setState(() {
+                            currentControl = tc;
+                            _resetGame();
+                          });
+                        },
+                      ),
+                    ),
+                    const Divider(color: Colors.white24),
+                    ListTile(
+                      title: const Text(
+                        "Custom...",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        _showCustomDialog();
+                      },
+                    ),
+                  ],
+                ),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                _showCustomDialog();
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 8),
+            ],
+          ),
         );
       },
     );
