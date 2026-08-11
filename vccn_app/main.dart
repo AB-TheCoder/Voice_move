@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:dartchess/dartchess.dart' as chess;
 import 'dart:ui' show FontFeature;
@@ -1834,7 +1835,10 @@ class _RecoveryButton extends StatelessWidget {
                   label,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: fg, fontSize: 15, fontWeight: FontWeight.w800),
+                    color: fg,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ],
             ),
@@ -1862,201 +1866,256 @@ class _TimeScrollWheelSheet extends StatefulWidget {
   State<_TimeScrollWheelSheet> createState() => _TimeScrollWheelSheetState();
 }
 
-  class _TimeScrollWheelSheetState extends State<_TimeScrollWheelSheet> {
-    late int _hours;
-    late int _minutes;
-    late int _seconds;
+class _TimeScrollWheelSheetState extends State<_TimeScrollWheelSheet> {
+  late int _hours;
+  late int _minutes;
+  late int _seconds;
 
-    late FixedExtentScrollController _hourController;
-    late FixedExtentScrollController _minController;
-    late FixedExtentScrollController _secController;
+  late FixedExtentScrollController _hourController;
+  late FixedExtentScrollController _minController;
+  late FixedExtentScrollController _secController;
 
-    @override
-    void initState() {
-      super.initState();
-      _hours = widget.initialDuration.inHours;
-      _minutes = widget.initialDuration.inMinutes % 60;
-      _seconds = widget.initialDuration.inSeconds % 60;
+  @override
+  void initState() {
+    super.initState();
+    _hours = widget.initialDuration.inHours;
+    _minutes = widget.initialDuration.inMinutes % 60;
+    _seconds = widget.initialDuration.inSeconds % 60;
 
-      _hourController = FixedExtentScrollController(initialItem: _hours);
-      _minController = FixedExtentScrollController(initialItem: _minutes);
-      _secController = FixedExtentScrollController(initialItem: _seconds);
-    }
-
-    @override
-    void dispose() {
-      _hourController.dispose();
-      _minController.dispose();
-      _secController.dispose();
-      super.dispose();
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Edit ${widget.forWhite ? 'White' : 'Black'} Time",
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Expanded(child: Text("HOURS", textAlign: TextAlign.center, style: TextStyle(color: kPanelActive, fontSize: 12, fontWeight: FontWeight.w800))),
-                  Expanded(child: Text("MINUTES", textAlign: TextAlign.center, style: TextStyle(color: kPanelActive, fontSize: 12, fontWeight: FontWeight.w800))),
-                  Expanded(child: Text("SECONDS", textAlign: TextAlign.center, style: TextStyle(color: kPanelActive, fontSize: 12, fontWeight: FontWeight.w800))),
-                ],
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 180,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      height: 50,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          border: Border.symmetric(
-                            horizontal: BorderSide(color: kPanelActive.withValues(alpha: 0.5), width: 1.5),
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: _hourController,
-                            itemExtent: 50,
-                            perspective: 0.005,
-                            diameterRatio: 1.5,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setState(() => _hours = index),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              builder: (context, index) {
-                                if (index < 0 || index > 12) return null;
-                                return Center(
-                                  child: Text(
-                                    index.toString(),
-                                    style: TextStyle(
-                                      fontFamily: kClockFont,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w800,
-                                      color: _hours == index ? Colors.white : Colors.white38,
-                                    ),
-                                  ),
-                                );
-                              },
-                              childCount: 13,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: _minController,
-                            itemExtent: 50,
-                            perspective: 0.005,
-                            diameterRatio: 1.5,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setState(() => _minutes = index),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              builder: (context, index) {
-                                if (index < 0 || index > 59) return null;
-                                return Center(
-                                  child: Text(
-                                    index.toString().padLeft(2, '0'),
-                                    style: TextStyle(
-                                      fontFamily: kClockFont,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w800,
-                                      color: _minutes == index ? Colors.white : Colors.white38,
-                                    ),
-                                  ),
-                                );
-                              },
-                              childCount: 60,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: _secController,
-                            itemExtent: 50,
-                            perspective: 0.005,
-                            diameterRatio: 1.5,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (index) => setState(() => _seconds = index),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              builder: (context, index) {
-                                if (index < 0 || index > 59) return null;
-                                return Center(
-                                  child: Text(
-                                    index.toString().padLeft(2, '0'),
-                                    style: TextStyle(
-                                      fontFamily: kClockFont,
-                                      fontSize: 26,
-                                      fontWeight: FontWeight.w800,
-                                      color: _seconds == index ? Colors.white : Colors.white38,
-                                    ),
-                                  ),
-                                );
-                              },
-                              childCount: 60,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel", style: TextStyle(color: Colors.white70)),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPanelActive,
-                        foregroundColor: kOnActive,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-                        final duration = Duration(hours: _hours, minutes: _minutes, seconds: _seconds);
-                        Navigator.pop(context);
-                        widget.onSave(duration);
-                      },
-                      child: const Text("Save", style: TextStyle(fontWeight: FontWeight.w800)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    }
+    _hourController = FixedExtentScrollController(initialItem: _hours);
+    _minController = FixedExtentScrollController(initialItem: _minutes);
+    _secController = FixedExtentScrollController(initialItem: _seconds);
   }
+
+  @override
+  void dispose() {
+    _hourController.dispose();
+    _minController.dispose();
+    _secController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Edit ${widget.forWhite ? 'White' : 'Black'} Time",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Expanded(
+                  child: Text(
+                    "HOURS",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: kPanelActive,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    "MINUTES",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: kPanelActive,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    "SECONDS",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: kPanelActive,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 180,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    height: 50,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        border: Border.symmetric(
+                          horizontal: BorderSide(
+                            color: kPanelActive.withValues(alpha: 0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _hourController,
+                          itemExtent: 50,
+                          perspective: 0.005,
+                          diameterRatio: 1.5,
+                          physics: const FixedExtentScrollPhysics(),
+                          onSelectedItemChanged: (index) =>
+                              setState(() => _hours = index),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            builder: (context, index) {
+                              if (index < 0 || index > 12) return null;
+                              return Center(
+                                child: Text(
+                                  index.toString(),
+                                  style: TextStyle(
+                                    fontFamily: kClockFont,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    color: _hours == index
+                                        ? Colors.white
+                                        : Colors.white38,
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: 13,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _minController,
+                          itemExtent: 50,
+                          perspective: 0.005,
+                          diameterRatio: 1.5,
+                          physics: const FixedExtentScrollPhysics(),
+                          onSelectedItemChanged: (index) =>
+                              setState(() => _minutes = index),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            builder: (context, index) {
+                              if (index < 0 || index > 59) return null;
+                              return Center(
+                                child: Text(
+                                  index.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    fontFamily: kClockFont,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    color: _minutes == index
+                                        ? Colors.white
+                                        : Colors.white38,
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: 60,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ListWheelScrollView.useDelegate(
+                          controller: _secController,
+                          itemExtent: 50,
+                          perspective: 0.005,
+                          diameterRatio: 1.5,
+                          physics: const FixedExtentScrollPhysics(),
+                          onSelectedItemChanged: (index) =>
+                              setState(() => _seconds = index),
+                          childDelegate: ListWheelChildBuilderDelegate(
+                            builder: (context, index) {
+                              if (index < 0 || index > 59) return null;
+                              return Center(
+                                child: Text(
+                                  index.toString().padLeft(2, '0'),
+                                  style: TextStyle(
+                                    fontFamily: kClockFont,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    color: _seconds == index
+                                        ? Colors.white
+                                        : Colors.white38,
+                                  ),
+                                ),
+                              );
+                            },
+                            childCount: 60,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPanelActive,
+                      foregroundColor: kOnActive,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      final duration = Duration(
+                        hours: _hours,
+                        minutes: _minutes,
+                        seconds: _seconds,
+                      );
+                      Navigator.pop(context);
+                      widget.onSave(duration);
+                    },
+                    child: const Text(
+                      "Save",
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 //chunk 23: _PgnSheet, _MoveCell, _headStyle
 
@@ -2093,11 +2152,14 @@ class _PgnSheet extends StatelessWidget {
               Row(
                 children: [
                   const Expanded(
-                    child: Text("Game PGN",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800)),
+                    child: Text(
+                      "Game PGN",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
                   // NEW: share-sheet export. Goes straight to
                   // Lichess/chess.com import, Messages, Mail, AirDrop,
@@ -2106,16 +2168,21 @@ class _PgnSheet extends StatelessWidget {
                   TextButton.icon(
                     onPressed: () async {
                       await SharePlus.instance.share(
-                        ShareParams(
-                          text: pgn,
-                          subject: 'VCCN Game',
-                        ),
+                        ShareParams(text: pgn, subject: 'VCCN Game'),
                       );
                     },
-                    icon: const Icon(Icons.ios_share, size: 18, color: kPanelActive),
-                    label: const Text("Share",
-                        style: TextStyle(
-                            color: kPanelActive, fontWeight: FontWeight.w700)),
+                    icon: const Icon(
+                      Icons.ios_share,
+                      size: 18,
+                      color: kPanelActive,
+                    ),
+                    label: const Text(
+                      "Share",
+                      style: TextStyle(
+                        color: kPanelActive,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 4),
                   TextButton.icon(
@@ -2130,9 +2197,13 @@ class _PgnSheet extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.copy, size: 18, color: kPanelActive),
-                    label: const Text("Copy",
-                        style: TextStyle(
-                            color: kPanelActive, fontWeight: FontWeight.w700)),
+                    label: const Text(
+                      "Copy",
+                      style: TextStyle(
+                        color: kPanelActive,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -2148,8 +2219,10 @@ class _PgnSheet extends StatelessWidget {
               Expanded(
                 child: moves.isEmpty
                     ? const Center(
-                        child: Text("No moves yet",
-                            style: TextStyle(color: Colors.white38)),
+                        child: Text(
+                          "No moves yet",
+                          style: TextStyle(color: Colors.white38),
+                        ),
                       )
                     : ListView.builder(
                         controller: scrollController,
@@ -2168,9 +2241,10 @@ class _PgnSheet extends StatelessWidget {
                                 child: SelectableText(
                                   pgn,
                                   style: const TextStyle(
-                                      color: Colors.white60,
-                                      fontSize: 12,
-                                      height: 1.5),
+                                    color: Colors.white60,
+                                    fontSize: 12,
+                                    height: 1.5,
+                                  ),
                                 ),
                               ),
                             );
@@ -2184,20 +2258,27 @@ class _PgnSheet extends StatelessWidget {
                               children: [
                                 SizedBox(
                                   width: 34,
-                                  child: Text("${index + 1}.",
-                                      style: const TextStyle(
-                                          color: Colors.white38,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600)),
+                                  child: Text(
+                                    "${index + 1}.",
+                                    style: const TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                                 Expanded(
-                                    child: _MoveCell(
-                                        record: white,
-                                        formatTaken: formatTaken)),
+                                  child: _MoveCell(
+                                    record: white,
+                                    formatTaken: formatTaken,
+                                  ),
+                                ),
                                 Expanded(
-                                    child: _MoveCell(
-                                        record: black,
-                                        formatTaken: formatTaken)),
+                                  child: _MoveCell(
+                                    record: black,
+                                    formatTaken: formatTaken,
+                                  ),
+                                ),
                               ],
                             ),
                           );
@@ -2233,8 +2314,10 @@ class _MoveCell extends StatelessWidget {
         Text(
           record!.san,
           style: const TextStyle(
-              color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700),
-          
+            color: Colors.white,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(width: 6),
         Text(
@@ -2255,7 +2338,14 @@ class _MoveCell extends StatelessWidget {
 
 //Control Bar
 
-enum _BarIconKind { refresh, playPause, keyboard, timeControl, sound, description }
+enum _BarIconKind {
+  refresh,
+  playPause,
+  keyboard,
+  timeControl,
+  sound,
+  description,
+}
 
 class _BarIcon {
   final _BarIconKind kind;
@@ -2289,7 +2379,7 @@ class _ControlBar extends StatelessWidget {
     required this.soundState,
     required this.moveCount,
     this.height = kBarHeight,
-    this.growth = 1.22
+    this.growth = 1.22,
   });
 
   static const double _slot = 60;
@@ -2305,11 +2395,12 @@ class _ControlBar extends StatelessWidget {
           final width = constraints.maxWidth;
           final top = (height - _slot) / 2;
 
-          final laidOut =
-              expanded ? icons : icons.where((i) => !i.collapsible).toList();
+          final laidOut = expanded
+              ? icons
+              : icons.where((i) => !i.collapsible).toList();
 
-          double centreOf(int index, int count) => width * (index + 1) / (count + 1);
-
+          double centreOf(int index, int count) =>
+              width * (index + 1) / (count + 1);
 
           return Stack(
             children: List.generate(icons.length, (i) {
@@ -2321,7 +2412,8 @@ class _ControlBar extends StatelessWidget {
 
               final bool visible = item.collapsible ? expanded : true;
               final bool isPauseKind = item.kind == _BarIconKind.playPause;
-              final double base = (isPauseKind ? _pauseBaseSize : _baseSize)* kIconsScale;
+              final double base =
+                  (isPauseKind ? _pauseBaseSize : _baseSize) * kIconsScale;
               final double targetSize = expanded ? base : base * growth;
 
               return AnimatedPositioned(
@@ -2348,7 +2440,9 @@ class _ControlBar extends StatelessWidget {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             constraints: BoxConstraints.tightFor(
-                                width: _slot, height: _slot),
+                              width: _slot,
+                              height: _slot,
+                            ),
                             onPressed: item.onPressed,
                             icon: Center(child: _resolveIcon(item.kind, size)),
                           ),
@@ -2387,5 +2481,223 @@ class _ControlBar extends StatelessWidget {
       case _BarIconKind.description:
         // NEW: small badge showing the move count on the PGN icon,
         // driven by the `moveCount` field above (only shown once at least one move has been played).
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(Icons.description, color: kBarIcon, size: size),
+            if (moveCount > 0)
+              Positioned(
+                right: -4,
+                top: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
+                  constraints: const BoxConstraints(minWidth: 16),
+                  decoration: BoxDecoration(
+                    color: kPanelActive,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '$moveCount',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: kOnActive,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+    }
+  }
+}
 
-        
+class _HollowPauseIcon extends StatelessWidget {
+  final double size;
+  final Color color;
+  const _HollowPauseIcon({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final barWidth = size * 0.16;
+    final barHeight = size * 0.6;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: barWidth,
+            height: barHeight,
+            decoration: BoxDecoration(
+              border: Border.all(color: color, width: 2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          SizedBox(width: barWidth * 0.6),
+          Container(
+            width: barWidth,
+            height: barHeight,
+            decoration: BoxDecoration(
+              border: Border.all(color: color, width: 2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlayOutlinePainter extends CustomPainter {
+  final Color color;
+  _PlayOutlinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.09
+      ..strokeJoin = StrokeJoin.round;
+    final path = Path()
+      ..moveTo(size.width * 0.28, size.height * 0.18)
+      ..lineTo(size.width * 0.28, size.height * 0.82)
+      ..lineTo(size.width * 0.88, size.height * 0.5)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _PlayOutlinePainter old) => old.color != color;
+}
+
+//chunk 25: PieceSquarePicker + _ClockPanel/_ClockPanelState (clock face and glow animation)
+
+//Manual move picker (with icons of the pieces as first layer of selection)
+
+class PieceSquarePicker extends StatefulWidget {
+  final Map<String, Set<String>> legalMoves;
+  final Map<String, chess.Role> pieceRoles;
+  final bool whiteToMove;
+  final void Function(String fromSquare, String toSquare) onSubmit;
+  final VoidCallback onCancel;
+
+  const PieceSquarePicker({
+    super.key,
+    required this.legalMoves,
+    required this.pieceRoles,
+    required this.whiteToMove,
+    required this.onSubmit,
+    required this.onCancel,
+  });
+
+  @override
+  State<PieceSquarePicker> createState() => _PieceSquarePickerState();
+}
+
+const List<chess.Role> _roleOrder = [
+  chess.Role.pawn,
+  chess.Role.knight,
+  chess.Role.bishop,
+  chess.Role.rook,
+  chess.Role.queen,
+  chess.Role.king,
+];
+
+String _roleGlyph(chess.Role role) {
+  switch (role) {
+    case chess.Role.pawn:
+      return '♙';
+    case chess.Role.knight:
+      return '♘';
+    case chess.Role.bishop:
+      return '♗'
+    case chess.Role.rook:
+      return '♖'
+    case chess.Role.queen:
+      return '♕';
+    case chess.Role.king:
+      return '♔';
+  }
+}
+
+class _PieceSquarePickerState extends State<PieceSquarePicker> {
+  chess.Role? _selectedRole;
+  String? _fromSquare;
+  String? _toSquare;
+ 
+  Set<String> get _legalDestinations =>
+      _fromSquare == null ? const {} : (widget.legalMoves[_fromSquare] ?? const {});
+ 
+  bool get _hasAnyLegalMove => widget.legalMoves.isNotEmpty;
+ 
+  List<chess.Role> get _availableRoles {
+    final present = widget.pieceRoles.values.toSet();
+    return _roleOrder.where(present.contains).toList();
+  }
+ 
+  void _tapRole(chess.Role role) {
+    setState(() {
+      _selectedRole = _selectedRole == role ? null : role;
+      _fromSquare = null;
+      _toSquare = null;
+    });
+    HapticFeedback.selectionClick();
+  }
+
+  void _tapSquare(String square) {
+    final roleHere = widget.pieceRoles[square];
+ 
+    if (_fromSquare != null) {
+      if (square == _fromSquare) {
+        setState(() => _fromSquare = null);
+        return;
+      }
+      if (_legalDestinations.contains(square)) {
+        setState(() => _toSquare = square);
+        HapticFeedback.selectionClick();
+        return;
+      }
+      if (roleHere != null && (_selectedRole == null || roleHere == _selectedRole)) {
+        setState(() {
+          _fromSquare = square;
+          _toSquare = null;
+        });
+        HapticFeedback.selectionClick();
+        return;
+      }
+      HapticFeedback.lightImpact();
+      return;
+    }
+ 
+    if (roleHere == null) {
+      HapticFeedback.lightImpact();
+      return;
+    }
+    if (_selectedRole != null && roleHere != _selectedRole) {
+      HapticFeedback.lightImpact();
+      return;
+    }
+    setState(() {
+      _selectedRole = roleHere;
+      _fromSquare = square;
+      _toSquare = null;
+    });
+    HapticFeedback.selectionClick();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ready = _fromSquare != null && _toSquare != null;
+
+    return Container(
+      
+
+    )
+  }
