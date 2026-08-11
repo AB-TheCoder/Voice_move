@@ -2697,7 +2697,239 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
     final ready = _fromSquare != null && _toSquare != null;
 
     return Container(
-      
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+      decoration: const BoxDecoration(
+        color: kSheetBg,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kPanelRadius)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            !_hasAnyLegalMove
+              ? "No legal moves available"
+              : (_fromSquare == null
+                  ? "${widget.whiteToMove ? 'White' : 'Black'} to move - pick a piece"
+                  : (_toSquare == null
+                      ? "Tap a highlighted square to move there"
+                      : "$_fromSquare to $_toSquare")),
 
-    )
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_availableRoles.isNotEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _availableRoles.map((role) {
+                final selected = _selectedRole == role;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: GestureDetector(
+                    onTap: () => _tapRole(role),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: selected ? kPanelActive : const Color(0xFF3A3A38),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        _roleGlyph(role),
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: selected ? kOnActive : kBarIcon,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          const SizedBox(height: 14),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final boardSize = min(constraints.maxWidth - 22, 300.0);
+              final cell = boardSize / 8;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: SizedBox(
+                          width: boardSize,
+                          height: boardSize,
+                          child: GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 8),
+                            itemCount: 64,
+                            itemBuilder: (context, index) {
+                              final file = String.fromCharCode(97 + (index % 8));
+                              final rank = 8 - (index ~/ 8);
+                              final square = '$file$rank';
+                              final roleHere = widget.pieceRoles[square];
+ 
+                              final isFrom = square == _fromSquare;
+                              final isTo = square == _toSquare;
+                              final isLegalDest =
+                                  _fromSquare != null && _legalDestinations.contains(square);
+                              final isRoleHighlight = _fromSquare == null &&
+                                  _selectedRole != null &&
+                                  roleHere == _selectedRole;
+                              final light = (index + index ~/ 8) % 2 == 0;
+ 
+                              final Color bg = isFrom
+                                  ? kPanelActive
+                                  : isTo
+                                      ? kTarget
+                                      : isRoleHighlight
+                                          ? kPanelActive.withValues(alpha: 0.32)
+                                          : (light
+                                              ? const Color(0xFF4A4A48)
+                                              : const Color(0xFF2E2E2C));
+ 
+                              final semanticLabel = roleHere != null
+                                  ? "$square, ${roleHere.name}"
+                                        "${isFrom ? ', selected' : ''}"
+                                  : (isLegalDest
+                                      ? "$square, legal destination"
+                                      : square);
+ 
+                              return GestureDetector(
+                                onTap: () => _tapSquare(square),
+                                child: Semantics(
+                                  button: true,
+                                  label: semanticLabel,
+                                  child: Container(
+                                    margin: const EdgeInsets.all(1),
+                                    color: bg,
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                      if (roleHere != null &&
+                                          (_fromSquare == null ||
+                                              square == _fromSquare))
+                                        Text(
+                                          _roleGlyph(roleHere),
+                                          style: TextStyle(
+                                            fontSize: cell * 0.62,
+                                            height: 1,
+                                            color: widget.whiteToMove
+                                                ? Colors.white
+                                                : const Color(0xFF1A1A18),
+                                            shadows: widget.whiteToMove
+                                                ? const [
+                                                    Shadow(
+                                                      color: Colors.black45,
+                                                      blurRadius: 2,
+                                                    ),
+                                                  ]
+                                                : null,
+                                          ),
+                                        ),
+                                      if (isLegalDest && !isTo)
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Padding(
+                                            padding: EdgeInsets.all(cell * 0.08),
+                                            child: Container(
+                                              width: cell * 0.24,
+                                              height: cell * 0.24,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: kTarget.withValues(alpha: 0.9),
+                                                border: Border.all(
+                                                    color: const Color(0xFF2E2E2C),
+                                                    width: 1),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: boardSize,
+                        child: Row(
+                          children: List.generate(8, (i) {
+                            return Expanded(
+                              child: Text(String.fromCharCode(97 + i),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      color: Colors.white38, fontSize: 11)),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: boardSize,
+                    child: Column(
+                      children: List.generate(8, (i) {
+                        return Expanded(
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Text((8 - i).toString(),
+                                style: const TextStyle(
+                                    color: Colors.white38, fontSize: 11)),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: widget.onCancel,
+                  child: const Text("Cancel",
+                      style: TextStyle(color: Colors.white70)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kPanelActive,
+                    foregroundColor: kOnActive,
+                    disabledBackgroundColor: const Color(0xFF3A3A38),
+                    disabledForegroundColor: Colors.white24,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: ready
+                      ? () => widget.onSubmit(_fromSquare!, _toSquare!)
+                      : null,
+                  child: const Text("Play move",
+                      style: TextStyle(fontWeight: FontWeight.w800)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
+}
