@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VoiceMove — record over-the-board games by voice, digitise score sheets, and analyse with a built-in clock and chess engine.">
+    <meta name="description" content="VoiceMove - record over-the-board games by voice, digitise score sheets, and analyse with a built-in clock and chess engine.">
     <title>VoiceMove</title>
     <link rel="stylesheet" href="Graphics.css">
     <script src="program.js" defer></script>
@@ -26,93 +26,285 @@
 
     <main>
         <section id="home" class="section section--intro">
-            <h1 class="brand__nameM">Voice<span class="brand__name-accentM">Move</span></h1>
-            <p class="brand__taglineM">Record · Analyze · Improve</p>
-            <p class="home-text">
+            <div class="intro-layout">
+              <div class="intro-copy">
+                <h1 class="brand__nameM">Voice<span class="brand__name-accentM">Move</span></h1>
+                <p class="brand__taglineM">Record · Analyze · Improve</p>
+                <p class="home-text">
                 <em>VoiceMove</em> is a chess platform designed to make recording and reviewing
                 over-the-board games easier. Record your games using voice commands, digitize
                 physical scoresheets, play with an integrated chess clock, and review your games
-                with powerful engine analysis—<strong>all in one place.</strong>
-            </p>
+                with powerful engine analysis - <strong>all in one place.</strong>
+                </p>
+                <div class="intro-buttons">
+                  <a href="#inspiration" class="btn btn-KnowMore">Explore VoiceMove</a>
+                  <a href="#features" class="btn btn-features">See Features</a>
+                </div>
+                 </div>
+                 <div class="intro-media">
+                    <img
+                    src="media/bg1.png"
+                    alt="Chess pieces on a board"
+                  >
+                 </div>
+                 <ul class="floating-moves" aria-hidden="true">
+                   <li style="--x: 48%; --y: 18%; --size: 1.05rem; --delay: 0s;">e4</li>
+                   <li style="--x: 58%; --y: 32%; --size: 0.95rem; --delay: 0.8s;">Nf3</li>
+                   <li style="--x: 68%; --y: 22%; --size: 1.15rem; --delay: 1.4s;">Bb5</li>
+                   <li style="--x: 52%; --y: 52%; --size: 0.9rem; --delay: 0.4s;">O-O</li>
+                   <li style="--x: 72%; --y: 48%; --size: 1rem; --delay: 1.1s;">Qxd5</li>
+                   <li style="--x: 62%; --y: 68%; --size: 0.85rem; --delay: 1.7s;">Bf6</li>
+                   <li style="--x: 78%; --y: 30%; --size: 0.8rem; --delay: 0.6s;">c3</li>
+                   <li style="--x: 44%; --y: 38%; --size: 0.75rem; --delay: 1.9s;">d4</li>
+                 </ul>
+            </div>
         </section>
 
         <section id="inspiration" class="section section--inspiration">
-            <h2>The Spark</h2>
-            <p>
-                While analyzing a friendly game, we realized how inefficient and time-consuming
-                traditional scoresheets can be. Reviewing an over-the-board game often requires
-                players to manually record moves, digitize their scoresheets, and then set up the
-                game again for analysis.
-                <em><strong>We believed there had to be a better way.</strong></em>
-                So we created <strong>VoiceMove</strong>—a platform designed to make recording
-                games faster, analyzing them easier, and learning from every game more effective.
-            </p>
+            <div class="inspiration-layout">
+              <div class="inspiration-chart" aria-label="Problems that led to VoiceMove">
+                <ol class="spark-flow">
+                  <li class="spark-flow__step">
+                    <span class="spark-flow__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M7 3.5h7l3 3V20.5H7z"/>
+                        <path d="M14 3.5V7h3"/>
+                        <path d="M9.5 11h5M9.5 14.5h5M9.5 18h3.5"/>
+                      </svg>
+                    </span>
+                    <span class="spark-flow__label">Inefficient scoresheets</span>
+                  </li>
+                  <li class="spark-flow__step">
+                    <span class="spark-flow__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M6 4.5h9a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6z"/>
+                        <path d="M9 9h5.5M9 12.5h5.5M9 16h3.5"/>
+                        <path d="M16.5 14.5l3 3-1.5 1.5-3-3z"/>
+                      </svg>
+                    </span>
+                    <span class="spark-flow__label">Manual digitization</span>
+                  </li>
+                  <li class="spark-flow__step">
+                    <span class="spark-flow__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <circle cx="12" cy="13" r="7.5"/>
+                        <path d="M12 9.5v4l2.5 1.5"/>
+                        <path d="M9 4.5h6"/>
+                      </svg>
+                    </span>
+                    <span class="spark-flow__label">Difficult game review</span>
+                  </li>
+                  <li class="spark-flow__result">
+                    <span class="spark-flow__icon spark-flow__icon--result" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3.2c.4 1.6 1.5 2.8 2.8 3.4-.8.4-1.5 1.1-1.9 2 .9-.2 1.9-.1 2.8.4-.9 1.1-2.3 1.8-3.7 1.9v7.3h-1.6v-7.3c-1.4-.1-2.8-.8-3.7-1.9.9-.5 1.9-.6 2.8-.4-.4-.9-1.1-1.6-1.9-2C9.9 6 11 4.8 11.4 3.2H12z"/>
+                      </svg>
+                    </span>
+                    <span class="spark-flow__label spark-flow__label--result">VoiceMove</span>
+                  </li>
+                </ol>
+
+                <div class="inspiration-visual">
+                  <img class="inspiration-image" src="media/spark-Knight.png" alt="">
+                </div>
+              </div>
+
+              <div class="Main_content">
+                <h2>The Spark</h2>
+                <p>
+                  While analyzing a friendly game, we realized how inefficient and time-consuming
+                  traditional scoresheets can be. Reviewing an over-the-board game often requires
+                  players to manually record moves, digitize their scoresheets, and then set up the
+                  game again for analysis.
+                </p>
+                <p class="inspiration-quote">
+                  <em>"We believed there had to be a better way."</em>
+                </p>
+                <p class="inspiration-endp">
+                  So we created <strong>VoiceMove</strong> - a platform designed to make recording
+                  games faster, analyzing them easier, and learning from every game more effective.
+                </p>
+              </div>
+            </div>
         </section>
 
         <section id="features" class="section section--features">
-            <h2>What You Get</h2>
-            <p>With the VoiceMove beta for Android, you can:</p>
+          <div class="features-main">
+            <h2 class="Mhead">What You Get</h2>
 
-            <dl class="feature-list">
-                <dt>Built-in Chess Clock</dt>
-                <dd>
-                    Play your games with an integrated chess clock, designed for a seamless
-                    over-the-board experience—even when playing offline.
-                </dd>
+            <div class="feature-flow" aria-label="VoiceMove features flow chart">
+              <article class="feature-flow__card">
+                <span class="feature-flow__step">1</span>
+                <span class="feature-flow__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="8"></circle>
+                    <path d="M12 8v4l3 2"></path>
+                    <path d="M12 4v2"></path>
+                    <path d="M20 12h-2"></path>
+                    <path d="M6 12H4"></path>
+                    <path d="M16.95 7.05l1.4-1.4"></path>
+                    <path d="M5.65 5.65l1.4 1.4"></path>
+                  </svg>
+                </span>
+                <h3>Built-in Chess Clock</h3>
+                <p>Play your games with an integrated chess clock, designed for a seamless over-the-board experience even when playing offline.</p>
+              </article>
 
-                <dt>Voice Notation</dt>
-                <dd>
-                    Record your moves effortlessly using voice commands. Simply speak your moves
-                    and create a digital record of your game without constantly writing on a
-                    traditional scoresheet.
-                </dd>
+              <div class="feature-flow__connector" aria-hidden="true"></div>
 
-                <dt>Scoresheet Image Analyzer</dt>
-                <dd>
-                    Take a picture of a physical scoresheet and use our OCR-powered system to
-                    convert the recorded moves into a digital PGN game that can be reviewed and
-                    analyzed.
-                </dd>
+              <article class="feature-flow__card">
+                <span class="feature-flow__step">2</span>
+                <span class="feature-flow__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="9" y="3" width="6" height="11" rx="3"></rect>
+                    <path d="M6 11v1a6 6 0 0 0 12 0v-1"></path>
+                    <path d="M12 18v3"></path>
+                    <path d="M8 21h8"></path>
+                    <path d="M9 7h6"></path>
+                  </svg>
+                </span>
+                <h3>Voice Notation</h3>
+                <p>Record your moves effortlessly using voice commands. Simply speak your moves and create a digital record of your game.</p>
+              </article>
 
-                <dt>Engine Analysis</dt>
-                <dd>
-                    Review your games with engine-powered analysis and gain insights into your
-                    play, helping you understand your mistakes and discover opportunities to improve.
-                </dd>
-            </dl>
+              <div class="feature-flow__connector" aria-hidden="true"></div>
+
+              <article class="feature-flow__card">
+                <span class="feature-flow__step">3</span>
+                <span class="feature-flow__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 3.5h7l3 3V20.5H7z"></path>
+                    <path d="M14 3.5V7h3"></path>
+                    <path d="M9.5 11h5"></path>
+                    <path d="M9.5 14.5h5"></path>
+                    <path d="M5.5 7.5V5.8A2.3 2.3 0 0 1 7.8 3.5"></path>
+                    <path d="M18.5 16.5v1.7a2.3 2.3 0 0 1-2.3 2.3"></path>
+                    <path d="M5.5 16.5v1.7A2.3 2.3 0 0 0 7.8 20.5"></path>
+                    <path d="M18.5 7.5V5.8A2.3 2.3 0 0 0 16.2 3.5"></path>
+                  </svg> 
+                </span>
+                <h3>Scoresheet Image Analyzer</h3>
+                <p>Take a picture of a physical scoresheet and convert the recorded moves into a digital PGN game ready for review.</p>
+              </article>
+
+              <div class="feature-flow__connector" aria-hidden="true"></div>
+
+              <article class="feature-flow__card">
+                <span class="feature-flow__step">4</span>
+                <span class="feature-flow__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5h16"></path>
+                    <path d="M7 17V11"></path>
+                    <path d="M12 17V7"></path>
+                    <path d="M17 17v-4"></path>
+                    <path d="M20.5 5.5 15.5 10.5"></path>
+                    <path d="M15.5 5.5h5v5"></path>
+                    <path d="M10.8 9.2 12 7l1.2 2.2"></path>
+                  </svg>
+                </span>
+                <h3>Engine Analysis</h3>
+                <p>Review your games with engine-powered analysis and gain insights that help you understand mistakes and improve faster.</p>
+              </article>
+            </div>
+          </div>
         </section>
 
         <section id="roadmap" class="section section--roadmap">
-            <h2>What's Coming Next?</h2>
+          <div class="roadmap-main-text">
+           <h2 class="roadmap-title">What's Coming Next?</h2>
+            <article class="roadmap-paragraphM">
             <p>
                 We are working toward bringing VoiceMove to chess academies with a dedicated
                 system designed to help coaches monitor student games, review performance, and
                 create a more effective learning experience.
-                <em>Our goal is to make every game more than just a game—to turn it into an
+            </p>
+            <p class="roadmap-paragraph_end">
+                <em>Our goal is to make every game more than just a game - to turn it into an
                 opportunity to learn.</em>
             </p>
+            </article>
+          </div>
+          <div class="roadmap-flowchart">
+              <article class="roadmap-step roadmap-flowchart__1">
+                <span class="roadmap-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M8 12.5l2.5 2.5L16.5 9"></path>
+                  </svg>
+                </span>
+                <span class="roadmap-title">Voice Notation</span>
+                <span class="roadmap-status">Completed</span>
+              </article>
+              <article class="roadmap-step roadmap-flowchart__2">
+                <span class="roadmap-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M8 12.5l2.5 2.5L16.5 9"></path>
+                  </svg>
+                </span>
+                <span class="roadmap-title">Scoresheet OCR</span>
+                <span class="roadmap-status">Completed</span>
+              </article>
+              <article class="roadmap-step roadmap-flowchart__3">
+                <span class="roadmap-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M8 12.5l2.5 2.5L16.5 9"></path>
+                  </svg>
+                </span>
+                <span class="roadmap-title">Chess Clock</span>
+                <span class="roadmap-status">Completed</span>
+              </article>
+              <article class="roadmap-step roadmap-flowchart__4">
+                <span class="roadmap-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M12 7.5V12l3 2"></path>
+                  </svg>
+                </span>
+                <span class="roadmap-title">Engine Analysis</span>
+                <span class="roadmap-status">In Progress</span>
+              </article>
+              <article class="roadmap-step roadmap-flowchart__5">
+                <span class="roadmap-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 10.5L12 6l9 4.5-9 4.5-9-4.5z"></path>
+                    <path d="M6 12v3c0 1.2 2.7 3 6 3s6-1.8 6-3v-3"></path>
+                  </svg>
+                </span>
+                <span class="roadmap-title">Chess Academy System</span>
+                <span class="roadmap-status">Coming Soon</span>
+              </article>
+          </div>
         </section>
     </main>
 
     <footer class="site-footer">
-        <section id="contact" class="section section--contact">
+        <section id="contact" class="section section--footer">
+        
+        <div class="footer-basics">
+          <h1 class="brand__name">Voice<span class="brand__name-accent">Move</span></h1>
+          <p class="brand__tagline">Record · Analyze · Improve</p>
+          <p class='footer-textB'>Build for players who want to excel</p>
+
+        </div>
+          <div class="contact-info">
+
             <h2>Get In Touch</h2>
             <p>
                 Have questions, feedback, or suggestions?
                 <em>We'd love to hear from you.</em>
             </p>
 
-            <p class="contact-phone">
-                Phone: <a href="tel:+917600996777">+91 76009 96777</a>
-            </p>
-            <p class="contact-email">
+            <span class="contact-phone">
+                Phone: <a href="tel:+917600996777" >+91 76009 96777</a>
+            </span>
+            <span class="contact-email">
                 Email: <a href="mailto:bhattaarav2011@gmail.com">bhattaarav2011@gmail.com</a>
-            </p>
-
-            <p class="site-footer__brand">
-                <strong>VoiceMove</strong> — Record · Analyze · Improve
-            </p>
+            </span>
+            </div>
         </section>
+
     </footer>
 </body>
 </html>
