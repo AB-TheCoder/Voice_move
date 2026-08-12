@@ -1,5 +1,4 @@
 //chunk 1: imports and design tokens
-import 'dart:ffi';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/gestures.dart';
@@ -492,9 +491,18 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 
   //gonna change this later because i dont want the player always having to press confirmation for each move, ill just add a undo button to the sucessmove dialogue after transciption
 
+  // ADDED: Stubs for the variables you are using in the build method below
+  String? _lastPlayedSan;
+  bool? _lastPlayedByWhite;
+
   List<String> _positionHistory = [];
   List<_Candidate> _pendingCandidates = [];
   bool get _awaitingConfirmation => _pendingCandidates.isNotEmpty;
+
+  // ADDED: Stub for the undo feature you mentioned in the dev journal
+  void _undoLastMove() {
+    // Write your undo logic here later!
+  }
 
   @override
   //chunk 10: initState/dispose/didChangeAppLifecycleState and _initSpeech
@@ -659,7 +667,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 
         for (final promo in promoRoles) {
           final move = chess.NormalMove(from: from, to: to, promotion: promo);
-          final (san, _) = _position.makeSanUnchecked(move);
+          final (_, san) = _position.makeSanUnchecked(move);
 
           final isShort = san.startsWith('O-O') && !san.startsWith('O-O-O');
           final isLong = san.startsWith('O-O-O');
@@ -1046,9 +1054,11 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
           _processUtteranceMethod();
         }
       },
-      listenFor: const Duration(seconds: 12),
-      pauseFor: const Duration(seconds: 4),
-      localeId: 'en_US',
+      listenOptions: stt.SpeechListenOptions(
+        listenFor: const Duration(seconds: 12),
+        pauseFor: const Duration(seconds: 4),
+        localeId: 'en_US',
+      ),
     );
 
     // FIX: hard fallback — if the engine never calls onResult with a
@@ -2168,9 +2178,7 @@ class _PgnSheet extends StatelessWidget {
                   // to it rather than being replaced.
                   TextButton.icon(
                     onPressed: () async {
-                      await SharePlus.instance.share(
-                        ShareParams(text: pgn, subject: 'VCCN Game'),
-                      );
+                      await Share.share(pgn, subject: 'VCCN Game');
                     },
                     icon: const Icon(
                       Icons.ios_share,
@@ -2555,6 +2563,21 @@ class _HollowPauseIcon extends StatelessWidget {
   }
 }
 
+class _HollowPlayIcon extends StatelessWidget {
+  final double size;
+  final Color color;
+  const _HollowPlayIcon({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _PlayOutlinePainter(color: color)),
+    );
+  }
+}
+
 class _PlayOutlinePainter extends CustomPainter {
   final Color color;
   _PlayOutlinePainter({required this.color});
@@ -2581,6 +2604,21 @@ class _PlayOutlinePainter extends CustomPainter {
 //chunk 25: PieceSquarePicker + _ClockPanel/_ClockPanelState (clock face and glow animation)
 
 //Manual move picker (with icons of the pieces as first layer of selection)
+// New flow, per spec:
+//  - Squares no longer show algebraic text (a1, e4, ...) — only the
+//    file letters below and rank numbers to the right of the board, like as a real board.
+//  - a row of piece icons (for whichever roles the side to move
+//    actually has available) sits above the board. Tapping one highlights every square holding that piece/s or piece type whatever.
+//  - Tapping one of the highlighted squares selects it as "from":
+//    the square turns green and dots appear on its legal
+//    destinations. Every other piece's icon disappears and only the
+//    selected piece stays on the board while you choose where it
+//    goes.
+//  - Tapping a legal destination turns it orange and arms
+//    "Play move". Direct square taps (skipping the icon row) still work(hopefully) as a shortcut.
+//  - cancel / Play move buttons stay at the bottom regardless — the
+//    clock is paused for the whole time this sheet is open, and
+//    nothing plays until Play move is tapped.
 
 class PieceSquarePicker extends StatefulWidget {
   final Map<String, Set<String>> legalMoves;
@@ -3024,15 +3062,23 @@ class _ClockPanelState extends State<_ClockPanel>
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000)), //will be changing and iterating on this number to see which one looks best
-  
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    ); //will be changing and iterating on this number to see which one looks best
+
     _pulse = CurvedAnimation(
       parent: _pulseController,
       curve: const Interval(0.08, 1.0, curve: Curves.easeInOutSine),
       reverseCurve: const Interval(0.0, 0.92, curve: Curves.easeInOutSine),
     );
+
+    _pulseOuter = CurvedAnimation(
+      parent: _pulseController,
+      curve: const Interval(0.0, 0.8, curve: Curves.easeInOutSine),
+    );
+
     if (widget.isListening) _pulseController.repeat(reverse: true);
-  
   }
 
   @override
@@ -3045,7 +3091,7 @@ class _ClockPanelState extends State<_ClockPanel>
       _pulseController.reset();
     }
   }
- 
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -3063,8 +3109,7 @@ class _ClockPanelState extends State<_ClockPanel>
       label: widget.isListening
           ? "Listening for your move"
           : "${live ? 'Your' : 'Opponent'}'s clocl, ${widget.time} remaining "
-
-            "Press and hold to speak a move",
+                "Press and hold to speak a move",
       child: GestureDetector(
         onLongPressDown: (_) => widget.onHoldDown(),
         onLongPressStart: (_) => widget.onHoldStart(),
@@ -3073,175 +3118,229 @@ class _ClockPanelState extends State<_ClockPanel>
         child: AnimatedBuilder(
           animation: _pulseController,
           builder: (context, child) {
-          final t = widget.isListening ? 0.35 + (_pulse.value * 0.65) : 0.0;
+            final t = widget.isListening ? 0.35 + (_pulse.value * 0.65) : 0.0;
 
-          final tOuter = widget.isListening ? 0.35 + (_pulseOuter.value * 0.65) : 0.0;
-          
-          return AnimatedContainer(duration: const Duration(milliseconds: 220),
-            curve: Curves.easeInOut, width: double.infinity, decoration: BoxDecoration(
-              color: background,
-              borderRadius: BorderRadius.circular(kPanelRadius),
-              boxShadow: widget.isListening
-                  ? [
-                    BoxShadow(color: _glowColor.withValues(alpha: 0.6 + t * 0.4),
-                    
-                      blurRadius: 0,
-                      spreadRadius: 2.5+t*1.5,
-                    ),
-                  ]
-                : null,
+            final tOuter = widget.isListening
+                ? 0.35 + (_pulseOuter.value * 0.65)
+                : 0.0;
 
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: child,
-          );
-        },
-        child: Stack(
-          children:[Positioned(top:14, right:18, child: text("MOVES ${widget.moves}", style: TextStyle(
-            fontsize: 12, color: foreground, fontWeight: FontWeight.w800,
-            letterSpacing: 0.6,
-          ),
-        ),
-      ),
-      Positioned(
-        top: 14,
-        left: 18,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 400), //will adjust later if i dont like it, its kinda fuzzy in my mind rn
-          curve: Curves.easeInOut,
-          opacity: widget.isListening ? 1.0 : 0.0,
-          child: Row(children: [
-            Icon(Icons.mic, size:15, color: foreground),
-            const SizedBox(width:4),
-            Text("LISTENING",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: foreground,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
-                ),
-            ),
-        ],
-      ),
-    ),
-        ),
-        Positioned(
-          top: 44, left: 16, right: 16,
-          child: AnimatedSwitcher(
-            duration:const Duration(milliseconds: 300),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: widget.lastPlayedSan != null
-                ? GestureDetector(
-                    key: Valuekey('island-${widget.lastPlayedSan}'),
-                    onTap: widget.onUndo,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.min,
-                      mainAxisSize: MainAxisSize.center,
-                      children: [
-                        Text("PLayed ${widget.lastPlayedSan}",
-                        style: TextStyle(
-                          fontSize: 17,
-                          color: foreground,
-                          fontWeight: FontWeight.w700,
-                          ),
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeInOut,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: background,
+                borderRadius: BorderRadius.circular(kPanelRadius),
+                boxShadow: widget.isListening
+                    ? [
+                        BoxShadow(
+                          color: _glowColor.withValues(alpha: 0.6 + t * 0.4),
+                          blurRadius: 0,
+                          spreadRadius: 2.5 + t * 1.5,
                         ),
-                        const SizedBox(width: 8),
-                        Text("Undo", style: TextStyle(fontSize: 17, color: foreground, fontWeight: FontWeight.w800, decoration: TextDecoration.underline, decorationColor: foreground,),
-                        ), //added underline under undo text for now, maybe ill chnage it to a separate button later (if needed)
-                      ],
-                    ),
-                )
-                :widget.recognizedText.isNotEmpty
-                  ? Text(
-                      widget.recognizedText,
-                      key: ValueKey(widget.recognizedText),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                        BoxShadow(
+                          color: _glowColor.withValues(
+                            alpha: 0.3 + tOuter * 0.4,
+                          ),
+                          blurRadius: 0,
+                          spreadRadius: 6.0 + tOuter * 3.0,
+                        ),
+                      ]
+                    : null,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: child,
+            );
+          },
+          child: Stack(
+            children: [
+              Positioned(
+                top: 14,
+                right: 18,
+                child: Text(
+                  "MOVES ${widget.moves}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: foreground,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 14,
+                left: 18,
+                child: AnimatedOpacity(
+                  duration: const Duration(
+                    milliseconds: 400,
+                  ), //will adjust later if i dont like it, its kinda fuzzy in my mind rn
+                  curve: Curves.easeInOut,
+                  opacity: widget.isListening ? 1.0 : 0.0,
+                  child: Row(
+                    children: [
+                      Icon(Icons.mic, size: 15, color: foreground),
+                      const SizedBox(width: 4),
+                      Text(
+                        "LISTENING",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: foreground,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 44,
+                left: 16,
+                right: 16,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  child: widget.lastPlayedSan != null
+                      ? GestureDetector(
+                          key: ValueKey('island-${widget.lastPlayedSan}'),
+                          onTap: widget.onUndo,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Played ${widget.lastPlayedSan}",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: foreground,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Undo",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: foreground,
+                                  fontWeight: FontWeight.w800,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: foreground,
+                                ),
+                              ), //added underline under undo text for now, maybe ill chnage it to a separate button later (if needed)
+                            ],
+                          ),
+                        )
+                      : widget.recognizedText.isNotEmpty
+                      ? Text(
+                          widget.recognizedText,
+                          key: ValueKey(widget.recognizedText),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
                             fontSize: 17,
                             color: foreground,
-                            fontWeight: FontWeight.w700),
-                  )
-                  : const SizedBox.shrink(key: ValueKey('empty')),
-          ),
-        ),
-        Positioned(top: 76, left: 16, right: 16,
-          child: AnimatedSwitcher(duration: const Duration(milliseconds: 300),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: widget.errorText !=null
-                ? Text(
-                    widget.errorText!,
-                    key: ValueKey(widget.errorText),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 15, color: kDanger, fontWeight: FontWeight.w800),
-                )
-                : const SizedBox.shrink(key: ValueKey('error_empty')),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: GestureDetector(onTap: widget.onTimeTap, child: FittedBox(fit: BoxFit.scaleDown, child: Text(widget.time, style: TextStyle(
-                  color: foreground,
-                  fontSize: 100,
-                  height: 1,
-                  fontFamily: kClockFont,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -1,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-
+                            fontWeight: FontWeight.w700,
+                          ),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('empty')),
                 ),
               ),
-            )),
-          ),
-        ), //fuck this syntax
-        Positioned(bottom: 14, left: 0, right: 0,
-        child: AnimatedSlide(
-          duration: kTuneSlide,
-          curve: Curves.easeInOut,
-          offset: widget.showTune ? Offset.zero : const Offset(0, 0.55),
-
-          child: AnimatedOpacity(
-            duration: kTuneFade,
-            curve: Curves.easeOut,
-            opacity: widget.showTune ? 1.0: 0.0,
-            child: IgnorePointer(
-              ignoring: !widget.showTune,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints.tightFor(width: 38, height: 34),
-                    onPressed: widget.onTuneTap,
-                    icon: Icon(Icons.tune, size: 30, color: foreground),
-
-              ),
-              const SizedBox(height: 1),
-              Text(
-                widget.timeControl,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: foreground,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.4,
+              Positioned(
+                top: 76,
+                left: 16,
+                right: 16,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  child: widget.errorText != null
+                      ? Text(
+                          widget.errorText!,
+                          key: ValueKey(widget.errorText),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: kDanger,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        )
+                      : const SizedBox.shrink(key: ValueKey('error_empty')),
                 ),
+              ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: GestureDetector(
+                    onTap: widget.onTimeTap,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        widget.time,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: 100,
+                          height: 1,
+                          fontFamily: kClockFont,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
-                      ],
+                      ),
+                    ),
+                  ),
+                ),
+              ), //fuck this syntax
+              Positioned(
+                bottom: 14,
+                left: 0,
+                right: 0,
+                child: AnimatedSlide(
+                  duration: kTuneSlide,
+                  curve: Curves.easeInOut,
+                  offset: widget.showTune ? Offset.zero : const Offset(0, 0.55),
+
+                  child: AnimatedOpacity(
+                    duration: kTuneFade,
+                    curve: Curves.easeOut,
+                    opacity: widget.showTune ? 1.0 : 0.0,
+                    child: IgnorePointer(
+                      ignoring: !widget.showTune,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 38,
+                              height: 34,
+                            ),
+                            onPressed: widget.onTuneTap,
+                            icon: Icon(Icons.tune, size: 30, color: foreground),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            widget.timeControl,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: foreground,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
 
-//so glad atleast MVP is done, because dart syntax is fucking annoying
+//so glad atleast MVP is complete, because dart is fucking annoying sometimes.
+//now lets debug and write the final YAML file gng
