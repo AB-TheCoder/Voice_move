@@ -36,6 +36,7 @@ try:
     from scipy.io import wavfile
 except ModuleNotFoundError as error:  # pragma: no cover
     write = None  # type: ignore[assignment]
+    wavfile = None
     _SCIPY_IMPORT_ERROR = error
 else:
     _SCIPY_IMPORT_ERROR = None
@@ -149,13 +150,18 @@ class audio_record:
         except Exception as e:
             raise RuntimeError(f'the file could not be converted because: {e}')
  
-    def convert_t_array(self, audio_file: Optional[str] = None) -> numpy.array:
+    def convert_t_array(self, audio_file: Optional[str] = None) -> numpy.ndarray:
         try:
             if audio_file is None:
                 audio_file = self.audio_file
             if audio_file is None:
                 raise ValueError("No valid file provided")
- 
+            
+            if wavfile is None:
+                raise ModuleNotFoundError(
+                    "scipy is not installed; cannot read WAV files"
+                ) from _SCIPY_IMPORT_ERROR
+
             sample_rate, audio_data = wavfile.read(audio_file)
  
             self.file_sample_rate = sample_rate
@@ -164,8 +170,14 @@ class audio_record:
         except Exception as e:
             raise RuntimeError(f'the PLACYBACK function could not run because: {e}')
  
-    def Playback(self, audio_data: Optional[numpy.array] = None, sample_rate: Optional[int] = None, recorded: bool = False) -> None:
+    def Playback(self, audio_data: Optional[numpy.ndarray] = None, sample_rate: Optional[int] = None, recorded: bool = False) -> None:
         try:
+            # PYLANCE FIX: Check if sounddevice exists before calling sd.play()
+            if sd is None:
+                raise ModuleNotFoundError(
+                    "sounddevice is not installed; cannot play audio"
+                ) from _SOUNDDEVICE_IMPORT_ERROR
+
             if recorded is False:
                 if audio_data is None:
                     if hasattr(self, "file_audio_data"):
@@ -221,6 +233,10 @@ class nlp(audio_record):
  
     def model_initialize(self, model: str):
         try:
+            # PYLANCE FIX: Check if whisper exists before calling whisper.load_model()
+            if whisper is None:
+                raise ModuleNotFoundError("whisper is not installed; cannot load model")
+
             print(f"Loading Whisper model '{model}'... this may take some time")
             self.model = whisper.load_model(model)
             print("Model Loaded")

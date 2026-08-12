@@ -1,4 +1,5 @@
 //chunk 1: imports and design tokens
+import 'dart:ffi';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/gestures.dart';
@@ -2617,9 +2618,9 @@ String _roleGlyph(chess.Role role) {
     case chess.Role.knight:
       return '♘';
     case chess.Role.bishop:
-      return '♗'
+      return '♗';
     case chess.Role.rook:
-      return '♖'
+      return '♖';
     case chess.Role.queen:
       return '♕';
     case chess.Role.king:
@@ -2631,17 +2632,18 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
   chess.Role? _selectedRole;
   String? _fromSquare;
   String? _toSquare;
- 
-  Set<String> get _legalDestinations =>
-      _fromSquare == null ? const {} : (widget.legalMoves[_fromSquare] ?? const {});
- 
+
+  Set<String> get _legalDestinations => _fromSquare == null
+      ? const {}
+      : (widget.legalMoves[_fromSquare] ?? const {});
+
   bool get _hasAnyLegalMove => widget.legalMoves.isNotEmpty;
- 
+
   List<chess.Role> get _availableRoles {
     final present = widget.pieceRoles.values.toSet();
     return _roleOrder.where(present.contains).toList();
   }
- 
+
   void _tapRole(chess.Role role) {
     setState(() {
       _selectedRole = _selectedRole == role ? null : role;
@@ -2653,7 +2655,7 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
 
   void _tapSquare(String square) {
     final roleHere = widget.pieceRoles[square];
- 
+
     if (_fromSquare != null) {
       if (square == _fromSquare) {
         setState(() => _fromSquare = null);
@@ -2664,7 +2666,8 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
         HapticFeedback.selectionClick();
         return;
       }
-      if (roleHere != null && (_selectedRole == null || roleHere == _selectedRole)) {
+      if (roleHere != null &&
+          (_selectedRole == null || roleHere == _selectedRole)) {
         setState(() {
           _fromSquare = square;
           _toSquare = null;
@@ -2675,7 +2678,7 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
       HapticFeedback.lightImpact();
       return;
     }
- 
+
     if (roleHere == null) {
       HapticFeedback.lightImpact();
       return;
@@ -2707,20 +2710,22 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
         children: [
           Text(
             !_hasAnyLegalMove
-              ? "No legal moves available"
-              : (_fromSquare == null
-                  ? "${widget.whiteToMove ? 'White' : 'Black'} to move - pick a piece"
-                  : (_toSquare == null
-                      ? "Tap a highlighted square to move there"
-                      : "$_fromSquare to $_toSquare")),
+                ? "No legal moves available"
+                : (_fromSquare == null
+                      ? "${widget.whiteToMove ? 'White' : 'Black'} to move - pick a piece"
+                      : (_toSquare == null
+                            ? "Tap a highlighted square to move there"
+                            : "$_fromSquare to $_toSquare")),
 
             textAlign: TextAlign.center,
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700
-              ),
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
-            const SizedBox(height: 12),
-            if (_availableRoles.isNotEmpty)
+          ),
+          const SizedBox(height: 12),
+          if (_availableRoles.isNotEmpty)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: _availableRoles.map((role) {
@@ -2734,7 +2739,9 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: selected ? kPanelActive : const Color(0xFF3A3A38),
+                        color: selected
+                            ? kPanelActive
+                            : const Color(0xFF3A3A38),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       alignment: Alignment.center,
@@ -2769,40 +2776,45 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 8),
+                                  crossAxisCount: 8,
+                                ),
                             itemCount: 64,
                             itemBuilder: (context, index) {
-                              final file = String.fromCharCode(97 + (index % 8));
+                              final file = String.fromCharCode(
+                                97 + (index % 8),
+                              );
                               final rank = 8 - (index ~/ 8);
                               final square = '$file$rank';
                               final roleHere = widget.pieceRoles[square];
- 
+
                               final isFrom = square == _fromSquare;
                               final isTo = square == _toSquare;
                               final isLegalDest =
-                                  _fromSquare != null && _legalDestinations.contains(square);
-                              final isRoleHighlight = _fromSquare == null &&
+                                  _fromSquare != null &&
+                                  _legalDestinations.contains(square);
+                              final isRoleHighlight =
+                                  _fromSquare == null &&
                                   _selectedRole != null &&
                                   roleHere == _selectedRole;
                               final light = (index + index ~/ 8) % 2 == 0;
- 
+
                               final Color bg = isFrom
                                   ? kPanelActive
                                   : isTo
-                                      ? kTarget
-                                      : isRoleHighlight
-                                          ? kPanelActive.withValues(alpha: 0.32)
-                                          : (light
-                                              ? const Color(0xFF4A4A48)
-                                              : const Color(0xFF2E2E2C));
- 
+                                  ? kTarget
+                                  : isRoleHighlight
+                                  ? kPanelActive.withValues(alpha: 0.32)
+                                  : (light
+                                        ? const Color(0xFF4A4A48)
+                                        : const Color(0xFF2E2E2C));
+
                               final semanticLabel = roleHere != null
                                   ? "$square, ${roleHere.name}"
                                         "${isFrom ? ', selected' : ''}"
                                   : (isLegalDest
-                                      ? "$square, legal destination"
-                                      : square);
- 
+                                        ? "$square, legal destination"
+                                        : square);
+
                               return GestureDetector(
                                 onTap: () => _tapSquare(square),
                                 child: Semantics(
@@ -2814,48 +2826,55 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                                     child: Stack(
                                       alignment: Alignment.center,
                                       children: [
-                                      if (roleHere != null &&
-                                          (_fromSquare == null ||
-                                              square == _fromSquare))
-                                        Text(
-                                          _roleGlyph(roleHere),
-                                          style: TextStyle(
-                                            fontSize: cell * 0.62,
-                                            height: 1,
-                                            color: widget.whiteToMove
-                                                ? Colors.white
-                                                : const Color(0xFF1A1A18),
-                                            shadows: widget.whiteToMove
-                                                ? const [
-                                                    Shadow(
-                                                      color: Colors.black45,
-                                                      blurRadius: 2,
-                                                    ),
-                                                  ]
-                                                : null,
+                                        if (roleHere != null &&
+                                            (_fromSquare == null ||
+                                                square == _fromSquare))
+                                          Text(
+                                            _roleGlyph(roleHere),
+                                            style: TextStyle(
+                                              fontSize: cell * 0.62,
+                                              height: 1,
+                                              color: widget.whiteToMove
+                                                  ? Colors.white
+                                                  : const Color(0xFF1A1A18),
+                                              shadows: widget.whiteToMove
+                                                  ? const [
+                                                      Shadow(
+                                                        color: Colors.black45,
+                                                        blurRadius: 2,
+                                                      ),
+                                                    ]
+                                                  : null,
+                                            ),
                                           ),
-                                        ),
-                                      if (isLegalDest && !isTo)
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Padding(
-                                            padding: EdgeInsets.all(cell * 0.08),
-                                            child: Container(
-                                              width: cell * 0.24,
-                                              height: cell * 0.24,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: kTarget.withValues(alpha: 0.9),
-                                                border: Border.all(
-                                                    color: const Color(0xFF2E2E2C),
-                                                    width: 1),
+                                        if (isLegalDest && !isTo)
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: Padding(
+                                              padding: EdgeInsets.all(
+                                                cell * 0.08,
+                                              ),
+                                              child: Container(
+                                                width: cell * 0.24,
+                                                height: cell * 0.24,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: kTarget.withValues(
+                                                    alpha: 0.9,
+                                                  ),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFF2E2E2C,
+                                                    ),
+                                                    width: 1,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
                                 ),
                               );
                             },
@@ -2867,10 +2886,14 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                         child: Row(
                           children: List.generate(8, (i) {
                             return Expanded(
-                              child: Text(String.fromCharCode(97 + i),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      color: Colors.white38, fontSize: 11)),
+                              child: Text(
+                                String.fromCharCode(97 + i),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 11,
+                                ),
+                              ),
                             );
                           }),
                         ),
@@ -2885,9 +2908,13 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                           child: Container(
                             alignment: Alignment.center,
                             padding: const EdgeInsets.only(left: 4),
-                            child: Text((8 - i).toString(),
-                                style: const TextStyle(
-                                    color: Colors.white38, fontSize: 11)),
+                            child: Text(
+                              (8 - i).toString(),
+                              style: const TextStyle(
+                                color: Colors.white38,
+                                fontSize: 11,
+                              ),
+                            ),
                           ),
                         );
                       }),
@@ -2903,8 +2930,10 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
               Expanded(
                 child: TextButton(
                   onPressed: widget.onCancel,
-                  child: const Text("Cancel",
-                      style: TextStyle(color: Colors.white70)),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -2917,13 +2946,16 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                     disabledForegroundColor: Colors.white24,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: ready
                       ? () => widget.onSubmit(_fromSquare!, _toSquare!)
                       : null,
-                  child: const Text("Play move",
-                      style: TextStyle(fontWeight: FontWeight.w800)),
+                  child: const Text(
+                    "Play move",
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
                 ),
               ),
             ],
@@ -2933,3 +2965,94 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
     );
   }
 }
+
+//Clock Panel
+
+class _ClockPanel extends StatefulWidget {
+  final String time;
+  final int moves;
+  final String timeControl;
+  final bool isActive;
+  final bool isPausedGlobally;
+  final bool showTune;
+  final bool isListening;
+  final String recognizedText;
+  final String? errorText;
+  final VoidCallback onHoldDown;
+  final VoidCallback onHoldStart;
+  final VoidCallback onHoldEnd;
+  final VoidCallback onTuneTap;
+  final VoidCallback onTimeTap;
+  final VoidCallback onManualOverride;
+  final String? lastPlayedSan;
+  final VoidCallback onUndo;
+
+  const _ClockPanel({
+    required this.time,
+    required this.moves,
+    required this.timeControl,
+    required this.isActive,
+    required this.isPausedGlobally,
+    required this.showTune,
+    required this.isListening,
+    required this.recognizedText,
+    required this.errorText,
+    required this.onHoldDown,
+    required this.onHoldStart,
+    required this.onHoldEnd,
+    required this.onTuneTap,
+    required this.onTimeTap,
+    required this.onManualOverride,
+    required this.lastPlayedSan,
+    required this.onUndo,
+  });
+
+  //used claude to remember and paste all this (becuase im not a machine who can remember all ts along with school)
+
+  @override
+  State<_ClockPanel> createState() => _ClockPanelState();
+}
+
+class _ClockPanelState extends State<_ClockPanel>
+    with SingleTickerProviderStateMixin {
+  static const Color _glowColor = Color(0xFFFF9F0A);
+
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulse;
+  late final Animation<double> _pulseOuter;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 3000)), //will be changing and iterating on this number to see which one looks best
+  
+    _pulse = CurvedAnimation(
+      parent: _pulseController,
+      curve: const Interval(0.08, 1.0, curve: Curves.easeInOutSine),
+      reverseCurve: const Interval(0.0, 0.92, curve: Curves.easeInOutSine),
+    );
+    if (widget.isListening) _pulseController.repeat(reverse: true);
+  
+  }
+
+  @override
+  void didUpdateWidget(covariant _ClockPanel old) {
+    super.didUpdateWidget(old);
+    if (widget.isListening && !old.isListening) {
+      _pulseController.repeat(reverse: true);
+    } else if (!widget.isListening && old.isListening) {
+      _pulseController.stop();
+      _pulseController.reset();
+    }
+  }
+ 
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    
+  }
