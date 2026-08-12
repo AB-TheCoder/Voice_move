@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   dartchess: ^0.13.1
   speech_to_text: ^7.4.0
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:

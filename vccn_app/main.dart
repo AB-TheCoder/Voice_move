@@ -1,12 +1,10 @@
 //chunk 1: imports and design tokens
 import 'dart:math';
 import 'dart:async';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:dartchess/dartchess.dart' as chess;
-import 'dart:ui' show FontFeature;
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -883,7 +881,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
     for (final promo in roles) {
       final move = chess.NormalMove(from: from, to: to, promotion: promo);
       if (!_position.isLegal(move)) continue;
-      final (san, _) = _position.makeSanUnchecked(move);
+      final (_, san) = _position.makeSanUnchecked(move);
       candidates.add(_Candidate(move, san));
     }
 
@@ -2178,7 +2176,9 @@ class _PgnSheet extends StatelessWidget {
                   // to it rather than being replaced.
                   TextButton.icon(
                     onPressed: () async {
-                      await Share.share(pgn, subject: 'VCCN Game');
+                      await SharePlus.instance.share(
+                        ShareParams(text: pgn, subject: 'VCCN Game'),
+                      );
                     },
                     icon: const Icon(
                       Icons.ios_share,
@@ -2378,8 +2378,6 @@ class _ControlBar extends StatelessWidget {
   // parameter), not something cosmetic. Now declared and actually used: drives a small badge on the PGN icon showing the move count.
 
   final int moveCount;
-  final double height;
-  final double growth;
 
   const _ControlBar({
     required this.expanded,
@@ -2387,8 +2385,6 @@ class _ControlBar extends StatelessWidget {
     required this.manualPause,
     required this.soundState,
     required this.moveCount,
-    this.height = kBarHeight,
-    this.growth = 1.22,
   });
 
   static const double _slot = 60;
@@ -2398,11 +2394,11 @@ class _ControlBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height,
+      height: kBarHeight,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
-          final top = (height - _slot) / 2;
+          final top = (kBarHeight - _slot) / 2;
 
           final laidOut = expanded
               ? icons
@@ -2423,7 +2419,7 @@ class _ControlBar extends StatelessWidget {
               final bool isPauseKind = item.kind == _BarIconKind.playPause;
               final double base =
                   (isPauseKind ? _pauseBaseSize : _baseSize) * kIconsScale;
-              final double targetSize = expanded ? base : base * growth;
+              final double targetSize = expanded ? base : base * 1.22;
 
               return AnimatedPositioned(
                 duration: kBarMove,
@@ -3269,6 +3265,7 @@ class _ClockPanelState extends State<_ClockPanel>
                       : const SizedBox.shrink(key: ValueKey('error_empty')),
                 ),
               ),
+              Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: GestureDetector(
