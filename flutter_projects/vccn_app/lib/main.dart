@@ -1,4 +1,5 @@
 //chunk 1: imports and design tokens
+
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -53,7 +54,7 @@ class VccnApp extends StatelessWidget {
   }
 }
 
-// chunk 3: spokenmove: this is the parsed move data model:
+// chunk 3: spokenmove: this is the parsed move data model: (with chunk 4 also)
 
 class SpokenMove {
   final chess.Role? role;
@@ -95,125 +96,220 @@ String _sqName(int sq) {
 }
 
 //chunk 4: Move parser vocabulary maps((files, ranks, pieces, captures, SAN letters))
-//MOVE PARSER (this was ai generated coz i aint gonna write allat)
+//MOVE PARSER (this was ai generated coz i aint gonna write allat manually)
+//new update: revamped using GPT to be more rebust, after stress testing the app transcription more, still wanna keep it on-device, rather than using whispr, thus the extensive regex
 
 class MoveParser {
   static const Map<String, String> _fileWords = {
-    'alpha': 'a',
-    'alfa': 'a',
     'a': 'a',
     'ay': 'a',
+    'aye': 'a',
     'eh': 'a',
     'hey': 'a',
-    'bravo': 'b',
+    'ah': 'a',
     'b': 'b',
     'be': 'b',
     'bee': 'b',
     'bea': 'b',
-    'charlie': 'c',
-    'charley': 'c',
+    'bi': 'b',
     'c': 'c',
     'see': 'c',
     'sea': 'c',
+    'cee': 'c',
     'si': 'c',
-    'delta': 'd',
+    'sey': 'c',
     'd': 'd',
     'dee': 'd',
     'de': 'd',
+    'di': 'd',
     'the': 'd',
-    'echo': 'e',
     'e': 'e',
     'ee': 'e',
     'eee': 'e',
-    'foxtrot': 'f',
-    'fox': 'f',
+    'he': 'e',
     'f': 'f',
     'ef': 'f',
     'eff': 'f',
-    'golf': 'g',
+    'if': 'f',
+    'of': 'f',
+    'eph': 'f',
     'g': 'g',
     'gee': 'g',
     'jee': 'g',
     'ge': 'g',
-    'hotel': 'h',
+    'ji': 'g',
     'h': 'h',
     'aitch': 'h',
     'aich': 'h',
     'ache': 'h',
     'each': 'h',
+    'age': 'h',
+    'aitchh': 'h',
   };
 
   static const Map<String, String> _rankWords = {
     'one': '1',
     'won': '1',
     'wun': '1',
+    'wan': '1',
+    'wone': '1',
+    'own': '1',
+    'on': '1',
     '1': '1',
     'two': '2',
     'too': '2',
+    'to': '2',
     'tu': '2',
+    'twu': '2',
+    'tou': '2',
+    'doo': '2',
     '2': '2',
     'three': '3',
     'tree': '3',
-    'free': '3',
     'thee': '3',
+    'free': '3',
+    'thre': '3',
+    'thri': '3',
+    'tri': '3',
+    'tre': '3',
+    'threee': '3',
     '3': '3',
     'four': '4',
+    'for': '4',
     'fore': '4',
     'faux': '4',
+    'fo': '4',
+    'faw': '4',
+    'fawr': '4',
+    'fourr': '4',
     '4': '4',
     'five': '5',
     'fife': '5',
+    'fyve': '5',
+    'faiv': '5',
+    'fiv': '5',
+    'fivee': '5',
     '5': '5',
     'six': '6',
+    'siks': '6',
     'sicks': '6',
+    'sik': '6',
+    'sixx': '6',
     'sex': '6',
     '6': '6',
     'seven': '7',
     'sevin': '7',
+    'sevan': '7',
+    'sevn': '7',
+    'sevene': '7',
+    'sevenn': '7',
+    'heaven': '7',
+    'heven': '7',
     '7': '7',
     'eight': '8',
     'ate': '8',
     'ait': '8',
+    'aight': '8',
+    'eit': '8',
+    'eigt': '8',
+    'eighth': '8',
     'hate': '8',
     '8': '8',
   };
 
   static const Map<String, chess.Role> _pieceWords = {
+    'b': chess.Role.bishop,
     'knight': chess.Role.knight,
-    'night': chess.Role.knight,
-    'nite': chess.Role.knight,
     'knights': chess.Role.knight,
+    'night': chess.Role.knight,
+    'nights': chess.Role.knight,
+    'nite': chess.Role.knight,
+    'nites': chess.Role.knight,
+    'knite': chess.Role.knight,
+    'knites': chess.Role.knight,
+    'knightt': chess.Role.knight,
+    'nigt': chess.Role.knight,
+    'k night': chess.Role.knight,
+    'kay night': chess.Role.knight,
+    'n': chess.Role.knight,
     'bishop': chess.Role.bishop,
     'bishops': chess.Role.bishop,
     'bishup': chess.Role.bishop,
+    'biship': chess.Role.bishop,
+    'bishap': chess.Role.bishop,
+    'bishob': chess.Role.bishop,
+    'bisho': chess.Role.bishop,
+    'bish': chess.Role.bishop,
+    'bishopp': chess.Role.bishop,
+    'bishopps': chess.Role.bishop,
+    'bishep': chess.Role.bishop,
+    'bisshop': chess.Role.bishop,
     'rook': chess.Role.rook,
     'rooks': chess.Role.rook,
     'rock': chess.Role.rook,
-    'brook': chess.Role.rook,
+    'rocks': chess.Role.rook,
     'ruck': chess.Role.rook,
+    'ruk': chess.Role.rook,
+    'brook': chess.Role.rook,
+    'brooks': chess.Role.rook,
     'root': chess.Role.rook,
+    'roots': chess.Role.rook,
+    'rooc': chess.Role.rook,
+    'ruke': chess.Role.rook,
+    'r': chess.Role.rook,
+    'are': chess.Role.rook,
     'queen': chess.Role.queen,
     'queens': chess.Role.queen,
     'quinn': chess.Role.queen,
+    'quin': chess.Role.queen,
+    'qeen': chess.Role.queen,
+    'kween': chess.Role.queen,
+    'quean': chess.Role.queen,
+    'queene': chess.Role.queen,
+    'queue': chess.Role.queen,
+    'cue': chess.Role.queen,
+    'q': chess.Role.queen,
     'king': chess.Role.king,
     'kings': chess.Role.king,
+    'kin': chess.Role.king,
+    'keng': chess.Role.king,
+    'keeng': chess.Role.king,
+    'kingg': chess.Role.king,
+    'k': chess.Role.king,
+    'kay': chess.Role.king,
+    'okay': chess.Role.king,
+    'ok': chess.Role.king,
     'pawn': chess.Role.pawn,
     'pawns': chess.Role.pawn,
-    'porn': chess.Role.pawn,
+    'pown': chess.Role.pawn,
     'pon': chess.Role.pawn,
+    'pwan': chess.Role.pawn,
+    'paan': chess.Role.pawn,
+    'pan': chess.Role.pawn,
     'palm': chess.Role.pawn,
+    'porn': chess.Role.pawn,
+    'p': chess.Role.pawn,
+    'pee': chess.Role.pawn,
   };
 
   static const Set<String> _captureWords = {
     'takes',
     'take',
     'taking',
+    'taken',
     'captures',
     'capture',
+    'capturing',
+    'captured',
     'x',
     'ex',
+    'eks',
     'times',
-    'eats',
+    'gets',
+    'get',
+    'kills',
+    'kill',
+    'killing',
   };
 
   static const Map<String, chess.Role> _sanLetters = {
@@ -224,8 +320,109 @@ class MoveParser {
     'k': chess.Role.king,
   };
 
+  static const Set<String> _castleShortWords = {
+    'castle',
+    'castles',
+    'castling',
+    'casling',
+    'castel',
+    'castel e',
+    'short castle',
+    'short castling',
+    'king side castle',
+    'king side castling',
+    'kingside castle',
+    'kingside castling',
+    'o o',
+    'oh oh',
+    'oh-oh',
+    'zero zero',
+    'zero-zero',
+    '0 0',
+    '0-0',
+    '00',
+  };
+
+  static const Set<String> _castleLongWords = {
+    'castle queen side',
+    'castle queenside',
+    'castling queen side',
+    'castling queenside',
+    'queen side castle',
+    'queenside castle',
+    'long castle',
+    'long castling',
+    'big castle',
+    'big castling',
+    'o o o',
+    'oh oh oh',
+    'oh-oh-oh',
+    'zero zero zero',
+    'zero-zero-zero',
+    '0 0 0',
+    '0-0-0',
+    '000',
+  };
+
+  static const Set<String> _checkWords = {
+    'check',
+    'checks',
+    'checked',
+    'checking',
+  };
+
+  static const Set<String> _checkmateWords = {
+    'checkmate',
+    'check mate',
+    'check-mate',
+    'mate',
+    'mated',
+  };
+
+  static const Set<String> _ignoredWords = {
+    'and',
+    'then',
+    'move',
+    'moves',
+    'moving',
+    'play',
+    'plays',
+    'playing',
+    'make',
+    'makes',
+    'makeing',
+    'please',
+    'now',
+    'the',
+    'on',
+    'at',
+    'onto',
+    'square',
+    'squared',
+    'piece',
+    'man',
+    'manoeuvre',
+    'maneuver',
+  };
+
+  static const Set<String> _spokenFileEAliases = {
+    'eat',
+    'eet',
+    'eatt',
+    'e eight',
+  };
+
   static final RegExp _squareRe = RegExp(r'^([a-h])([1-8])$');
-  static final RegExp _sanRe = RegExp(r'^([nbrqk])x?([a-h])([1-8])$');
+  static final RegExp _sanRe = RegExp(
+    r'^([nbrqk]?)([a-h]?)([1-8]?)(x?)([a-h])([1-8])(?:=([qrbn]))?([+#]?)$',
+  );
+  static final RegExp _castleShortRe = RegExp(
+    r'^(?:o\s*[- ]?o|oh\s*[- ]?oh|zero\s*[- ]?zero|0\s*[- ]?0)$',
+  );
+  static final RegExp _castleLongRe = RegExp(
+    r'^(?:o\s*[- ]?o\s*[- ]?o|oh\s*[- ]?oh\s*[- ]?oh|zero\s*[- ]?zero\s*[- ]?zero|0\s*[- ]?0\s*[- ]?0)$',
+  );
+  static final RegExp _promotionRe = RegExp(r'^=?([qrbn])$');
 
   //chunk 5: move parser (.parse()) --- castling detection logic
 
@@ -234,44 +431,93 @@ class MoveParser {
 
     final text = raw
         .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+        .replaceAll('’', "'")
+        .replaceAll('–', '-')
+        .replaceAll('—', '-')
+        .replaceAll(RegExp(r'[^a-z0-9+#=\s-]'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
     if (text.isEmpty) return null;
 
-    //castling---
-    // Logic:
-    //   - "queenside"/"long"/"big" -> queenside castle
-    //   - "kingside"/"short" -> kingside castle
-    //   - bare "castle" with no side named -> BOTH flags set, so
-    //     _matchMoves returns both legal castling candidates and the
-    //     existing confirm-move UI lets the player pick, instead of silently guessing kingside
+    final collapsed = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final compactCastle = collapsed.replaceAll(' - ', '-');
 
-    final mentionsCastle = text.contains('castle') ||
-        text.contains('castles') ||
-        text.contains('casling');
-    final mentionsShort = text.contains('short');
-    final mentionsLong = text.contains('long') || text.contains('big');
+    if (_castleLongWords.contains(collapsed) ||
+        _castleLongRe.hasMatch(compactCastle)) {
+      return const SpokenMove(queensideCastle: true);
+    }
+    if (_castleShortWords.contains(collapsed) ||
+        _castleShortRe.hasMatch(compactCastle)) {
+      if (collapsed == 'castle' ||
+          collapsed == 'castles' ||
+          collapsed == 'castling' ||
+          collapsed == 'casling' ||
+          collapsed == 'castel') {
+        return const SpokenMove(kingsideCastle: true, queensideCastle: true);
+      }
+      return const SpokenMove(kingsideCastle: true);
+    }
 
-    if (mentionsCastle || mentionsShort || mentionsLong) {
-      final wantsQueenside =
-          (text.contains('queen') || mentionsLong) && !mentionsShort;
-      final wantsKingside =
-          (text.contains('king') || mentionsShort) && !wantsQueenside;
+    final hasCastleWord = collapsed.contains('castle') ||
+        collapsed.contains('castling') ||
+        collapsed.contains('casling') ||
+        collapsed.contains('castel');
+    final hasShortWord = collapsed.contains('short') ||
+        collapsed.contains('king side') ||
+        collapsed.contains('kingside');
+    final hasLongWord = collapsed.contains('long') ||
+        collapsed.contains('big') ||
+        collapsed.contains('queen side') ||
+        collapsed.contains('queenside');
 
-      if (wantsQueenside) {
+    if (hasCastleWord ||
+        (hasShortWord && collapsed.contains('castle')) ||
+        (hasLongWord && collapsed.contains('castle'))) {
+      if (hasLongWord && !hasShortWord) {
         return const SpokenMove(queensideCastle: true);
       }
-      if (wantsKingside) {
+      if (hasShortWord && !hasLongWord) {
         return const SpokenMove(kingsideCastle: true);
       }
-      if (mentionsCastle) {
-        return const SpokenMove(kingsideCastle: true, queensideCastle: true);
+      return const SpokenMove(kingsideCastle: true, queensideCastle: true);
+    }
+
+    final rawTokens = collapsed
+        .replaceAll('-', ' ')
+        .split(' ')
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    if (rawTokens.isEmpty) return null;
+
+    final tokens = <String>[];
+    for (final token in rawTokens) {
+      if (token == 'and') {
+        continue;
+      }
+      tokens.add(token);
+    }
+
+    if (tokens.length == 2 &&
+        _spokenFileEAliases.contains(tokens[0]) &&
+        _rankWords.containsKey(tokens[1])) {
+      final square = 'e${_rankWords[tokens[1]]!}';
+      return SpokenMove(to: _parseSq(square));
+    }
+
+    if (tokens.length == 3 &&
+        _spokenFileEAliases.contains(tokens[1]) &&
+        _rankWords.containsKey(tokens[2])) {
+      final prefixPiece = _pieceWords[tokens[0]];
+      if (prefixPiece != null) {
+        final square = 'e${_rankWords[tokens[2]]!}';
+        return SpokenMove(role: prefixPiece, to: _parseSq(square));
       }
     }
 
     //chunk 6: MoveParser.parse()- tokenizing, enpassant, symbol merge, role/dest extraction
     final symbols = <_Sym>[];
+
     // "en passant" doesn't name a square of its own — it's a spoken
     // qualifier on a normal pawn capture (e.g. "e5 takes d6 en
     // passant"). dartchess already generates the en passant capture
@@ -281,31 +527,136 @@ class MoveParser {
     // instead of "takes", and (b) strip the phrase before tokenizing
     // so "passant" and "en" don't get treated as unrecognized noise
     // tokens (harmless either way, but cleaner)
-    bool isCapture = text.contains('en passant') || text.contains('onpassant');
-    final cleanedText =
-        text.replaceAll('en passant', ' ').replaceAll('onpassant', ' ');
+    bool isCapture = collapsed.contains('en passant') ||
+        collapsed.contains('onpassant') ||
+        collapsed.contains('enpassant');
+    final cleanedText = collapsed
+        .replaceAll('en passant', ' ')
+        .replaceAll('onpassant', ' ')
+        .replaceAll('enpassant', ' ');
 
-    for (final token in cleanedText.split(' ')) {
+    final cleanedTokens = cleanedText
+        .replaceAll('-', ' ')
+        .split(' ')
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    final coordinatePairs = <String>[];
+    for (int i = 0; i < cleanedTokens.length; i++) {
+      final token = cleanedTokens[i];
+      if (_squareRe.hasMatch(token)) {
+        coordinatePairs.add(token);
+        continue;
+      }
+      final file = _fileWords[token];
+      if (file != null && i + 1 < cleanedTokens.length) {
+        final rank = _rankValueForContext(cleanedTokens[i + 1], true);
+        if (rank != null) {
+          coordinatePairs.add('$file$rank');
+          i++;
+          continue;
+        }
+      }
+    }
+
+    for (int i = 0; i < cleanedTokens.length; i++) {
+      final token = cleanedTokens[i];
       if (token.isEmpty) continue;
+
+      if (_ignoredWords.contains(token)) continue;
 
       if (_captureWords.contains(token)) {
         isCapture = true;
         continue;
       }
 
-      final sq = _squareRe.firstMatch(token);
-      if (sq != null) {
+      if (_checkmateWords.contains(token)) {
+        continue;
+      }
+
+      if (_checkWords.contains(token)) {
+        continue;
+      }
+
+      if (token == '#') {
+        continue;
+      }
+
+      if (token == '+') {
+        continue;
+      }
+
+      final promotionMatch = _promotionRe.firstMatch(token);
+      if (promotionMatch != null) {
+        final role = _sanLetters[promotionMatch.group(1)!];
+        if (role != null) {
+          symbols.add(_Sym.piece(role));
+          continue;
+        }
+      }
+
+      final san = _sanRe.firstMatch(token);
+      if (san != null && token.length >= 2) {
+        final roleText = san.group(1)!;
+        final disambFile = san.group(2)!;
+        final disambRank = san.group(3)!;
+        final captureText = san.group(4)!;
+        final destFile = san.group(5)!;
+        final destRank = san.group(6)!;
+        final promotionText = san.group(7);
+
+        if (roleText.isNotEmpty) {
+          symbols.add(_Sym.piece(_sanLetters[roleText]!));
+        }
+        if (disambFile.isNotEmpty) {
+          symbols.add(_Sym.file(disambFile));
+        }
+        if (disambRank.isNotEmpty) {
+          symbols.add(_Sym.rank(disambRank));
+        }
+        if (captureText.isNotEmpty) {
+          isCapture = true;
+        }
+        symbols.add(_Sym.square('$destFile$destRank'));
+        if (promotionText != null && promotionText.isNotEmpty) {
+          symbols.add(_Sym.piece(_sanLetters[promotionText]!));
+        }
+        continue;
+      }
+
+      final coordinate = _squareRe.firstMatch(token);
+      if (coordinate != null) {
         symbols.add(_Sym.square(token));
         continue;
       }
 
-      final san = _sanRe.firstMatch(token);
-      if (san != null) {
-        symbols.add(_Sym.piece(_sanLetters[san.group(1)!]!));
-        symbols.add(_Sym.square('${san.group(2)}${san.group(3)}'));
-        if (token.contains('x')) isCapture = true;
+      if (token == 'b') {
+        final next = i + 1 < cleanedTokens.length ? cleanedTokens[i + 1] : null;
+        final nextIsSquare = next != null && _squareRe.hasMatch(next);
+        final nextIsCapture = next != null && _captureWords.contains(next);
+        final nextIsCoordinate = i + 2 < cleanedTokens.length &&
+            _fileWords[cleanedTokens[i + 1]] != null &&
+            _rankWords.containsKey(cleanedTokens[i + 2]);
+        if (nextIsSquare || nextIsCapture || nextIsCoordinate) {
+          symbols.add(_Sym.piece(chess.Role.bishop));
+        } else {
+          symbols.add(_Sym.file('b'));
+        }
         continue;
       }
+
+      if (_spokenFileEAliases.contains(token)) {
+        if (i + 1 < cleanedTokens.length &&
+            _rankWords.containsKey(cleanedTokens[i + 1])) {
+          symbols.add(_Sym.file('e'));
+          symbols.add(_Sym.rank(_rankWords[cleanedTokens[i + 1]]!));
+          i++;
+        } else {
+          isCapture = true;
+        }
+        continue;
+      }
+
       final piece = _pieceWords[token];
       if (piece != null) {
         symbols.add(_Sym.piece(piece));
@@ -318,7 +669,7 @@ class MoveParser {
         continue;
       }
 
-      final rank = _rankWords[token];
+      final rank = _rankValueForContextFromTokens(cleanedTokens, i);
       if (rank != null) {
         symbols.add(_Sym.rank(rank));
         continue;
@@ -345,6 +696,14 @@ class MoveParser {
         break;
       }
     }
+
+    if (destIndex == -1 && coordinatePairs.isNotEmpty) {
+      final square = coordinatePairs.last;
+      final to = _parseSq(square);
+      if (to == null) return null;
+      return SpokenMove(to: to, isCapture: isCapture);
+    }
+
     if (destIndex == -1) return null;
 
     final to = _parseSq(merged[destIndex].text);
@@ -363,7 +722,7 @@ class MoveParser {
             role ??= s.role;
           case _SymKind.square:
             final origin = _parseSq(s.text);
-            if (origin != null) {
+            if (origin != null && origin != to) {
               fromFile = origin % 8;
               fromRank = origin ~/ 8;
             }
@@ -381,6 +740,14 @@ class MoveParser {
       promotion = null;
     }
 
+    if (role == null && fromFile != null && fromRank != null) {
+      final origin = fromRank * 8 + fromFile;
+      if (origin == to) {
+        fromFile = null;
+        fromRank = null;
+      }
+    }
+
     return SpokenMove(
       role: role,
       fromFile: fromFile,
@@ -390,9 +757,72 @@ class MoveParser {
       isCapture: isCapture,
     );
   }
+
+  static int? _rankValueForContext(String token, bool afterFile) {
+    if (!_rankWords.containsKey(token)) return null;
+    if (token == 'to' || token == 'too') {
+      return afterFile ? 2 : null;
+    }
+    if (token == 'for' || token == 'fore') {
+      return afterFile ? 4 : null;
+    }
+    return int.tryParse(_rankWords[token]!);
+  }
+
+  static String? _rankValueForContextFromTokens(
+    List<String> tokens,
+    int index,
+  ) {
+    final token = tokens[index];
+    if (!_rankWords.containsKey(token)) return null;
+
+    final previous = index > 0 ? tokens[index - 1] : null;
+    if ((token == 'to' ||
+            token == 'too' ||
+            token == 'for' ||
+            token == 'fore') &&
+        (previous == null || _fileWords[previous] == null)) {
+      return null;
+    }
+
+    if (previous != null && _fileWords[previous] != null) {
+      return _rankWords[token];
+    }
+
+    if (token == 'one' ||
+        token == 'won' ||
+        token == 'wun' ||
+        token == '1' ||
+        token == 'two' ||
+        token == 'three' ||
+        token == 'tree' ||
+        token == 'thee' ||
+        token == 'free' ||
+        token == '3' ||
+        token == 'five' ||
+        token == 'fife' ||
+        token == '5' ||
+        token == 'six' ||
+        token == 'sicks' ||
+        token == 'sex' ||
+        token == '6' ||
+        token == 'seven' ||
+        token == 'sevin' ||
+        token == '7' ||
+        token == 'eight' ||
+        token == 'ate' ||
+        token == 'ait' ||
+        token == '8' ||
+        token == 'four' ||
+        token == 'faux' ||
+        token == '4') {
+      return _rankWords[token];
+    }
+
+    return null;
+  }
 }
 
-//chunk 7: _SymKind enum and _Sym helper class
 enum _SymKind { square, file, rank, piece }
 
 class _Sym {
@@ -540,8 +970,11 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
             chess.Role.bishop,
             chess.Role.knight,
           ]) {
-            final candidate =
-                chess.NormalMove(from: entry.key, to: to, promotion: promo);
+            final candidate = chess.NormalMove(
+              from: entry.key,
+              to: to,
+              promotion: promo,
+            );
             if (!replay.isLegal(candidate)) continue;
             final (_, san) = replay.makeSanUnchecked(candidate);
             if (san == record.san) {
@@ -1301,23 +1734,23 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       builder: (sheetContext) {
         final data = _legalMoveData();
         return PieceSquarePicker(
-            legalMoves: data.legalMoves,
-            pieceRoles: data.pieceRoles,
-            whiteToMove: whiteToMove,
-            onSubmit: (fromSquare, toSquare) {
-              Navigator.pop(sheetContext);
-              _proposeFromSquares(fromSquare, toSquare);
-            },
-            onCancel: () {
-              Navigator.pop(sheetContext);
-              setState(() => isPaused = false);
-              if (_pauseStartedAt != null) {
-                //NEW FIXXY: close pause window on cancel
-                _pausedDuringMove +=
-                    DateTime.now().difference(_pauseStartedAt!);
-                _pauseStartedAt = null;
-              }
-            });
+          legalMoves: data.legalMoves,
+          pieceRoles: data.pieceRoles,
+          whiteToMove: whiteToMove,
+          onSubmit: (fromSquare, toSquare) {
+            Navigator.pop(sheetContext);
+            _proposeFromSquares(fromSquare, toSquare);
+          },
+          onCancel: () {
+            Navigator.pop(sheetContext);
+            setState(() => isPaused = false);
+            if (_pauseStartedAt != null) {
+              //NEW FIXXY: close pause window on cancel
+              _pausedDuringMove += DateTime.now().difference(_pauseStartedAt!);
+              _pauseStartedAt = null;
+            }
+          },
+        );
       },
     );
   }
@@ -1412,8 +1845,10 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       builder: (dialogContext) => AlertDialog(
         backgroundColor: kSheetBg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Clock is paused",
-            style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Clock is paused",
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
           "Resume to continue",
           style: TextStyle(color: Colors.white70),
@@ -1722,267 +2157,273 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final barExpanded = _manualPause || gameOver;
+    final barExpanded = _manualPause || gameOver || !_clockStarted; //NEW FIXXY
 
     return Scaffold(
-        backgroundColor: kAppBg,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(kPanelGap),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Transform.rotate(
-                        angle: pi,
-                        child: _ClockPanel(
-                          time: _format(blackTime),
-                          moves: blackMoves,
-                          timeControl: currentControl.label,
-                          isActive: !whiteToMove && _clockStarted, //new fixxy
-                          isPausedGlobally: _manualPause,
-                          showTune: barExpanded,
-                          isListening: _isListening && !whiteToMove,
-                          recognizedText: whiteToMove ? '' : _recognizedText,
-                          errorText: whiteToMove ? null : _lastMoveError,
-                          onHoldDown: () => _onHoldDown(false),
-                          onHoldStart: () => _onHoldStart(false),
-                          onHoldEnd: () => _onHoldEnd(false),
-                          onTuneTap: () => _showTimeEditDialog(
-                              true), //NEW FIXXY: edits white's own time now
-                          onManualOverride: _showManualMoveDialog,
-                          onTimeTap: () => _showTimeEditDialog(false),
-                          onPanelTap: () => _onPanelTap(false), //NEW FIXXY
-                          // Island only shows on the side that actually
-                          // moved — the other panel's copy stays null.
-                          lastPlayedSan: _lastPlayedByWhite == false
-                              ? _lastPlayedSan
-                              : null,
-                          onUndo: _undoLastMove,
-                        ),
-                      ),
-                    ),
-                    _ControlBar(
-                      expanded: barExpanded,
-                      manualPause: _manualPause,
-                      soundState: _soundState,
-                      moveCount: _moveHistory.length,
-                      icons: [
-                        _BarIcon(
-                          kind: _BarIconKind.refresh,
-                          onPressed: _confirmReset,
-                        ),
-                        _BarIcon(
-                          kind: _BarIconKind.playPause,
-                          onPressed: _togglePause,
-                        ),
-                        _BarIcon(
-                          kind: _BarIconKind.keyboard,
-                          onPressed: _showManualMoveDialog,
-                        ),
-                        _BarIcon(
-                          kind: _BarIconKind.timeControl,
-                          collapsible: true,
-                          onPressed: _showTimeControlSheet,
-                        ),
-                        _BarIcon(
-                          kind: _BarIconKind.sound,
-                          onPressed: _toggleSound,
-                        ),
-                        _BarIcon(
-                          kind: _BarIconKind.description,
-                          collapsible: true,
-                          onPressed: _showPgnSheet,
-                        ),
-                      ],
-                    ),
-                    Expanded(
+      backgroundColor: kAppBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(kPanelGap),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Transform.rotate(
+                      angle: pi,
                       child: _ClockPanel(
-                        time: _format(whiteTime),
-                        moves: whiteMoves,
+                        time: _format(blackTime),
+                        moves: blackMoves,
                         timeControl: currentControl.label,
-                        isActive: whiteToMove && _clockStarted, //new fixxy
+                        isActive: !whiteToMove && _clockStarted, //new fixxy
                         isPausedGlobally: _manualPause,
                         showTune: barExpanded,
-                        isListening: _isListening && whiteToMove,
-                        recognizedText: whiteToMove ? _recognizedText : '',
-                        errorText: whiteToMove ? _lastMoveError : null,
-                        onHoldDown: () => _onHoldDown(true),
-                        onHoldStart: () => _onHoldStart(true),
-                        onHoldEnd: () => _onHoldEnd(true),
-                        onTuneTap: () => _showTimeEditDialog(
-                            true), //new fixxy, didnt notice the typo before
+                        isListening: _isListening && !whiteToMove,
+                        recognizedText: whiteToMove ? '' : _recognizedText,
+                        errorText: whiteToMove ? null : _lastMoveError,
+                        onHoldDown: () => _onHoldDown(false),
+                        onHoldStart: () => _onHoldStart(false),
+                        onHoldEnd: () => _onHoldEnd(false),
+                        onTuneTap: !_manualPause
+                            ? null
+                            : () => _showTimeEditDialog(
+                                  false,
+                                ), //NEW FIXXY: only opens while paused
                         onManualOverride: _showManualMoveDialog,
-                        onTimeTap: () => _showTimeEditDialog(true),
-                        onPanelTap: () => _onPanelTap(true), //NEW FIXXY
+                        onTimeTap: () => _showTimeEditDialog(false),
+                        onPanelTap: () => _onPanelTap(false), //NEW FIXXY
+                        // Island only shows on the side that actually
+                        // moved — the other panel's copy stays null.
                         lastPlayedSan:
-                            _lastPlayedByWhite == true ? _lastPlayedSan : null,
+                            _lastPlayedByWhite == false ? _lastPlayedSan : null,
                         onUndo: _undoLastMove,
                       ),
                     ),
-                  ],
+                  ),
+                  _ControlBar(
+                    expanded: barExpanded,
+                    manualPause: _manualPause,
+                    soundState: _soundState,
+                    moveCount: _moveHistory.length,
+                    icons: [
+                      _BarIcon(
+                        kind: _BarIconKind.refresh,
+                        onPressed: _confirmReset,
+                      ),
+                      _BarIcon(
+                        kind: _BarIconKind.playPause,
+                        onPressed: _togglePause,
+                      ),
+                      _BarIcon(
+                        kind: _BarIconKind.keyboard,
+                        onPressed: _showManualMoveDialog,
+                      ),
+                      _BarIcon(
+                        kind: _BarIconKind.timeControl,
+                        collapsible: true,
+                        onPressed: _showTimeControlSheet,
+                      ),
+                      _BarIcon(
+                        kind: _BarIconKind.sound,
+                        onPressed: _toggleSound,
+                      ),
+                      _BarIcon(
+                        kind: _BarIconKind.description,
+                        collapsible: true,
+                        onPressed: _showPgnSheet,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: _ClockPanel(
+                      time: _format(whiteTime),
+                      moves: whiteMoves,
+                      timeControl: currentControl.label,
+                      isActive: whiteToMove && _clockStarted, //new fixxy
+                      isPausedGlobally: _manualPause,
+                      showTune: barExpanded,
+                      isListening: _isListening && whiteToMove,
+                      recognizedText: whiteToMove ? _recognizedText : '',
+                      errorText: whiteToMove ? _lastMoveError : null,
+                      onHoldDown: () => _onHoldDown(true),
+                      onHoldStart: () => _onHoldStart(true),
+                      onHoldEnd: () => _onHoldEnd(true),
+                      onTuneTap: !_manualPause
+                          ? null
+                          : () => _showTimeEditDialog(
+                                true,
+                              ), //NEW FIXXY: white panel edits white's time, only while paused
+                      onManualOverride: _showManualMoveDialog,
+                      onTimeTap: () => _showTimeEditDialog(true),
+                      onPanelTap: () => _onPanelTap(true), //NEW FIXXY
+                      lastPlayedSan:
+                          _lastPlayedByWhite == true ? _lastPlayedSan : null,
+                      onUndo: _undoLastMove,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            if (_awaitingConfirmation)
+              Container(
+                color: kAppBg.withValues(alpha: 0.94),
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _pendingCandidates.length > 1
+                            ? "Which move did you mean?"
+                            : "Confirm move",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (_recognizedText.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          '"$_recognizedText"',
+                          style: const TextStyle(
+                            color: Colors.white38,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 18),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _pendingCandidates
+                            .map(
+                              (c) => ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kPanelActive,
+                                  foregroundColor: kOnActive,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 26,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () => _confirmMove(c),
+                                child: Text(
+                                  c.san,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 14),
+                      TextButton(
+                        onPressed: _cancelPendingMove,
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              if (_awaitingConfirmation)
-                Container(
-                  color: kAppBg.withValues(alpha: 0.94),
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Center(
+            // NEW: "Move not detected" recovery overlay - shown whenever voice input fails to produce a legal move. Clock stays frozen (isPaused remains true) until the user picks one of the two actions below.
+            if (_recoveryMessage != null)
+              Container(
+                color: kAppBg.withValues(alpha: 0.94),
+                width: double.infinity,
+                height: double.infinity,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _pendingCandidates.length > 1
-                              ? "Which move did you mean?"
-                              : "Confirm move",
+                          _recoveryMessage!,
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
-                        if (_recognizedText.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            '"$_recognizedText"',
-                            style: const TextStyle(
-                              color: Colors.white38,
-                              fontSize: 14,
+                        const SizedBox(height: 22),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _RecoveryButton(
+                              icon: Icons.mic,
+                              label: "Try Again",
+                              filled: false,
+                              onPressed: _retryVoice,
                             ),
-                          ),
-                        ],
-                        const SizedBox(height: 18),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _pendingCandidates
-                              .map(
-                                (c) => ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: kPanelActive,
-                                    foregroundColor: kOnActive,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 26,
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  onPressed: () => _confirmMove(c),
-                                  child: Text(
-                                    c.san,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(height: 14),
-                        TextButton(
-                          onPressed: _cancelPendingMove,
-                          child: const Text(
-                            "Cancel",
-                            style: TextStyle(color: Colors.white70),
-                          ),
+                            const SizedBox(width: 12),
+                            _RecoveryButton(
+                              icon: Icons.keyboard,
+                              label: "Enter Manually",
+                              filled: true,
+                              onPressed: _switchToManual,
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
                 ),
-              // NEW: "Move not detected" recovery overlay - shown whenever voice input fails to produce a legal move. Clock stays frozen (isPaused remains true) until the user picks one of the two actions below.
-              if (_recoveryMessage != null)
-                Container(
-                  color: kAppBg.withValues(alpha: 0.94),
-                  width: double.infinity,
-                  height: double.infinity,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 32),
+              ),
+
+            if (gameOver)
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  //NEW FIXXY: fades aftr 3s
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeOut,
+                  opacity: _showGameOverBanner ? 1.0 : 0.0,
+                  child: Container(
+                    color: kAppBg.withValues(alpha: 0.88),
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            _recoveryMessage!,
-                            textAlign: TextAlign.center,
+                            winner != null ? "$winner wins" : "Draw",
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 24,
+                              fontSize: 34,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: 22),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _RecoveryButton(
-                                icon: Icons.mic,
-                                label: "Try Again",
-                                filled: false,
-                                onPressed: _retryVoice,
-                              ),
-                              const SizedBox(width: 12),
-                              _RecoveryButton(
-                                icon: Icons.keyboard,
-                                label: "Enter Manually",
-                                filled: true,
-                                onPressed: _switchToManual,
-                              ),
-                            ],
+                          const SizedBox(height: 8),
+                          Text(
+                            "by $_endReason",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 17,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-              if (gameOver)
-                IgnorePointer(
-                  child: AnimatedOpacity(
-                    //NEW FIXXY: fades aftr 3s
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeOut,
-                    opacity: _showGameOverBanner ? 1.0 : 0.0,
-                    child: Container(
-                      color: kAppBg.withValues(alpha: 0.88),
-                      width: double.infinity,
-                      height: double.infinity,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              winner != null ? "$winner wins" : "Draw",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 34,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "by $_endReason",
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ));
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -2348,7 +2789,7 @@ class _PgnSheetState extends State<_PgnSheet> {
     for (int i = 0; i < widget.moves.length; i += 2) {
       pairs.add((
         widget.moves[i],
-        i + 1 < widget.moves.length ? widget.moves[i + 1] : null
+        i + 1 < widget.moves.length ? widget.moves[i + 1] : null,
       ));
     }
 
@@ -2585,7 +3026,7 @@ class _ControlBar extends StatelessWidget {
 
   static const double _slot = 60;
   static const double _baseSize = 32;
-  static const double _pauseBaseSize = 34;
+  static const double _pauseBaseSize = 36;
 
   @override
   Widget build(BuildContext context) {
@@ -2722,7 +3163,7 @@ class _HollowPauseIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final barWidth = size * 0.16;
+    final barWidth = size * 0.17;
     final barHeight = size * 0.6;
     return SizedBox(
       width: size,
@@ -2968,8 +3409,9 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                       decoration: BoxDecoration(
                         color:
                             selected ? kPanelActive : const Color(0xFF3A3A38),
-                        borderRadius:
-                            BorderRadius.circular(14), // was 12 before
+                        borderRadius: BorderRadius.circular(
+                          14,
+                        ), // was 12 before
                       ),
                       alignment: Alignment.center,
                       child: Text(
@@ -2987,8 +3429,10 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
           const SizedBox(height: 14),
           LayoutBuilder(
             builder: (context, constraints) {
-              final boardSize = min(constraints.maxWidth - 22,
-                  380.0); //increased size, old was 300
+              final boardSize = min(
+                constraints.maxWidth - 22,
+                380.0,
+              ); //increased size, old was 300
               final cell = boardSize / 8;
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -3084,9 +3528,7 @@ class _PieceSquarePickerState extends State<PieceSquarePicker> {
                                                 alpha: 0.9,
                                               ),
                                               border: Border.all(
-                                                color: const Color(
-                                                  0xFF2E2E2C,
-                                                ),
+                                                color: const Color(0xFF2E2E2C),
                                                 width: 1,
                                               ),
                                             ),
@@ -3200,7 +3642,7 @@ class _ClockPanel extends StatefulWidget {
   final VoidCallback onHoldDown;
   final VoidCallback onHoldStart;
   final VoidCallback onHoldEnd;
-  final VoidCallback onTuneTap;
+  final VoidCallback? onTuneTap; //new fixxy: nullable
   final VoidCallback onTimeTap;
   final VoidCallback onManualOverride;
   final String? lastPlayedSan;
@@ -3248,7 +3690,8 @@ class _ClockPanelState extends State<_ClockPanel>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(
-          milliseconds: 2300), //NEW FIXXY: maybe this'll make it a bit smoother
+        milliseconds: 2300,
+      ), //NEW FIXXY: maybe this'll make it a bit smoother
     ); //will be changing and iterating on this number to see which one looks best
 
     _pulse = CurvedAnimation(
@@ -3469,7 +3912,7 @@ class _ClockPanelState extends State<_ClockPanel>
                           fontSize: 100,
                           height: 1,
                           fontFamily: kClockFont,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           letterSpacing: -1,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
@@ -3530,4 +3973,4 @@ class _ClockPanelState extends State<_ClockPanel>
 
 //so glad atleast MVP is complete, because dart is fucking annoying sometimes.
 //now lets debug and write the final YAML file gng - its done and working
-//now time to polish and fix bugs. Will also maybe add a landing page and import lichess engine (stockfish)
+//now time to polish and fix bugs. Will also maybe add a landing page and import lichess engine and analysis pages (ig chunks 25+) (stockfish)
