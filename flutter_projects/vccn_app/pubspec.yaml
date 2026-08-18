@@ -23,16 +23,15 @@ dependencies:
   # AirDrop, etc.) via SharePlus.instance.share(ShareParams(...)) —
   # confirmed against the real fluttercommunity/plus_plugins source,
   # not the older deprecated Share.share() static call.
-  share_plus: ^12.0.1
+  share_plus: ^13.3.0
   # Move generation/legality/SAN — the actual chess engine.
   # dartchess is pre-1.0 (API can shift between minor versions). Every
   # call site we use (Square.parse, File.fromName, Rank.fromName,
   # legalMoves, isLegal, makeSanUnchecked, isCheckmate, isStalemate,
   # isInsufficientMaterial, halfmoves) has been checked against the
-  # real lichess-org/dartchess source, but still run
   # `flutter pub outdated` and pin to whatever's actually current
   # rather than trust this number blindly.
-  dartchess: ^0.7.0
+  dartchess: ^0.13.1
   # REMOVED: record, path_provider — these were only needed for the
   # abandoned Whisper-tiny audio-capture pipeline (WAV recording to a
   # temp file). Not used anywhere in the current on-device
@@ -41,7 +40,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

@@ -54,7 +54,7 @@ class VccnApp extends StatelessWidget {
   }
 }
 
-// chunk 3: spokenmove: this is the parsed move data model: (with chunk 4 also)
+// chunk 3: spokenmove: this is the parsed move data model:
 
 class SpokenMove {
   final chess.Role? role;
@@ -777,6 +777,7 @@ class MoveParser {
     if (!_rankWords.containsKey(token)) return null;
 
     final previous = index > 0 ? tokens[index - 1] : null;
+
     if ((token == 'to' ||
             token == 'too' ||
             token == 'for' ||
@@ -1291,7 +1292,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
               setState(() {
                 gameOver = true;
                 winner = null;
-                _endReason = "Draw agreed";
+                _endReason = "Agreement";
               });
               _feedback(heavy: true);
               _armGameOverBanner(); //new fixxy
@@ -1389,7 +1390,11 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
       return;
     }
 
-    final piece = _position.board.pieceAt(from);
+    final chessSquareFrom = chess.Square.parse(_sqName(from));
+    final chessSquareTo = chess.Square.parse(_sqName(to));
+    if (chessSquareFrom == null || chessSquareTo == null) return;
+
+    final piece = _position.board.pieceAt(chessSquareFrom);
     final promotes =
         piece?.role == chess.Role.pawn && ((to ~/ 8) == 0 || (to ~/ 8) == 7);
 
@@ -1404,7 +1409,11 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
 
     final candidates = <_Candidate>[];
     for (final promo in roles) {
-      final move = chess.NormalMove(from: from, to: to, promotion: promo);
+      final move = chess.NormalMove(
+        from: chessSquareFrom,
+        to: chessSquareTo,
+        promotion: promo,
+      );
       if (!_position.isLegal(move)) continue;
       final (_, san) = _position.makeSanUnchecked(move);
       candidates.add(_Candidate(move, san));
@@ -1982,7 +1991,7 @@ class _ClockScreenState extends State<ClockScreen> with WidgetsBindingObserver {
                           tc.label,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         trailing: tc.label == currentControl.label
@@ -2909,7 +2918,7 @@ class _PgnSheetState extends State<_PgnSheet> {
                                     style: const TextStyle(
                                       color: Colors.white38,
                                       fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
@@ -2971,7 +2980,7 @@ class _MoveCell extends StatelessWidget {
           style: const TextStyle(
             color: kPanelActive,
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
             fontFeatures: [FontFeature.tabularFigures()],
           ),
         ),
