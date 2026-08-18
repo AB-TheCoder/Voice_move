@@ -4,13 +4,13 @@
 
 ### Introduction: 
 
-Chess is a very analytical and ever-learning game. Learning from one's mistakes is essential regarding our personal ethics, and the same values also applies when playing chess. An ambitious chess player always learns from their mistakes and keeps the cycle of growth going. To learn from one's mistakes in life, one needs to reflect upon the  mistakes, and similarly, in chess, one needs to look back. 
+Chess is a very analytical and ever-learning game. Learning from one's mistakes is essential regarding our personal ethics, and the same values also applies when playing chess. An ambitious chess player always learns from their mistakes and keeps the cycle of growth going. To learn from one's mistakes in life, one needs to reflect upon the mistakes, and similarly, in chess, one needs to look back. 
 
  
 
-### The Great Spark: 
+### The Spark: 
 
-When analysing a friendly chess game with my friend, W realised how it sucked to type all the moves on the platform and how irritating and inefficient it was. 
+When analysing a friendly chess game with my friend, We realised how it sucked to type all the moves on the platform and how irritating and inefficient it was. 
 
 **And that was that**
 
@@ -18,31 +18,21 @@ When analysing a friendly chess game with my friend, W realised how it sucked to
 
 ### The DREAM: 
 
-We realised we needed to put this way into the bin and come up with a new platform for a next-level learning experience and an extremely efficient and user-friendly platform. 
-
- 
-
+We realised we needed to put some thought and come up with a new next-level learning experience and an extremely efficient and user-friendly platform. 
  
 
  
 
 #### @ means that it is not yet final. 
 *******************************************************************************************************************************************************************
-### First Creation(what we dream it looks like and the functions it will have):
+### First Creation (what we dream it looks like and the functions it will have):
 *@research required*
  
  #### We will first create a prototype Android app which won't have all the components, but a few basic components, such as :
 
-* A sophisticated image-capturing interface and an interface to get an image by clicking one or uploading one
+* A chess clock which can listen and transcribe moves, then automatically convert it into a PGN, along with the timestamps of each move.
 
-* Image analysing AI, which will take a PNG image of the score sheet and figure out the notation.
-
-* A Chess engine that will analyse the game and provide outputs
-
-* a GUI to show the output
- 
-* An Android application for it
-    
+* The app will also have a save & analyze button, which will guide the user to a analysis button for the same game, and also (later ill add maybe) add to a cloud/local storage which the user can access to find databases of his games with specific opponents and just to learn from them.
 
 ### Working(Protoype): 
 @
@@ -58,11 +48,8 @@ The GUI is mainly a medium through which user interaction can happen, and the ge
 
 ### Work Division:
 
-Bachand Python coding, for the prototype - Aarav 
-
-GUI for an Android app, which will take the Python code as an api - Vihaan 
-
-
+Vihaan- backend and UI/UX of the flutter app
+Aarav- initial python regex script and now the website
 
 ### Team Rules and pacts for collaboration:  
 
