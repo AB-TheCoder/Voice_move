@@ -1,116 +1,194 @@
 # Chess Analysis
 
- 
+## Introduction
 
-### Introduction: 
+Chess is an analytical and ever-learning game. Learning from one's mistakes is essential in life, and the same idea applies to chess. An ambitious chess player learns from their mistakes, reflects on them, and keeps improving.
 
-Chess is a very analytical and ever-learning game. Learning from one's mistakes is essential regarding our personal ethics, and the same values also applies when playing chess. An ambitious chess player always learns from their mistakes and keeps the cycle of growth going. To learn from one's mistakes in life, one needs to reflect upon the mistakes, and similarly, in chess, one needs to look back. 
+This project started with a simple idea: make that learning process easier.
 
- 
+## The Spark
 
-### The Spark: 
+While analysing a friendly chess game with a friend, we realised how annoying it was to manually type every move into a platform just to analyse the game later. It was slow, repetitive, and honestly just inefficient.
 
-When analysing a friendly chess game with my friend, We realised how it sucked to type all the moves on the platform and how irritating and inefficient it was. 
+**And that was that.**
 
-**And that was that**
+## The Dream
 
- 
+We wanted to build something that made recording and analysing a chess game much more natural.
 
-### The DREAM: 
+The idea grew into a platform that could:
 
-We realised we needed to put some thought and come up with a new next-level learning experience and an extremely efficient and user-friendly platform. 
- 
+- Record a chess game using a chess clock.
+- Listen to spoken moves and convert them into chess notation.
+- Automatically generate a PGN of the game.
+- Record the time taken for every move.
+- Let players review the game afterwards.
+- Analyse the game using a chess engine.
+- Shows inaccuracies, mistakes, blunders, great moves, best moves, book moves, accuracy, and other useful insights.
+- Let players explore positions and engine variations instead of simply looking at a final score.
+- Eventually (maybe later to add) provide a place where players can store their games and return to them for learning.
 
- 
+The goal is not just to analyse a game, but to make **learning from the game easier (atleast OTB)**.
 
-#### @ means that it is not yet final. 
-*******************************************************************************************************************************************************************
-### First Creation (what we dream it looks like and the functions it will have):
-*@research required*
- 
- #### We will first create a prototype Android app which won't have all the components, but a few basic components, such as :
+---
 
-* A chess clock which can listen and transcribe moves, then automatically convert it into a PGN, along with the timestamps of each move.
+## First Creation
 
-* The app will also have a save & analyze button, which will guide the user to a analysis button for the same game, and also (later ill add maybe) add to a cloud/local storage which the user can access to find databases of his games with specific opponents and just to learn from them.
+The first version is a Flutter-based mobile application built around a chess clock and voice-controlled move entry.
 
-### Working(Protoype): 
-@
-So there are mainly 2 major components: the GUI (graphical user interface) and the main computational algorithm.
-The GUI is mainly a medium through which user interaction can happen, and the generated output can be shown.The algorithm is the main code that  performs all the actions
+The prototype currently focuses on the core experience:
 
-#### Algorithm:
-**@research required**
+- A fully functional chess clock.
+- Press-and-hold voice input for moves.
+- Automatic transcription and chess-move interpretation.
+- Manual move entry as a backup
+- Automatic PGN generation.
+- Clock time and move-time information stored with the PGN.
+- Game history and move navigation.
+- A post-game **Save & Analyze** workflow.
+- An interactive analysis board using Stockfish.
+- Engine evaluations and multiple principal variations.
+- Move classifications such as book, best, great, good, inaccuracy, mistake, and blunder.
+- Full-game computer analysis with accuracy and other statistics.
+- Interactive analysis where positions and engine variations can be explored.
 
-#### Gui:
-**@research required**
- 
+Inspired by lichess and chess.com
 
-### Work Division:
+The current implementation is still being refined, and ive some planned features are marked with `@` where further research or development is required.
 
-Vihaan- backend and UI/UX of the flutter app
-Aarav- initial python regex script and now the website
+---
 
-### Team Rules and pacts for collaboration:  
+## Working
 
-Any disputes between the producers greatly affect the product; so, for this enterprise not to be jeopardised by any disputes between the creators, certain team rules and pacts must be followed. 
+There are two major parts to the project:
 
-************************************************************************* 
+### 1. GUI 
+It handles:
 
-### Team Rules and pacts for collaboration:  
+- The chess clock.
+- Voice-input interaction.
+- Manual move entry.
+- The chess board.
+- Move history.
+- PGN viewing and sharing.
+- The analysis board.
+- Engine lines and evaluations.
+- Analysis reports and navigation.
 
-Any disputes between the producers greatly affect the product; so, for this enterprise not to be jeopardised by any disputes between the creators, certain team rules and pacts must be followed. 
+The interface is being designed specifically for mobile use, with the aim of keeping the experience simple while still providing the depth expected from modern chess analysis platforms.
 
-* The project will be a collective enterprise 
+### 2. Main Computational System
 
-* Any decision will be taken collectively 
+The computational side of the project performs the actual work behind the interface.
 
-* Money matters will also be equal or, in certain cases, under the agreement of both 
+This includes:
 
-* Never edit someone else’s code without telling them  
+- Speech recognition.
+- Spoken chess-move interpretation.
+- Legal-move validation.
+- SAN/PGN generation.
+- Position tracking.
+- Move-time calculation.
+- Stockfish-based analysis.
+- Move classification.
+- Accuracy and game statistics.
+- Engine variation generation.
+- Analysis of different positions and variations.
 
-* Pull the latest code before starting work  
+---
 
-* Test before pushing  
+## Current Status
 
-* Write clear commit messages (not “fixed stuff”) 
+The application is currently being developed using Flutter and Dart (latest versions btw.
 
-* The work will be divided to prevent chaos. 
+The project uses:
 
-* All things must be discussed 
+- **Flutter** for the mobile application.
+- **Dart** for the application logic.
+- **dartchess** for chess positions, legal moves, SAN and game-state handling.
+- **Stockfish** for chess analysis.
+- **chessground** for the interactive analysis board.
+- **speech_to_text** for cross-platform speech recognition.
+- **Apple SpeechAnalyzer / SpeechTranscriber** for the newer iOS speech pipeline on supported devices.
+- **SharePlus** for PGN sharing.
 
-* Task must be completed within the time limit 
+The aim is to keep the main chess logic independent of the platform wherever possible, while using platform-specific capabilities where they provide a meaningful advantage.
 
-* To prevent chaos and conflicts, there must be one owner of a project on GitHub; he can only change the main file, others can request or change the file at their end only. But this owner can only exercise his powers upon discussion and agreement. 
+---
 
-* The project must matter rather than one's personal ego; the rules must be followed  
+## Work Division
 
+**Vihaan Vasudeva** — Flutter backend and UI/UX of the mobile application
 
-### THE Great Race against the Great “TIME”:  
+**Aarav Bhatt** — Initial Python regex script and website development
 
-This project is being created with a challenging time goal of a basic completion of the platform within 2months. Day and night will be sacrificed for the doing of so. 
+The division may evolve as the project grows, but both creators contribute to the overall direction and development of the project.
+especially vihaan coz it seems like hes doing all the fucking work
 
- 
-## Important Questions and Possible Problems: 
+---
 
-* High cost for server maintenance  
+# The Great Race Against Time
 
-* Inaccurate detection from the scoresheet 
-* costs for creating
+The initial goal is to complete the basic version of the platform within **two months** in total.
 
-* High time investment in design and UI 
+It is an ambitious target, but the purpose of the deadline is to force us to focus on building the core product first rather than getting stuck trying to perfect everything immediately. We can make it perfect later!
 
-* GPT model will need to be PRO subscription to handle such a high number of image requests 
-* requirements of servers 
+The project will continue to improve after the initial two-month milestone.
 
-* Gemini Model can only analyse images uploaded on the internet.
+---
 
- 
+## Important Questions and Possible Problems
 
-Credits:  
+There are still several challenges that need to be solved or researched:
 
-This project will be the outcome of the hard work, dreams and aspirations of both its creators- Vihaan Vasudeva and Aarav Bhatt 
- 
+- Speech recognition can sometimes misinterpret chess moves.
+- Regex can only be added up to a point, native language models(like people not using English and all) often classify stuff as different
+- Different accents, speaking speeds, background noise, and microphones can affect recognition.
+- Supporting different speech-recognition systems across platforms adds complexity.
+- Stockfish analysis can be computationally demanding on mobile devices.
+- Full-game analysis may require careful optimisation to keep the application responsive.
+- Server costs may become an issue if cloud storage or cloud-based services are introduced later.
+- Designing a good mobile chess-analysis interface requires considerable time and testing.
+- Local storage and/or cloud storage will need to be designed if a larger personal game library is added.
+- Opening databases and book-move detection need further research if we want comprehensive opening information.
+- The project needs extensive testing with real games and different users before the system can be considered reliable.
+- The two-month deadline creates a significant time constraint while both creators continue their other commitments.
 
- 
-@ means that it is not final  
+These problems are not necessarily reasons to stop the project; they are areas we need to solve as development continues.
+
+---
+
+## Future Direction
+
+The long-term idea is larger than a chess clock.
+
+We want to build a system where recording a game, analysing it, understanding what went wrong, and learning from it all happen in one place.
+
+Possible future additions include:
+
+- Local or cloud-based game libraries.
+- Games grouped by opponent.
+- Searchable game history.
+- Opening Explorer.
+- More advanced training from mistakes.
+- Personal performance trends over multiple games.
+- Better time-management analysis using the recorded move times.
+- Improved speech recognition and chess-language interpretation.
+- More advanced sharing and analysis reports.
+- Support for analysing imported games as well as games played using the clock.
+
+Basically a all in one platform for improvement and development of one's OTB chess skill and tracking of mistakes and patterns.
+
+---
+
+## Credits
+
+This project is the result of the work, ideas, and aspirations of both its creators:
+
+**Vihaan Vasudeva and Aarav Bhatt**
+
+**The app being completely on device for now ill be preferred, we may add more advanced features later which might require cloud and internet services to work, I have a few ideas, regarding software and potential hardware extensions of this project and also for academies (and also individuals). Ill list them down here later in detail**
+
+---
+
+`@` means that a section is still being developed, researched, or finalised.
