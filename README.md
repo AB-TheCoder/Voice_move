@@ -187,7 +187,7 @@ This project is the result of the work, ideas, and aspirations of both its creat
 
 **Vihaan Vasudeva and Aarav Bhatt**
 
-**The app being completely on device for now ill be preferred, we may add more advanced features later which might require cloud and internet services to work, I have a few ideas, regarding software and potential hardware extensions of this project and also for academies (and also individuals). Ill list them down here later in detail**
+**@The app being completely on device for now ill be preferred, we may add more advanced features later which might require cloud and internet services to work, I have a few ideas, regarding software and potential hardware extensions of this project and also for academies (and also individuals). Ill list them down here later in detail**
 
 ---
 
