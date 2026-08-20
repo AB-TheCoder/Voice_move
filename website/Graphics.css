@@ -910,19 +910,6 @@ body {
 }
 
 
-
-.contact-phone,
-.contact-email {
-  /* contact lines */
- 
-}
-
-.site-footer__brand {
-  /* closing brand line */
-
-
-}
-
 /* Decorative chess marks for titles and branding */
 .brand__name,
 .Main_content h2,
@@ -946,7 +933,6 @@ body {
 .section--features .Mhead::before,
 .section--roadmap .roadmap-main-text .roadmap-title::before,
 .section--footer .contact-info h2::before {
-  content: "\265E";
   display: inline-grid;
   place-items: center;
   width: 1.55rem;

@@ -1,0 +1,1 @@
+i have used ai (mainly codex and cursor) accross my files for certian debugging and small functions. i have mostly done the basic codes my self and then have asked ai to furnish and improve upon it.
