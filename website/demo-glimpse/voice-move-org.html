@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+    <title> Glimpse</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VoiceMove chess clock demo — record moves as you play.">
+        <script src="program.js" defer></script>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <h1 class="brand__name">Voice<span class="brand__name-accent">Move</span></h1>
+            <p class="brand__tagline">Record · Analyze · Improve</p>
+        </div>
+        <nav class="site-nav" aria-label="Primary">
+            <a href="index.html">Back to Home</a>
+        </nav>
+        <link rel="stylesheet" href="voice-move.css">
+
+
+    </header>
+    <main class="clock-main">
+        <div class="brand">
+        <h2 class="clock-label">Live Demo</h2>
+        <h3 class="clock-label2">Chess-clock</h3>
+    </div>
+        <section class="clock-board" aria-label="Chess clocks">
+
+            <button id="clock-top" class="clock-side" type="button">
+                <span id="clock-top-label" class="clock-side__label">Tap to begin</span>
+                <span id="clock-top-time" class="clock-side__time">05:00</span>
+            </button>
+            <section class="button-controls">
+                <button class="button-controls time-controls" type="button">
+                    <span class="time-controls_label"> Time-Controls </span>
+                </button> <!-- needsbuildup -->
+                <!-- a possible new screen with all the time controls and the asethetic scroll menu -->
+                <button class="button-controls pause" type="button">
+                    <span class="pause_label">Pause</span>
+                </button >
+                <button class='button-controls reset'>
+                    <span class="reset_label">Reset</span> 
+                    <!-- temporary,will replace with icons  -->
+                </button>
+                <button class="button-controls manual-Move" type="button">
+                    <span class="manual-move_label">Manual-Move</span>
+                </button>
+                    <!-- an aesthetic vihaan type small board can be configured tp enter moves  -->
+            <!-- maybe i can add icons later on  -->
+                <button class="button-controls Move-log ">
+                    <span class="move-log_label">Move-log</span>
+                </button>
+            
+            </section>
+            <button id="clock-bottom" class="clock-side" type="button">
+                <span id="clock-bottom-label" class="clock-side__label">Tap to begin</span>
+                <span id="clock-bottom-time" class="clock-side__time">05:00</span>
+            </button>
+        
+
+        </section>
+
+        
+
+    </main>
+</body>
+
+</html>

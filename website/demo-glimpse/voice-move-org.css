@@ -1,0 +1,169 @@
+/* design for VoiceMove demo page  */
+/* authors-@AaravBhatt */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+/* Basics */
+:root {
+  /* Typography */
+  --font-family: "inter", sans-serif;
+
+  /* Background */
+  --bg-secondary: rgba(3, 10, 18, 1);
+  --bg-primary: rgba(7, 17, 28, 1);
+
+  /* Text */
+  --txt-primary: rgba(245, 245, 245, 1);
+  --txt-secondary: rgba(185, 193, 203, 1);
+  --txt-muted: rgba(120, 143, 157, 1);
+
+  /* Contrast */
+  --gold: rgba(212, 175, 55, 1);
+  --gold-bright: rgba(240, 194, 75, 1);
+  --gold-dark: rgba(160, 120, 20, 1);
+
+  /* Accents */
+  --blue: rgba(110, 150, 255, 1);
+  --teal: rgba(60, 210, 190, 1);
+  --purple: rgba(180, 100, 255, 1);
+}
+
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+  }
+
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    line-height: 1.65;
+    font-family: var(--font-family);
+    color: var(--txt-primary);
+    background-color: var(--bg-primary);
+  }
+  /* basic defaults from the Homepage.just copied them  */
+
+.header{
+    /* the main header bar  */
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem clamp(1.25rem, 4vw, 2rem);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid gray;
+    border-image: linear-gradient(
+      90deg,
+      transparent,
+      grey,
+      transparent
+    ) 1;
+
+}
+.brand {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline; /* lines up name + tagline on the text baseline */
+    gap: 0.75rem;          /* space between them */
+    flex-shrink: 0;
+  }
+  
+  .brand__name,
+  .brand__tagline {
+    margin: 0; /* remove default h1/p margins that push them apart */
+  }
+  
+  .brand__name {
+    /* h1 / product name */
+    color: var(--txt-primary);
+  }
+  
+  .brand__name-accent {
+    color: var(--gold);
+  }
+  
+  .brand__tagline {
+    /* Record · Analyze · Improve */
+    color: var(--gold);
+  }
+
+  .site-nav {
+    /* primary navigation links */
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 0.65rem 1.1rem;
+    
+  }
+  
+  .site-nav a {
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--txt-primary);
+    white-space: nowrap;
+  }
+  
+  .site-nav a:hover {
+    color: var(--gold-bright);
+    text-decoration: underline;
+  }
+  
+
+.clock-main {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 3rem clamp(1.25rem, 4vw, 2rem) 3rem;
+    text-align: center;
+  }
+
+  .clock-main .brand{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 50px;
+
+  }
+.clock-main .clock-label{
+    color: var(--gold);
+    margin: 5px;
+    line-height: 1;
+
+}
+.clock-main .clock-label2{
+    margin: 5px;
+    line-height: 1;
+}
+.clock-main .clock-board{
+    display: flex;
+    flex-direction: column;
+    gap:0.7rem;
+    margin: auto;
+
+}
+.clock-side{
+  display:flex;
+  flex-direction: column;
+  align-items: start;
+  padding: 1.5rem 1.6rem;
+  border-radius: 18px;
+  border: 1px solid var(--gold-bright) ;
+  background: var(--bg-secondary);
+  color: var(--txt-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.05s ease;
+}
+
+
+
+
