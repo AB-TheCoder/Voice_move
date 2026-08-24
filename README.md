@@ -119,17 +119,8 @@ flutter build macos --debug
 open build/macos/Build/Products/Debug/vccn_app.app
 ```
 
-Note: features relying on the microphone (voice_recog) require a usage description key in `macos/Runner/Info.plist` and the audio-input entitlement to be enabled in the Runner entitlements files, or the permission prompt will not appear and speech recognition will silently fail.
+Note: features relying on the microphone (voice_recog) require a usage description key in `macos/Runner/Info.plist` and the audio-input entitlement to be enabled in the Runner entitlements files, or the permission prompt will not appear and speech recognition will fail.
 
-### Other Ways to Show the Reviewer the App Working:
-
-**Android APK release:** build a release APK (`flutter build apk --release`) and attach it to a GitHub Release. This is the most accessible option, since anyone with an Android phone can download and sideload it directly, no dev account or extra setup needed.
-
-**Screen recording:** record a short video of the app running on the simulator, emulator, or a real device, showing the core flow end to end. Upload it as a GitHub Release asset or to the free CDN, and link it as the demo. This works regardless of platform and needs no installation from the reviewer at all.
-
-**TestFlight (iOS):** if a paid Apple Developer account is available, a public TestFlight link lets a reviewer install and use the actual iOS build on their own device. More setup and cost than the other options, so only worth it if the account already exists.
-
-**Web build:** if the app doesn't rely too heavily on native-only plugins, `flutter build web` compiles it into a live site that opens directly in a browser, no install needed by the reviewer at all.
 
 ### Work Division:
 
