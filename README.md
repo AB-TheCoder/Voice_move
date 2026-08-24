@@ -1,6 +1,5 @@
 # Chess Analysis
 
-PS: Check the Vihaan's branch for the main app, it's under flutter_projects, vccn_app folder. The main file is named main.dart
  
 ### Introduction: 
 
@@ -62,6 +61,43 @@ voice_recog:
 #### Gui:
 **@research required**
  
+
+### Setting Up Flutter and Dart (for anyone demoing the app, including the reviewer):
+
+Before running the app for the first time, Flutter (which includes Dart) needs to be installed. Steps:
+
+**1. Download the Flutter SDK:**
+
+Go to https://docs.flutter.dev/get-started/install and pick your OS (Windows, macOS, or Linux). This downloads the SDK, which includes the Dart SDK as well — no separate Dart install is needed.
+
+**2. Add Flutter to your PATH:**
+
+macOS/Linux example (after extracting the SDK to a folder, e.g. `~/development/flutter`):
+```
+export PATH="$PATH:$HOME/development/flutter/bin"
+```
+Add that line to your `~/.zshrc` or `~/.bashrc` so it persists across terminal sessions.
+
+Windows: add the full path to the `flutter\bin` folder to your System Environment Variables under "Path".
+
+**3. Verify the install:**
+```
+flutter doctor
+```
+This checks your setup and tells you if anything else is missing (like Android Studio, Xcode, or a connected device/emulator).
+
+**4. Clone the repo and get dependencies:**
+```
+git clone <the repo URL>
+cd flutter_projects/vccn_app
+flutter pub get
+```
+
+**5. Run the app:**
+```
+flutter run
+```
+This will prompt you to pick a connected device, emulator, or simulator if more than one is available. See the "Running and Demoing the macOS Build" section below for the macOS-specific run/build commands, or the Android APK release for a version that doesn't require installing Flutter at all.
 
 ### Running and Demoing the macOS Build:
 
