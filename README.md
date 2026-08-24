@@ -62,6 +62,43 @@ voice_recog:
 **@research required**
  
 
+### Running and Demoing the macOS Build:
+
+For local testing and for showing the reviewer the app actually working, the Flutter prototype can be run as a native desktop app on macOS instead of only on Android or iOS. Steps:
+
+**1. Enable macOS as a build target (one-time setup):**
+```
+flutter config --enable-macos-desktop
+```
+
+**2. Add macOS platform files if they don't already exist:**
+```
+flutter create --platforms=macos .
+```
+
+**3. Run the app directly:**
+```
+flutter run -d macos
+```
+
+**4. Or build it once and open the compiled app bundle directly, without going through flutter run each time:**
+```
+flutter build macos --debug
+open build/macos/Build/Products/Debug/vccn_app.app
+```
+
+Note: features relying on the microphone (voice_recog) require a usage description key in `macos/Runner/Info.plist` and the audio-input entitlement to be enabled in the Runner entitlements files, or the permission prompt will not appear and speech recognition will silently fail.
+
+### Other Ways to Show the Reviewer the App Working:
+
+**Android APK release:** build a release APK (`flutter build apk --release`) and attach it to a GitHub Release. This is the most accessible option, since anyone with an Android phone can download and sideload it directly, no dev account or extra setup needed.
+
+**Screen recording:** record a short video of the app running on the simulator, emulator, or a real device, showing the core flow end to end. Upload it as a GitHub Release asset or to the free CDN, and link it as the demo. This works regardless of platform and needs no installation from the reviewer at all.
+
+**TestFlight (iOS):** if a paid Apple Developer account is available, a public TestFlight link lets a reviewer install and use the actual iOS build on their own device. More setup and cost than the other options, so only worth it if the account already exists.
+
+**Web build:** if the app doesn't rely too heavily on native-only plugins, `flutter build web` compiles it into a live site that opens directly in a browser, no install needed by the reviewer at all.
+
 ### Work Division:
 
 Bachand Python coding, for the prototype - Aarav 
@@ -86,13 +123,13 @@ Any disputes between the producers greatly affect the product; so, for this ente
 
 * Money matters will also be equal or, in certain cases, under the agreement of both 
 
-* Never edit someone else’s code without telling them  
+* Never edit someone else's code without telling them  
 
 * Pull the latest code before starting work  
 
 * Test before pushing  
 
-* Write clear commit messages (not “fixed stuff”) 
+* Write clear commit messages (not "fixed stuff") 
 
 * The work will be divided to prevent chaos. 
 
@@ -105,7 +142,7 @@ Any disputes between the producers greatly affect the product; so, for this ente
 * The project must matter rather than one's personal ego; the rules must be followed  
 
 
-### THE Great Race against the Great “TIME”:  
+### THE Great Race against the Great "TIME":  
 
 This project is being created with a challenging time goal of a basic completion of the platform within 2months. Day and night will be sacrificed for the doing of so. 
 
@@ -132,4 +169,4 @@ This project will be the outcome of the hard work, dreams and aspirations of bot
  
 
  
-@ means that it is not final  
+@ means that it is not final
