@@ -1,5 +1,6 @@
 # Chess Analysis
 
+PS: Check the Vihaan's branch for the main app, it's under flutter_projects, vccn_app folder. The main file is named main.dart
  
 ### Introduction: 
 
