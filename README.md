@@ -1,152 +1,129 @@
-<div align="center">
+# VoiceMove ♞
 
-# ♞ VoiceMove
+**Record · Analyze · Improve**
 
-### Record · Analyze · Improve
+A chess clock you can talk to. Press and hold your side of the clock, say your move, and it writes the game down for you. When the game's over you get a PGN you can import straight into Lichess or Chess.com.
 
-**Speak your chess moves instead of writing them down.**
-VoiceMove is a voice-controlled chess clock, scoresheet reader and game recorder for over-the-board players.
+We're two students building this. It's still a prototype, but the clock + voice part works.
 
-[**Live website**](https://ab-thecoder.github.io/Voice_move/) &nbsp;·&nbsp;
-[**Try the browser demo**](https://ab-thecoder.github.io/Voice_move/Voice_Move.html) &nbsp;·&nbsp;
-[**Run the app**](#3-run-the-flutter-app-vccn)
-
-![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?logo=dart&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
-![Whisper](https://img.shields.io/badge/OpenAI%20Whisper-412991?logo=openai&logoColor=white)
-![PaddleOCR](https://img.shields.io/badge/PaddleOCR-0062B0)
-![HTML/CSS/JS](https://img.shields.io/badge/HTML%20%7C%20CSS%20%7C%20JS-E34F26?logo=html5&logoColor=white)
-
-</div>
+- Website: https://ab-thecoder.github.io/Voice_move/
+- Try the clock in your browser: https://ab-thecoder.github.io/Voice_move/Voice_Move.html
 
 ![VoiceMove home page](screenshots/homepage.jpg)
 
----
+## The Great Spark
 
-## Table of contents
+Chess is a very analytical, ever-learning game. To get better you have to look back at your games and learn from your mistakes.
 
-- [The spark](#the-spark)
-- [What VoiceMove does](#what-voicemove-does)
-- [How it works](#how-it-works)
-- [Project status](#project-status)
-- [Try it yourself](#try-it-yourself)
-- [Project structure](#project-structure)
-- [Tech stack](#tech-stack)
-- [Challenges and open questions](#challenges-and-open-questions)
-- [Team](#team)
-- [AI usage](#ai-usage)
-- [Contact](#contact)
+While analysing a friendly game, we realised how much it sucked to type every move from the paper scoresheet into the analysis board. You write the moves down during the game, type them all again afterwards, and only then can you actually look at the game. It's slow and irritating.
 
----
+**And that was that.**
 
-## The spark
+## The Dream
 
-Chess is an analytical, ever-learning game. Just like in life, getting better at chess means looking back at your mistakes and learning from them, and for an over-the-board game that means reviewing it afterwards.
+Put that whole process in the bin. Instead:
 
-While analysing a friendly game together, we realised how annoying and inefficient it was to type every move from a paper scoresheet into an analysis board. Writing moves down during the game, digitising the sheet afterwards, then setting the whole game up again just to look at it: it all took far longer than it should.
+- say your move out loud when you hit your clock
+- or take a photo of your paper scoresheet
+- and get the game in digital form, ready to analyse
 
-**And that was that.** We decided to throw that workflow in the bin and build something better:
+## What's built so far
 
-- **Speak** your move while you press your clock, instead of writing it down.
-- **Photograph** an existing paper scoresheet and turn it into a digital game.
-- **Export** a clean PGN (with clock times) straight into Lichess, Chess.com or any analysis tool.
+### 1. The app (Flutter): `flutter_projects/vccn_app`
 
-## What VoiceMove does
+This is the main part. VCCN stands for Voice-Controlled Chess Notation. It's a two-player chess clock where you:
 
-VoiceMove has three parts that share the same idea.
+- tap your side to switch the clock, like a normal clock
+- **hold** your side and say your move ("knight f3", "e takes d5", "castles kingside")
 
-### 📱 The app: VCCN (Voice-Controlled Chess Notation), built in Flutter
+The app then turns what you said into a move and checks it's legal on the board (using `dartchess`). If what you said could mean two different moves, it asks which one you meant.
 
-A full-screen two-player chess clock that records the game as you play.
+Other stuff it does:
 
-| Feature | Details |
-|---|---|
-| **Press-and-hold voice moves** | Tap your clock to switch sides as normal. **Hold** it to speak your move ("knight f3", "e takes d5", "castles kingside"...). Speech is recognised on-device. |
-| **Spoken-move parser** | A custom `MoveParser` turns natural speech into chess moves, handling piece names, files, ranks, captures, castling, promotions and common mis-hearings. |
-| **Legal-move validation** | Every move is checked against the real board position with `dartchess`. If a phrase could mean more than one legal move, you choose the right one. |
-| **Undo and recovery** | A quick undo after each move, and a "Move not detected" screen that lets you retry or enter the move by hand. |
-| **Manual move picker** | Tap a piece icon to highlight those pieces, pick one, and tap a highlighted legal square to play it. |
-| **Time controls** | Presets from 1 min to 30 min, including increment modes (2\|1, 3\|2, 5\|3, 15\|10), plus pause and resume. |
-| **Automatic game end** | Detects checkmate, stalemate, insufficient material, the 50-move rule and threefold repetition. |
-| **PGN export** | Shares a PGN with headers, the time control and `[%clk]` clock times for every move, so it imports straight into Lichess or Chess.com. |
+- if it didn't catch your move you can retry, or pick it on a board by tapping the piece and then the square
+- undo for the last move
+- time controls from 1 min to 30 min, including increment ones (2|1, 3|2, 5|3, 15|10), plus pause
+- detects the end of the game: checkmate, stalemate, insufficient material, the 50-move rule and threefold repetition
+- share the game as a PGN with the clock time for every move
 
-### 🌐 The website (GitHub Pages)
+It uses the phone's own speech recognition (`speech_to_text` package). We tried running Whisper-tiny inside the app first, but the speed and accuracy weren't good enough, so we switched back.
 
-- **[Landing page](https://ab-thecoder.github.io/Voice_move/):** the story, features and roadmap of VoiceMove.
-- **[Glimpse demo](https://ab-thecoder.github.io/Voice_move/Voice_Move.html):** a working chess clock in the browser. Tap to switch, hold your clock to speak a move (Web Speech API), add moves on a mini board, upload a scoresheet photo (OCR hookup coming soon), and copy the game as PGN.
+### 2. The website: `docs/`
 
-### 🐍 The Python backend (research and prototypes)
+- The landing page in the screenshot above.
+- **Glimpse**, a browser version of the clock. Tap to switch, hold to say a move, add moves on a mini board, and copy the PGN. Voice uses the browser's speech recognition, so it works in Chrome, Edge and Safari but not Firefox. You can upload a scoresheet photo, but it doesn't read it yet.
 
-- **Voice pipeline** (`App/backend/current/Voice_MOve.py`): records audio → transcribes it with **OpenAI Whisper** → cleans the text into move candidates with regex post-processing → validates them with **python-chess** → builds and saves a `.pgn` file. If speech fails, you can type the move instead.
-- **Scoresheet OCR** (`App/backend/current/paddle2x.py`): enhances a photo of a handwritten or printed scoresheet with **OpenCV** (grayscale, upscaling, deskewing, contrast clean-up) and then reads the moves with **PaddleOCR**.
-- **Terminal chess clock** (`App/backend/current/clock.py`): a keyboard-driven clock with increment, pause/resume and flag detection.
+### 3. The Python prototypes: `App/backend/current/`
+
+This is where we worked out the hard parts before putting them in the app. These scripts run on their own and aren't connected to the app or website yet.
+
+- `Voice_MOve.py` records from your mic, transcribes it with OpenAI Whisper, cleans the text up into a move, checks it with `python-chess` and saves the game as a PGN. If it can't understand you, you type the move instead.
+- `paddle2x.py` reads a photo of a scoresheet. It cleans the image up with OpenCV first (grayscale, upscale, straighten, contrast) and then reads it with PaddleOCR. There are sample scoresheets in `App/Data/images/`.
+- `clock.py` is a basic chess clock in the terminal (space to switch, `p` to pause, `r` to resume, `Esc` to quit).
 
 ## How it works
 
 ```mermaid
-flowchart LR
-    A["🎙️ Hold clock<br/>and speak"] --> B["Speech-to-text<br/>(on-device / Whisper)"]
-    B --> C["Move parser<br/>words → SAN candidates"]
-    P["📷 Scoresheet photo"] --> Q["OpenCV<br/>image enhancement"]
-    Q --> R["PaddleOCR<br/>text recognition"]
+flowchart TD
+    A["Hold your clock and say the move"] --> B["Speech to text"]
+    P["Photo of a scoresheet"] --> Q["Clean up the image (OpenCV)"]
+    Q --> R["Read the text (PaddleOCR)"]
+    B --> C["Turn the words into possible moves"]
     R --> C
-    C --> D{"Legal on<br/>this board?"}
-    D -- "one match" --> E["✅ Move played<br/>clock switches"]
-    D -- "ambiguous" --> F["Pick the right move"] --> E
-    D -- "no match" --> G["Retry or<br/>enter manually"] --> E
-    E --> H["📄 PGN with clock times<br/>→ Lichess / Chess.com"]
+    C --> D{"Legal on the board?"}
+    D -- "yes, one move" --> E["Move played, clock switches"]
+    D -- "could be 2 moves" --> F["You pick the right one"] --> E
+    D -- "no" --> G["Retry or enter it by hand"] --> E
+    E --> H["PGN with clock times"]
 ```
 
-## Project status
+## Where we're at
 
 | Part | Status |
 |---|---|
-| Voice notation | ✅ Completed |
-| Scoresheet OCR | ✅ Completed (Python prototype) |
-| Chess clock | ✅ Completed |
-| Engine analysis | 🚧 In progress |
-| Connecting the app/website to the Python backend (FastAPI) | 🗺️ Planned |
-| Chess Academy System, so coaches can follow and review their students' games | 🔜 Coming soon |
+| Chess clock | Done |
+| Voice notation | Done (app and website) |
+| Scoresheet OCR | Works in the Python prototype, not in the app yet |
+| Engine analysis | In progress |
+| Connecting the app to the Python backend (FastAPI) | Planned |
+| A system for chess academies, so coaches can follow their students' games | The long-term idea |
 
-Our goal is to make every game more than just a game, and to turn it into an opportunity to learn.
+Things that aren't there yet:
 
-## Try it yourself
+- There's no APK yet, so for now you have to build the app yourself (steps below).
+- The website can't read scoresheets yet.
+- Handwritten scoresheets are the hardest part, and OCR only lives in the Python prototype for now.
+- Voice can still mishear a move sometimes. That's why there's the "which move did you mean" screen, retry and undo.
 
-### 1. Use the website (no install)
+## Running it
 
-Open the **[Glimpse demo](https://ab-thecoder.github.io/Voice_move/Voice_Move.html)**, tap a clock to start, then **press and hold** your clock and say a move.
+### Website
 
-> Voice input uses the browser's Web Speech API, so use **Chrome, Edge or Safari** (Firefox doesn't support it) and allow microphone access when asked.
-
-### 2. Run the website locally
+Just open the links at the top. To run it locally:
 
 ```bash
 git clone https://github.com/AB-TheCoder/Voice_move.git
 cd Voice_move/docs
 python -m http.server 8000
-# open http://localhost:8000
 ```
 
-### 3. Run the Flutter app (VCCN)
+Then go to http://localhost:8000.
 
-**Install Flutter (includes Dart).** This is a one-time setup for anyone demoing the app, including reviewers.
+### The app
 
-1. **Download the Flutter SDK** from <https://docs.flutter.dev/get-started/install> and choose your OS (Windows, macOS or Linux). The Dart SDK comes with it, so there's no separate Dart install.
-2. **Add Flutter to your PATH.**
-   - macOS/Linux (if you extracted it to `~/development/flutter`):
+You need Flutter installed first (Dart comes with it).
+
+1. Download the Flutter SDK from https://docs.flutter.dev/get-started/install for your OS.
+2. Add Flutter to your PATH.
+   - macOS/Linux, e.g. if you put it in `~/development/flutter`:
      ```bash
      export PATH="$PATH:$HOME/development/flutter/bin"
      ```
-     Add that line to `~/.zshrc` or `~/.bashrc` so it persists.
-   - Windows: add the full path of the `flutter\bin` folder to **System Environment Variables → Path**.
-3. **Check the install:**
-   ```bash
-   flutter doctor
-   ```
-   It tells you if anything else is missing, such as Android Studio, Xcode, or a connected device or emulator.
+     Put that line in your `~/.zshrc` or `~/.bashrc` so it stays.
+   - Windows: add the full path to the `flutter\bin` folder to your System Environment Variables under "Path".
+3. Run `flutter doctor`. It tells you if anything else is missing, like Android Studio, Xcode or a device/emulator.
 
-**Get the code and run it:**
+Then:
 
 ```bash
 git clone https://github.com/AB-TheCoder/Voice_move.git
@@ -155,158 +132,105 @@ flutter pub get
 flutter run
 ```
 
-`flutter run` asks you to pick a device if more than one is available (Android phone/emulator, iOS simulator, macOS, etc.).
+If more than one device is available, `flutter run` asks you which one to use.
 
 <details>
-<summary><b>Running and demoing the macOS desktop build</b></summary>
+<summary>Running it as a macOS desktop app</summary>
 
-For local testing, or to show a reviewer the app working, the Flutter prototype can run as a native macOS desktop app instead of only on Android or iOS.
+This is how we test it and demo it on a Mac without a phone.
 
-1. Enable macOS as a build target (one-time):
-   ```bash
-   flutter config --enable-macos-desktop
-   ```
-2. Add the macOS platform files if they don't already exist:
-   ```bash
-   flutter create --platforms=macos .
-   ```
-3. Run it directly:
-   ```bash
-   flutter run -d macos
-   ```
-4. Or build it once and open the compiled app, without going through `flutter run` each time:
-   ```bash
-   flutter build macos --debug
-   open build/macos/Build/Products/Debug/vccn_app.app
-   ```
+```bash
+flutter config --enable-macos-desktop    # one-time setup
+flutter create --platforms=macos .       # only if the macos folder is missing
+flutter run -d macos
+```
 
-> **Note:** voice input needs the microphone and speech-recognition usage descriptions in `macos/Runner/Info.plist` and the audio-input entitlement in the Runner entitlements files. Without them the permission prompt won't appear and speech recognition will fail. These are already set up in this repo.
+Or build it once and just open the app after that:
+
+```bash
+flutter build macos --debug
+open build/macos/Build/Products/Debug/vccn_app.app
+```
+
+The mic needs the usage descriptions in `macos/Runner/Info.plist` and the audio-input entitlement in the Runner entitlements files. Without them the permission popup never shows up and voice won't work. Both are already set up in this repo.
 
 </details>
 
-> **Tips for voice input:** speak clearly after the "listening" cue appears, and say moves the way you'd read them in notation, e.g. *"bishop c4"*, *"queen takes h7"*, *"e8 queen"* (promotion), *"castles queenside"*.
+Tip: say moves the way you'd read them in notation, like "bishop c4", "queen takes h7", "e8 queen" or "castles queenside".
 
-### 4. Run the Python backend prototypes
+### The Python prototypes
 
-You'll need Python 3.11 or 3.12 (the ML libraries lag behind the newest Python versions) and [FFmpeg](https://ffmpeg.org/download.html) on your PATH (Whisper needs it).
+Use Python 3.11 or 3.12, because the ML libraries don't support the newest Python yet. You also need [FFmpeg](https://ffmpeg.org/download.html) on your PATH for Whisper.
 
 ```bash
-cd Voice_move
 python -m venv .venv
 # Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
-
 pip install openai-whisper python-chess sounddevice scipy numpy pynput
 pip install opencv-python paddlepaddle "paddleocr==2.7.3"
 ```
 
-**Voice move logger.** Press Enter, say a move, and repeat. Type `stop` to save the game as `game.pgn`:
+Voice move logger (press Enter, say a move, repeat, then type `stop` to save `game.pgn`):
 
 ```bash
 python App/backend/current/Voice_MOve.py
 ```
 
-**Scoresheet OCR.** Sample scoresheet photos are in `App/Data/images/`. Set the image path at the bottom of `paddle2x.py` to one of them (for example `App/Data/images/ti5.jpeg`), then run:
+Scoresheet OCR: change the image path at the bottom of `paddle2x.py` to one of the samples (e.g. `App/Data/images/ti5.jpeg`), then:
 
 ```bash
 python App/backend/current/paddle2x.py
 ```
 
-## Project structure
+## Folder structure
 
 ```
-Voice_move/
-├── docs/                         # Website (served with GitHub Pages)
-│   ├── index.html                #   Landing page
-│   ├── Voice_Move.html           #   "Glimpse" in-browser clock + voice demo
-│   ├── Voice_Move.js             #   Clock, voice parsing, mini board, PGN logic
-│   ├── Graphics.css, Voice_Move.css
-│   └── media/                    #   Site images
-├── flutter_projects/
-│   └── vccn_app/                 # Flutter app: voice-controlled chess clock
-│       ├── lib/main.dart         #   UI, move parser, clock, PGN export
-│       └── pubspec.yaml          #   speech_to_text, dartchess, share_plus
-├── App/
-│   ├── backend/
-│   │   ├── current/              # Active Python backend
-│   │   │   ├── Voice_MOve.py     #   Whisper → validated moves → PGN
-│   │   │   ├── paddle2x.py       #   Scoresheet OCR (OpenCV + PaddleOCR)
-│   │   │   ├── clock.py          #   Terminal chess clock
-│   │   │   └── Acoustic-chessscoresheet.py  # earlier version of the voice pipeline
-│   │   └── olderversion/         # Earlier OCR and API experiments
-│   ├── Data/                     # Sample scoresheet images and test audio clips
-│   └── Read_me-APP.md            # Plan for the Android app + backend API
-├── Voice-Move Python/            # Early experiments
-└── screenshots/                  # Images used in this README
+docs/                        website (GitHub Pages)
+flutter_projects/vccn_app/   the Flutter app (lib/main.dart is most of it)
+App/backend/current/         Python voice, OCR and clock prototypes
+App/backend/olderversion/    older OCR and API experiments
+App/Data/                    sample scoresheet photos and test audio
+App/Read_me-APP.md           our plan for the Android app
+Voice-Move Python/           early experiments
+screenshots/                 images for this README
 ```
 
-## Tech stack
+## Who made it
 
-| Area | Tools |
-|---|---|
-| Mobile/desktop app | Flutter, Dart, `speech_to_text`, `dartchess`, `share_plus` |
-| Website | HTML, CSS, vanilla JavaScript, Web Speech API, GitHub Pages |
-| Voice recognition (backend) | OpenAI Whisper, `sounddevice`, SciPy, NumPy |
-| Scoresheet OCR | PaddleOCR, OpenCV |
-| Chess logic | `python-chess`, `dartchess` |
+This project is the result of the hard work, dreams and aspirations of both its creators:
 
-## Challenges and open questions
+- **Aarav Bhatt** ([@AB-TheCoder](https://github.com/AB-TheCoder)): Python backend and prototypes
+- **Vihaan Vasudeva**: the app's GUI
 
-Things we ran into, or are still working out:
-
-- **Reading handwriting is hard.** Scoresheets are messy, so OCR results need image enhancement first and chess-legality checks afterwards to be reliable.
-- **Speech is ambiguous.** "Bee" vs "B", "night" vs "knight", "for" vs "4"... The parser maps these, and the board decides which interpretation is actually legal.
-- **On-device vs cloud speech.** We tried Whisper-tiny inside the app but went back to on-device speech recognition because of the latency and accuracy trade-offs.
-- **Server costs.** Running OCR and Whisper on a server for many users isn't free, and paid AI APIs (GPT/Gemini) get expensive at a high number of image requests.
-- **Time.** A lot of time goes into design and UI polish.
-
-## Team
-
-VoiceMove is the result of the hard work, dreams and aspirations of both its creators:
-
-| | Role |
-|---|---|
-| **Aarav Bhatt** ([@AB-TheCoder](https://github.com/AB-TheCoder)) | Backend and Python code for the prototype |
-| **Vihaan Vasudeva** | GUI for the app, which uses the Python code as an API |
-
-We set ourselves a challenging goal: a basic version of the whole platform within two months. Day and night were sacrificed to get there.
+We set ourselves a goal of getting a basic version of the whole platform done in 2 months. Day and night were sacrificed for it.
 
 <details>
-<summary><b>Our team rules and pacts for collaboration</b></summary>
+<summary>Our team rules</summary>
 
-Disputes between the creators affect the product, so to keep this project from being jeopardised, we follow these rules:
+Any disputes between us would hurt the project, so we agreed on these:
 
 - The project is a collective enterprise.
-- Every decision is taken collectively, and everything is discussed.
-- Money matters are split equally or, in certain cases, by agreement of both.
+- Every decision is taken together, and everything gets discussed.
+- Money matters are split equally, or in some cases however we both agree.
 - Never edit someone else's code without telling them.
 - Pull the latest code before starting work.
 - Test before pushing.
 - Write clear commit messages (not "fixed stuff").
 - Work is divided to prevent chaos.
-- Tasks must be completed within the time limit.
-- There is one owner of the project on GitHub, who alone changes the main branch; others request changes or work on their own branch. The owner only uses this power after discussion and agreement.
-- The project matters more than anyone's ego. The rules must be followed.
+- Tasks get finished within the time limit.
+- One person owns the project on GitHub and is the only one who changes main. The other works on their own branch and requests changes. The owner only uses this power after we've discussed and agreed.
+- The project matters more than anyone's ego.
 
 </details>
 
-## AI usage
+## AI use
 
-To be transparent:
+Being honest about where we used AI:
 
-- The Flutter app's UI design (colours, layout and animations) was designed and iterated with help from Claude.
-- An early FastAPI stub (`App/backend/olderversion/Api.py`) was generated by Gemini.
-- The Android development plan in `App/Read_me-APP.md` was drafted with AI help.
-- This README was written with help from Claude.
+- The app's UI (colours, layout, animations) was designed and iterated with help from Claude.
+- The old FastAPI stub (`App/backend/olderversion/Api.py`) was generated by Gemini.
+- The Android plan in `App/Read_me-APP.md` was made with AI help.
+- This README was written with Claude's help, based on our old README and our code.
 
 ## Contact
 
-Have questions, feedback or suggestions? We'd love to hear from you.
-
-- 📧 [bhattaarav2011@gmail.com](mailto:bhattaarav2011@gmail.com)
-- 🌐 [ab-thecoder.github.io/Voice_move](https://ab-thecoder.github.io/Voice_move/)
-
-<div align="center">
-
-**Built for players who want to excel.** ♟️
-
-</div>
+Questions, feedback or ideas: bhattaarav2011@gmail.com
